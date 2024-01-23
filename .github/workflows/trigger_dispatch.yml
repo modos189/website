@@ -97,7 +97,7 @@ jobs:
           image: registry.gitlab.com/fdroid/docker-executable-fdroidserver:master
           options: -v ${{ github.workspace }}/website/static/fdroid/:/repo
           run: |
-            fdroid update
+            update
 
       - name: Save changes
         run: |
