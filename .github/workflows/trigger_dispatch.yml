@@ -94,7 +94,7 @@ jobs:
         if: ${{ env.BUILD_TYPE != 'PR' }}
         uses: addnab/docker-run-action@v3
         with:
-          image: 9lukas5/fdroidserver:latest
+          image: registry.gitlab.com/fdroid/docker-executable-fdroidserver:master
           options: -v ${{ github.workspace }}/website/static/fdroid/:/repo
           run: |
             fdroid update
