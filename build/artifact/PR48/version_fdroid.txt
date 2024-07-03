@@ -1,0 +1,2 @@
+versionName=0.38.0-test-2024.07.03-12:11
+versionCode=1720008662
