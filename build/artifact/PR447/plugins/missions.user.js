@@ -2,7 +2,7 @@
 // @author         jonatkins
 // @name           IITC plugin: Missions
 // @category       Info
-// @version        0.3.0.20231016.122701
+// @version        0.3.2.20240228.214533
 // @description    View missions. Marking progress on waypoints/missions basis. Showing mission paths on the map.
 // @id             missions
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -22,9 +22,23 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'test';
-plugin_info.dateTimeVersion = '2023-10-16-122701';
+plugin_info.dateTimeVersion = '2024-02-28-214533';
 plugin_info.pluginId = 'missions';
 //END PLUGIN AUTHORS NOTE
+
+/* global IITC -- eslint */
+/* exported setup, changelog --eslint */
+
+var changelog = [
+  {
+    version: '0.3.2',
+    changes: ['IITC.toolbox API is used to create plugin buttons'],
+  },
+  {
+    version: '0.3.1',
+    changes: ['Version upgrade due to a change in the wrapper: added plugin icon'],
+  },
+];
 
 var MissionOrder = {
   Sequential: 1,
@@ -1347,7 +1361,10 @@ window.plugin.missions = {
 }\
 \
 ').appendTo('head');
-    $('#toolbox').append('<a tabindex="0" onclick="plugin.missions.openTopMissions();">Missions in view</a>');
+    IITC.toolbox.addButton({
+      label: 'Missions in view',
+      action: () => window.plugin.missions.openTopMissions(),
+    });
 
 		if (window.useAppPanes()) {
       this.mobilePane = document.createElement('div');

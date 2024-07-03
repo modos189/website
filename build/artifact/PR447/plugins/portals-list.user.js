@@ -2,7 +2,7 @@
 // @author         teo96
 // @name           IITC plugin: Portals list
 // @category       Info
-// @version        0.4.2.20231016.122701
+// @version        0.4.3.20240228.214533
 // @description    Display a sortable list of all visible portals with full details about the team, resonators, links, etc.
 // @id             portals-list
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -22,9 +22,19 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'test';
-plugin_info.dateTimeVersion = '2023-10-16-122701';
+plugin_info.dateTimeVersion = '2024-02-28-214533';
 plugin_info.pluginId = 'portals-list';
 //END PLUGIN AUTHORS NOTE
+
+/* global IITC, plugin -- eslint */
+/* exported setup, changelog --eslint */
+
+var changelog = [
+  {
+    version: '0.4.3',
+    changes: ['Moved "portalApGainMaths" function from core to portalList plugin', 'IITC.toolbox API is used to create plugin buttons'],
+  },
+];
 
 // use own namespace for plugin
 window.plugin.portalslist = function() {};
@@ -139,7 +149,7 @@ window.plugin.portalslist.fields = [
     value: function(portal) {
       var links = window.getPortalLinks(portal.options.guid);
       var fields = getPortalFieldsCount(portal.options.guid);
-      return portalApGainMaths(portal.options.data.resCount, links.in.length+links.out.length, fields);
+      return plugin.portalslist.portalApGainMaths(portal.options.data.resCount, links.in.length + links.out.length, fields);
     },
     sortValue: function(value, portal) { return value.enemyAp; },
     format: function(cell, portal, value) {
@@ -481,7 +491,12 @@ var setup =  function() {
     app.addPane("plugin-portalslist", "Portals list", "ic_action_paste");
     addHook("paneChanged", window.plugin.portalslist.onPaneChanged);
   } else {
-    $('#toolbox').append('<a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view [t]" accesskey="t">Portals list</a>');
+    IITC.toolbox.addButton({
+      label: 'Portals list',
+      title: 'Display a list of portals in the current view [t]',
+      action: window.plugin.portalslist.displayPL,
+      accesskey: 't',
+    });
   }
 
   $("<style>")
@@ -728,8 +743,32 @@ var setup =  function() {
 }\
 ')
     .appendTo("head");
+};
 
-}
+// given counts of resonators, links and fields, calculate the available AP
+// doesn't take account AP for resonator upgrades or AP for adding mods
+window.plugin.portalslist.portalApGainMaths = function (resCount, linkCount, fieldCount) {
+  var deployAp = (8 - resCount) * window.DEPLOY_RESONATOR;
+  if (resCount === 0) deployAp += window.CAPTURE_PORTAL;
+  if (resCount !== 8) deployAp += window.COMPLETION_BONUS;
+  // there could also be AP for upgrading existing resonators, and for deploying mods - but we don't have data for that
+  var friendlyAp = deployAp;
+
+  var destroyResoAp = resCount * window.DESTROY_RESONATOR;
+  var destroyLinkAp = linkCount * window.DESTROY_LINK;
+  var destroyFieldAp = fieldCount * window.DESTROY_FIELD;
+  var captureAp = window.CAPTURE_PORTAL + 8 * window.DEPLOY_RESONATOR + window.COMPLETION_BONUS;
+  var destroyAp = destroyResoAp + destroyLinkAp + destroyFieldAp;
+  var enemyAp = destroyAp + captureAp;
+
+  return {
+    friendlyAp: friendlyAp,
+    enemyAp: enemyAp,
+    destroyAp: destroyAp,
+    destroyResoAp: destroyResoAp,
+    captureAp: captureAp,
+  };
+};
 
 setup.info = plugin_info; //add the script info data to the function as a property
 if (typeof changelog !== 'undefined') setup.info.changelog = changelog;

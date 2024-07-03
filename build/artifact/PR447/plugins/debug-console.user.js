@@ -2,7 +2,7 @@
 // @author         jaiperdu
 // @name           IITC plugin: Debug console tab
 // @category       Debug
-// @version        0.1.0.20231016.122701
+// @version        0.1.1.20240228.214533
 // @description    Add a debug console tab
 // @id             debug-console
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -22,9 +22,23 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'test';
-plugin_info.dateTimeVersion = '2023-10-16-122701';
+plugin_info.dateTimeVersion = '2024-02-28-214533';
 plugin_info.pluginId = 'debug-console';
 //END PLUGIN AUTHORS NOTE
+
+/* exported setup, changelog --eslint */
+/* global L */
+
+var changelog = [
+  {
+    version: '0.2.0',
+    changes: ['Use channel new API', 'Handle multiline messages'],
+  },
+  {
+    version: '0.1.1',
+    changes: ['Version upgrade due to a change in the wrapper: added plugin icon'],
+  },
+];
 
 var debugTab = {};
 
@@ -40,7 +54,7 @@ debugTab.create = function () {
     sendMessage: function (_, msg) {
       var result;
       try {
-        result = eval(msg);
+        result = eval('(' + msg + ')');
       } catch (e) {
         if (e.stack) {
           console.error(e.stack);
@@ -48,24 +62,14 @@ debugTab.create = function () {
         throw e; // to trigger native error message
       }
       if (result !== undefined) {
-        console.error(result.toString());
+        console.log(result);
       }
-      return result;
     },
   });
 };
 
 debugTab.renderLine = function (errorType, args) {
   args = Array.prototype.slice.call(args);
-  var color = '#eee';
-  switch (errorType) {
-    case 'error':
-      color = '#FF424D';
-      break;
-    case 'warning':
-      color = '#FFDE42';
-      break;
-  }
   var text = [];
   args.forEach(function (v) {
     if (typeof v !== 'string' && typeof v !== 'number') {
@@ -86,13 +90,36 @@ debugTab.renderLine = function (errorType, args) {
     text.push(v);
   });
   text = text.join(' ');
+
+  // Time
+  var time = document.createElement('time');
   var d = new Date();
-  var ta = d.toLocaleTimeString(); // print line instead maybe?
-  var tb = d.toLocaleString();
-  var t = '<time title="' + tb + '" data-timestamp="' + d.getTime() + '">' + ta + '</time>';
-  var s = 'style="color:' + color + '"';
-  var l = '<tr><td>' + t + '</td><td><mark ' + s + '>' + errorType + '</mark></td><td>' + text + '</td></tr>';
-  $('#chatdebug table').append(l);
+  time.textContent = d.toLocaleTimeString();
+  time.title = d.toLocaleString();
+  time.dataset.timestamp = d.getTime();
+
+  // Type
+  var type = document.createElement('mark');
+  type.textContent = errorType;
+  type.className = errorType;
+
+  // Text
+  var pre = document.createElement('pre');
+  pre.textContent = text;
+
+  // Check if the last message is visible
+  var debugContainer = document.getElementById('chatdebug');
+  var isAtBottom = debugContainer.scrollTop >= debugContainer.scrollTopMax;
+
+  // Insert Row
+  var table = document.querySelector('#chatdebug table');
+  var row = table.insertRow();
+  row.insertCell().append(time);
+  row.insertCell().append(type);
+  row.insertCell().append(pre);
+
+  // Auto-scroll to bottom
+  if (isAtBottom) debugContainer.scrollTo(0, debugContainer.scrollTopMax);
 };
 
 debugTab.console = {};
@@ -112,6 +139,10 @@ debugTab.console.debug = function () {
   debugTab.renderLine('debug', arguments);
 };
 
+debugTab.console.info = function () {
+  debugTab.renderLine('info', arguments);
+};
+
 function overwriteNative() {
   var nativeConsole = window.console;
   window.console = L.extend({}, window.console);
@@ -129,6 +160,7 @@ function overwriteNative() {
   overwrite('warn');
   overwrite('error');
   overwrite('debug');
+  overwrite('info');
 }
 
 // Old API utils
@@ -153,9 +185,37 @@ function setup() {
   debugTab.create();
   overwriteNative();
 
-  $('<style>')
-    .text('#chat #chatdebug td:nth-child(-n+2) { \n  width: 51px\n' + '}\n#chat #chatdebug td:nth-child(3) {\n  font-family: monospace\n}')
-    .appendTo('head');
+  $('<style>').prop('type', 'text/css').text('\
+#chat #chatdebug td:nth-child(-n+2) {\
+    width: 51px\
+}\
+\
+#chat #chatdebug td:nth-child(3) {\
+    font-family: monospace\
+}\
+\
+#chatdebug td mark {\
+    color: #eee\
+}\
+\
+#chatdebug td mark.error {\
+    color: #FF424D\
+}\
+\
+#chatdebug td mark.warning {\
+    color: #FFDE42\
+}\
+\
+#chatdebug td pre {\
+    display: inline;\
+    white-space: pre-line;\
+    word-break: break-all;\
+}\
+\
+#chatinput.debug mark {\
+    color: #bbb;\
+}\
+').appendTo('head');
 
   // emulate old API
   window.debug = function () {};

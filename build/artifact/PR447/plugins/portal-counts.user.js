@@ -2,7 +2,7 @@
 // @author         yenky
 // @name           IITC plugin: Portal count
 // @category       Info
-// @version        0.2.3.20231016.122701
+// @version        0.2.4.20240228.214533
 // @description    Display a list of all localized portals by level and faction.
 // @id             portal-counts
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -22,10 +22,19 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'test';
-plugin_info.dateTimeVersion = '2023-10-16-122701';
+plugin_info.dateTimeVersion = '2024-02-28-214533';
 plugin_info.pluginId = 'portal-counts';
 //END PLUGIN AUTHORS NOTE
 
+/* global IITC -- eslint */
+/* exported setup, changelog --eslint */
+
+var changelog = [
+  {
+    version: '0.2.4',
+    changes: ['IITC.toolbox API is used to create plugin buttons'],
+  },
+];
 
 // use own namespace for plugin
 window.plugin.portalcounts = {
@@ -383,7 +392,11 @@ var setup =  function() {
     app.addPane('plugin-portalcounts', 'Portal counts', 'ic_action_data_usage');
     addHook('paneChanged', window.plugin.portalcounts.onPaneChanged);
   } else {
-    $('#toolbox').append(' <a onclick="window.plugin.portalcounts.getPortals()" title="Display a summary of portals in the current view">Portal counts</a>');
+    IITC.toolbox.addButton({
+      label: 'Portal counts',
+      title: 'Display a summary of portals in the current view',
+      action: window.plugin.portalcounts.getPortals,
+    });
   }
 
   $('head').append('<style>' +

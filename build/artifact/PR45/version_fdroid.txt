@@ -1,2 +1,0 @@
-versionName=0.99.1
-versionCode=1707802248

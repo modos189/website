@@ -2,7 +2,7 @@
 // @author         jonatkins
 // @name           IITC plugin: Direction of links on map
 // @category       Tweaks
-// @version        0.2.1.20231016.122701
+// @version        0.2.3.20240228.214533
 // @description    Show the direction of links on the map by adding short dashes to the line at the origin portal.
 // @id             link-show-direction
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -22,10 +22,23 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'test';
-plugin_info.dateTimeVersion = '2023-10-16-122701';
+plugin_info.dateTimeVersion = '2024-02-28-214533';
 plugin_info.pluginId = 'link-show-direction';
 //END PLUGIN AUTHORS NOTE
 
+/* global IITC -- eslint */
+/* exported setup, changelog --eslint */
+
+var changelog = [
+  {
+    version: '0.2.3',
+    changes: ['Default value for link show direction mode was set to Static near origin', 'IITC.toolbox API is used to create plugin buttons'],
+  },
+  {
+    version: '0.2.2',
+    changes: ['Version upgrade due to a change in the wrapper: added plugin icon'],
+  },
+];
 
 // use own namespace for plugin
 window.plugin.linkShowDirection = function() {};
@@ -153,7 +166,7 @@ window.plugin.linkShowDirection.showDialog = function() {
 
     input.addEventListener('click', function() {
       localStorage['plugin-linkshowdirection-drawtools'] = input.checked.toString();
-      
+
       if(input.checked)
         window.plugin.linkShowDirection.animateLinks();
       else
@@ -170,16 +183,20 @@ window.plugin.linkShowDirection.showDialog = function() {
   });
 };
 
-window.plugin.linkShowDirection.setup  = function() {
-  $('#toolbox').append(' <a onclick="window.plugin.linkShowDirection.showDialog()">LinkDirection Opt</a>');
+window.plugin.linkShowDirection.setup = function () {
+  IITC.toolbox.addButton({
+    label: 'LinkDirection Opt',
+    action: window.plugin.linkShowDirection.showDialog,
+  });
 
   addHook('linkAdded', function(data) { window.plugin.linkShowDirection.addLinkStyle(data.link); });
 
+  const default_mode = 'Static near origin';
   try {
-    window.plugin.linkShowDirection.mode = localStorage['plugin-linkshowdirection-mode'];
-  } catch(e) {
+    window.plugin.linkShowDirection.mode = localStorage['plugin-linkshowdirection-mode'] || default_mode;
+  } catch (e) {
     console.warn(e);
-    window.plugin.linkShowDirection.mode = 'Disabled';
+    window.plugin.linkShowDirection.mode = default_mode;
   }
 
   window.plugin.linkShowDirection.animateLinks();

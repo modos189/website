@@ -2,7 +2,7 @@
 // @author         breunigs
 // @name           IITC plugin: Player level guess
 // @category       Info
-// @version        0.5.7.20231016.122701
+// @version        0.5.9.20240228.214533
 // @description    Try to determine player levels from the data available in the current view.
 // @id             player-level-guess
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -22,10 +22,23 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'test';
-plugin_info.dateTimeVersion = '2023-10-16-122701';
+plugin_info.dateTimeVersion = '2024-02-28-214533';
 plugin_info.pluginId = 'player-level-guess';
 //END PLUGIN AUTHORS NOTE
 
+/* global IITC -- eslint */
+/* exported setup, changelog --eslint */
+
+var changelog = [
+  {
+    version: '0.5.9',
+    changes: ['IITC.toolbox API is used to create plugin buttons'],
+  },
+  {
+    version: '0.5.8',
+    changes: ['Version upgrade due to a change in the wrapper: added plugin icon'],
+  },
+];
 
 // use own namespace for plugin
 window.plugin.guessPlayerLevels = function() {};
@@ -35,7 +48,11 @@ window.plugin.guessPlayerLevels.BURSTER_RANGES = [0, 42, 48, 58, 72, 90, 112, 13
 // (like constructor, __defineGetter__, etc.
 
 window.plugin.guessPlayerLevels.setupCallback = function() {
-  $('#toolbox').append(' <a onclick="window.plugin.guessPlayerLevels.guess()" title="Show player level guesses based on resonator placement in displayed portals">Guess player levels</a>');
+  IITC.toolbox.addButton({
+    label: 'Guess player levels',
+    title: 'Show player level guesses based on resonator placement in displayed portals',
+    action: window.plugin.guessPlayerLevels.guess,
+  });
   addHook('portalDetailLoaded', window.plugin.guessPlayerLevels.extractPortalData);
   addHook('publicChatDataAvailable', window.plugin.guessPlayerLevels.extractChatData);
 }
