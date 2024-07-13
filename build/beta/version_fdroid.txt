@@ -1,2 +1,2 @@
-versionName=0.38.0-beta-2024.07.03-12:20
-versionCode=1720009132
+versionName=0.38.0-beta-2024.05.15-10:47
+versionCode=1715770048
