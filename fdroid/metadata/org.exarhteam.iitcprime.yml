@@ -1,0 +1,18 @@
+AntiFeatures:
+  - NonFreeNet
+  - Tracking
+Categories:
+  - Games
+License: ISC
+WebSite: https://iitc.app/
+SourceCode: https://github.com/IITC-CE/iitc-prime
+IssueTracker: https://github.com/IITC-CE/IITC-Prime/issues
+Changelog: https://github.com/IITC-CE/IITC-Prime/releases
+
+AutoName: IITC Prime
+Summary: 'IITC Prime is a new Android/iOS mobile application for IITC (Ingress Intel Total Conversion), built with NativeScript and Vue.js.'
+
+RepoType: git
+Repo: https://github.com/IITC-CE/IITC-Prime
+
+CurrentVersionCode: 0
