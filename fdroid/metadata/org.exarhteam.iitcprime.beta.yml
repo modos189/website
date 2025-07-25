@@ -10,7 +10,7 @@ IssueTracker: https://github.com/IITC-CE/IITC-Prime/issues
 Changelog: https://github.com/IITC-CE/IITC-Prime/commits/master
 
 AutoName: IITC Prime Beta
-Summary: 'IITC Prime is a new Android/iOS mobile application for IITC (Ingress Intel Total Conversion), built with NativeScript and Vue.js.'
+Summary: 'A new and modern way to use IITC on mobile'
 
 RepoType: git
 Repo: https://github.com/IITC-CE/IITC-Prime
