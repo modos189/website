@@ -2,7 +2,7 @@
 // @author         Fly33
 // @name           IITC plugin: Fly Links
 // @category       Draw
-// @version        0.5.3
+// @version        0.5.4
 // @description    Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
 // @id             fly-links
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'fly-links';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,7 @@ plugin_info.pluginId = 'fly-links';
 /* global L -- eslint */
 
 var changelog = [
+  { version: '0.5.4', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.5.3',
     changes: ['Refactoring: fix eslint'],
@@ -395,8 +396,8 @@ flyLinks.Triangle = function (a, b, c, depth) {
 };
 
 function setup() {
-  flyLinks.linksLayerGroup = L.layerGroup();
-  flyLinks.fieldsLayerGroup = L.layerGroup();
+  flyLinks.linksLayerGroup = new L.LayerGroup();
+  flyLinks.fieldsLayerGroup = new L.LayerGroup();
 
   function update() {
     if (!window.map.hasLayer(flyLinks.linksLayerGroup) || !window.map.hasLayer(flyLinks.fieldsLayerGroup)) {

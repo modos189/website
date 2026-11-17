@@ -2,7 +2,7 @@
 // @author         jonatkins
 // @name           IITC plugin: Distance to portal
 // @category       Portal Info
-// @version        0.2.3
+// @version        0.2.4
 // @description    Allows your current location to be set manually, then shows the distance to the selected portal. Useful when managing portal keys.
 // @id             distance-to-portal
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'distance-to-portal';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,7 @@ plugin_info.pluginId = 'distance-to-portal';
 /* global L -- eslint */
 
 var changelog = [
+  { version: '0.2.4', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.2.3',
     changes: ['Refactoring: fix eslint'],
@@ -113,8 +114,8 @@ window.plugin.distanceToPortal.setLocation = function () {
     window.plugin.distanceToPortal.currentLoc = window.map.getCenter();
   }
 
-  window.plugin.distanceToPortal.currentLocMarker = L.marker(window.plugin.distanceToPortal.currentLoc, {
-    icon: L.divIcon.coloredSvg('#444'),
+  window.plugin.distanceToPortal.currentLocMarker = new L.Marker(window.plugin.distanceToPortal.currentLoc, {
+    icon: new L.DivIcon.ColoredSvg('#444'),
     draggable: true,
     title: 'Drag to change current location',
   });

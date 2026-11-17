@@ -6,6 +6,9 @@
     --secondary-higher: #444444;
     --accent-main: #26A69A;
     --important: #FFF3CD;
+    --nav-trigger-bg: rgba(255, 255, 255, 0.15);
+    --nav-trigger-border: rgba(0, 0, 0, 0.5);
+    --nav-trigger-color: rgba(0, 0, 0, 0.5);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,6 +19,9 @@
         --secondary-main: #FFFFFF;
         --secondary-higher: #BBBBBB;
         --important: #423922;
+        --nav-trigger-bg: rgba(0, 0, 0, 0.15);
+        --nav-trigger-border: rgba(255, 255, 255, 0.5);
+        --nav-trigger-color: rgba(255, 255, 255, 0.5);
     }
 }
 
@@ -152,16 +158,23 @@ table.striped > tbody > tr:nth-child(2n+1) {
     background-color: var(--primary-lower);
 }
 
-#modal_iitc_fdroid_repo {
-    max-width: 700px;
+.fdroid-repo {
+    margin-top: 2rem;
 }
 
-#modal_iitc_fdroid_repo .qr-code {
+.fdroid-repo .qr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fdroid-repo .qr-code {
     width: 100%;
+    max-width: 260px;
     border: 1px solid #eee;
 }
 
-#modal_iitc_fdroid_repo .fingerprint {
+.fdroid-repo .fingerprint {
     color: #000000;
     font-weight: bold;
     font-size: 13px;

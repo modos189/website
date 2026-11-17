@@ -2,7 +2,7 @@
 // @author         screach
 // @name           IITC plugin: Links to moved portals
 // @category       Layer
-// @version        0.1.1
+// @version        0.1.3
 // @description    Show links to portals with different location data
 // @id             links-to-moved-portals
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,14 +21,19 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'links-to-moved-portals';
 //END PLUGIN AUTHORS NOTE
 
 /* exported setup, changelog --eslint */
-/* global L */
+/* global IITC, L */
 
 var changelog = [
+  {
+    version: '0.1.3',
+    changes: ['Refactoring: use IITC.portal API instead of legacy globals'],
+  },
+  { version: '0.1.2', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.1.1',
     changes: ['Version upgrade due to a change in the wrapper: plugin icons are now vectorized'],
@@ -49,7 +54,7 @@ plugin.styles = {
 };
 
 var toLatLng = (latE6, lngE6) => {
-  return L.latLng(latE6 / 1e6, lngE6 / 1e6);
+  return new L.LatLng(latE6 / 1e6, lngE6 / 1e6);
 };
 
 var getDLatLng = (linkData) => {
@@ -74,7 +79,7 @@ var findLayer = (lguid) => {
 
 plugin.portalLoaded = (data) => {
   if (!plugin.disabled) {
-    var portalLinks = window.getPortalLinks(data.guid);
+    var portalLinks = IITC.portal.getLinks(data.guid);
     addLinks([...portalLinks.in, ...portalLinks.out]);
   }
 };

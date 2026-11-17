@@ -2,7 +2,7 @@
 // @author         jonatkins
 // @name           IITC plugin: Missions
 // @category       Info
-// @version        0.3.6.20260904.111504
+// @version        0.4.0.20261113.185036
 // @description    View missions. Marking progress on waypoints/missions basis. Showing mission paths on the map.
 // @id             missions
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'beta';
-plugin_info.dateTimeVersion = '2026-09-04-111504';
+plugin_info.dateTimeVersion = '2026-11-13-185036';
 plugin_info.pluginId = 'missions';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,15 @@ plugin_info.pluginId = 'missions';
 /* global IITC, L -- eslint */
 
 var changelog = [
+  {
+    version: '0.4.0',
+    changes: [
+      'Register with the Sync plugin regardless of plugin load order',
+      'Sort mission titles naturally, taking numbers into account',
+      'Use a Material Symbols icon for the mobile pane',
+      'Refactoring: use IITC.portal and IITC.utils APIs instead of legacy globals',
+    ],
+  },
   { version: '0.3.6', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.3.5',
@@ -166,9 +175,7 @@ window.plugin.missions = {
     if (!data.portalDetails.mission && !data.portalDetails.mission50plus) {
       return;
     }
-    var missionHtml = $('<a>')
-      .click(this.openPortalMissions.bind(this))
-      .text('Missions');
+    var missionHtml = $('<a>').on('click', this.openPortalMissions.bind(this)).text('Missions');
     $('.linkdetails').append($('<aside>').append(missionHtml));
   },
 
@@ -296,7 +303,7 @@ window.plugin.missions = {
         let dia = $(openDialog).closest('.ui-dialog');
         let button = dia.find('.ui-dialog-titlebar-button-collapse');
         if (button) {
-          $(button).click();
+          $(button).trigger('click');
         }
       }
     } else {
@@ -1480,7 +1487,7 @@ window.plugin.missions = {
           },
         });
 
-      window.app.addPane('plugin-missions', 'Missions', 'ic_missions');
+      window.app.addPane('plugin-missions', 'Missions', 'route');
       window.addHook('paneChanged', this.onPaneChanged.bind(this));
     }
 
@@ -1518,10 +1525,16 @@ window.plugin.missions = {
     window.addHook('plugin-missions-waypoint-changed', this.onWaypointChanged.bind(this));
     window.addHook('plugin-missions-waypoints-refreshed', this.onWaypointsRefreshed.bind(this));
 
-    if (window.plugin.sync) {
+    const registerFieldsForSyncing = () => {
+      // sync may not be loaded yet, and fires this hook once it is
+      if (!window.plugin.sync) {
+        window.addHook('pluginSyncReady', registerFieldsForSyncing);
+        return;
+      }
       window.plugin.sync.registerMapForSync('missions', 'checkedMissions', this.syncCallback.bind(this), this.syncInitialed.bind(this));
       window.plugin.sync.registerMapForSync('missions', 'checkedWaypoints', this.syncCallback.bind(this), this.syncInitialed.bind(this));
-    }
+    };
+    registerFieldsForSyncing();
 
     setTimeout(this.onIITCLoaded.bind(this));
   },

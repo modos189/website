@@ -2,8 +2,8 @@
 // @author         xelio
 // @name           IITC plugin: Sync
 // @category       Misc
-// @version        0.6.0.20260904.111504
-// @description    Sync data between clients via Google Drive API. Only syncs data from specific plugins (currently: Keys, Bookmarks, Uniques). Sign in via the 'Sync' link. Data is synchronized every 3 minutes.
+// @version        0.6.1.20261113.185036
+// @description    Sync data between clients via Google Drive API. Only syncs data from specific plugins (currently: Keys, Bookmarks, Uniques, Draw Tools) and IITC options. Sign in via the 'Sync' link. Data is synchronized every 3 minutes.
 // @id             sync
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
 // @updateURL      https://iitc.app/build/beta/plugins/sync.meta.js
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'beta';
-plugin_info.dateTimeVersion = '2026-09-04-111504';
+plugin_info.dateTimeVersion = '2026-11-13-185036';
 plugin_info.pluginId = 'sync';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,10 @@ plugin_info.pluginId = 'sync';
 /* global IITC -- eslint */
 
 var changelog = [
+  {
+    version: '0.6.1',
+    changes: ['Note Draw Tools as a synced plugin in the description', 'Let plugins register synced fields regardless of plugin load order'],
+  },
   {
     version: '0.6.0',
     changes: ['Add sign-out button and display logged-in account email'],
@@ -70,7 +74,6 @@ window.plugin.sync.KEY_UUID = { key: 'plugin-sync-data-uuid', field: 'uuid' };
 // Each client has an unique UUID, to identify remote data is updated by other clients or not
 window.plugin.sync.uuid = null;
 
-window.plugin.sync.dialogHTML = null;
 window.plugin.sync.authorizer = null;
 
 // Store registered CollaborativeMap
@@ -89,6 +92,20 @@ window.plugin.sync.updateMap = function (pluginName, fieldName, keyArray) {
   registeredMap.updateMap(keyArray);
 };
 
+const pendingRegistrations = [];
+
+// Tells whether the synced map is loaded and good to use; false again after a sign-out
+window.plugin.sync.isInitialized = function (pluginName, fieldName) {
+  return window.plugin.sync.registeredPluginsFields?.get(pluginName, fieldName)?.initialized === true;
+};
+
+// A copy of the map as the file holds it after the last load or update, or undefined until it is loaded;
+// the plugin field may differ: it is replaced by the file only when another client wrote the file last
+window.plugin.sync.getFileMap = function (pluginName, fieldName) {
+  if (!window.plugin.sync.isInitialized(pluginName, fieldName)) return undefined;
+  return structuredClone(window.plugin.sync.registeredPluginsFields.get(pluginName, fieldName).map);
+};
+
 // Other plugin call this to register a field as CollaborativeMap to sync with Google Drive API
 // example: plugin.sync.registerMapForSync('keys', 'keysdata', plugin.keys.updateCallback, plugin.keys.initializedCallback)
 // which register plugin.keys.keysdata
@@ -100,11 +117,23 @@ window.plugin.sync.updateMap = function (pluginName, fieldName, keyArray) {
 //
 // initializedCallback function format: function(pluginName, fieldName)
 // initializedCallback will be fired when the storage finished initialize and good to use
-window.plugin.sync.registerMapForSync = function (pluginName, fieldName, callback, initializedCallback) {
+//
+// mapOptions.holder: the object whose [fieldName] holds the map, for a map that does not live in plugin[pluginName]
+//
+// Callable from the moment plugin.sync exists: setup replays whatever registered before it ran.
+// Earlier than that there is nothing to call, so those plugins wait for the 'pluginSyncReady' hook
+window.plugin.sync.registerMapForSync = function (pluginName, fieldName, callback, initializedCallback, mapOptions) {
+  // authorizer and uuid only exist from setup, so buffer the arguments and register from there
+  if (!window.plugin.sync.registeredPluginsFields) {
+    pendingRegistrations.push([pluginName, fieldName, callback, initializedCallback, mapOptions]);
+    return;
+  }
+
   var options, registeredMap;
   options = {
     pluginName: pluginName,
     fieldName: fieldName,
+    holder: mapOptions?.holder,
     callback: callback,
     initializedCallback: initializedCallback,
     authorizer: window.plugin.sync.authorizer,
@@ -122,6 +151,7 @@ window.plugin.sync.registerMapForSync = function (pluginName, fieldName, callbac
 window.plugin.sync.RegisteredMap = function (options) {
   this.pluginName = options['pluginName'];
   this.fieldName = options['fieldName'];
+  this.holder = options['holder'];
   this.callback = options['callback'];
   this.initializedCallback = options['initializedCallback'];
   this.authorizer = options['authorizer'];
@@ -141,13 +171,18 @@ window.plugin.sync.RegisteredMap = function (options) {
   this.loadDocument = this.loadDocument.bind(this);
 };
 
+// the object whose [fieldName] holds the map; plugin[pluginName] is looked up each time, as a plugin may replace it
+window.plugin.sync.RegisteredMap.prototype.getHolder = function () {
+  return this.holder ?? window.plugin[this.pluginName];
+};
+
 window.plugin.sync.RegisteredMap.prototype.updateMap = function (keyArray) {
   var _this = this;
   try {
     this.lastUpdateUUID = this.uuid;
 
     $.each(keyArray, function (ind, key) {
-      var value = window.plugin[_this.pluginName][_this.fieldName][key];
+      var value = _this.getHolder()[_this.fieldName][key];
       if (typeof value !== 'undefined') {
         _this.map[key] = value;
       } else {
@@ -209,7 +244,7 @@ window.plugin.sync.RegisteredMap.prototype.loadDocument = function () {
     _this.map = {};
 
     // Init the map values if this map is first created
-    $.each(window.plugin[_this.pluginName][_this.fieldName], function (key, val) {
+    $.each(_this.getHolder()[_this.fieldName], function (key, val) {
       _this.map[key] = val;
     });
 
@@ -224,7 +259,8 @@ window.plugin.sync.RegisteredMap.prototype.loadDocument = function () {
   // update local data if the document is updated by other
   // and adding a timer to further check for updates
   onFileLoaded = function (data) {
-    _this.map = data['map'];
+    // a file with something else in place of the map starts over from an empty one
+    _this.map = $.isPlainObject(data['map']) ? data['map'] : {};
     _this.lastUpdateUUID = data['last-update-uuid'];
 
     if (!_this.intervalID) {
@@ -236,9 +272,9 @@ window.plugin.sync.RegisteredMap.prototype.loadDocument = function () {
     // Replace local value if data is changed by others
     if (_this.isUpdatedByOthers()) {
       window.plugin.sync.logger.log(_this.getFileName(), 'Updated by others, replacing content');
-      window.plugin[_this.pluginName][_this.fieldName] = {};
+      var field = (_this.getHolder()[_this.fieldName] = {});
       $.each(_this.map, function (key) {
-        window.plugin[_this.pluginName][_this.fieldName][key] = _this.map[key];
+        field[key] = _this.map[key];
       });
       if (_this.callback) _this.callback(_this.pluginName, _this.fieldName, null, true);
     }
@@ -344,7 +380,7 @@ window.plugin.sync.RegisteredPluginsFields.prototype.initializeWorker = function
   var _this = this;
 
   this.cleanWaitingInitialize();
-  window.plugin.sync.toggleDialogLink();
+  window.plugin.sync.refreshPage();
   this.initializeRegistered();
 
   clearTimeout(this.timer);
@@ -754,41 +790,43 @@ window.plugin.sync.loadUUID = function () {
   }
 };
 
-window.plugin.sync.updateLog = function (messages) {
-  $('#sync-log').html(messages);
+// draws the Sync page of the options window again, if it is open, and updates its toolbox shortcut
+window.plugin.sync.refreshPage = () => {
+  IITC.options.refresh('sync');
 };
 
-window.plugin.sync.toggleAuthButton = function () {
-  var authed, authorizing;
-  authed = window.plugin.sync.authorizer.isAuthed();
-  authorizing = window.plugin.sync.authorizer.isAuthorizing();
-
-  $('#sync-authButton').html(authed ? 'Authorized' : 'Authorize');
-
-  $('#sync-authButton').attr('disabled', authed || authorizing);
-  $('#sync-authButton').toggleClass('sync-authButton-dimmed', authed || authorizing);
-
-  $('#sync-signOutButton').toggle(authed === true);
-};
-
-window.plugin.sync.updateAccountInfo = function () {
-  var accountDiv = $('#sync-account');
-  if (accountDiv.length === 0) return;
-
-  if (window.plugin.sync.authorizer.isAuthed()) {
-    try {
-      var profile = window.gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
-      accountDiv.text('Signed in as: ' + profile.getEmail());
-    } catch {
-      accountDiv.text('Signed in');
-    }
-  } else {
-    accountDiv.text('');
+// who is signed in, as the Sync page says it
+window.plugin.sync.accountText = () => {
+  const authorizer = window.plugin.sync.authorizer;
+  if (!authorizer.isAuthed()) return authorizer.isAuthorizing() ? 'Signing in…' : 'Not signed in';
+  try {
+    return 'Signed in as ' + window.gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
+  } catch {
+    return 'Signed in';
   }
 };
 
+/**
+ * The last status of each synced file, for the Sync page; files whose sync failed are marked
+ *
+ * @returns {Array<Object>} Entries of a `list` block
+ */
+window.plugin.sync.fileItems = () => {
+  const failed = new Set();
+  Object.values(window.plugin.sync.registeredPluginsFields?.pluginsfields ?? {}).forEach((fields) => {
+    Object.values(fields).forEach((registeredMap) => {
+      if (registeredMap.failed) failed.add(registeredMap.getFileName());
+    });
+  });
+  return Object.entries(window.plugin.sync.logger.logs).map(([file, entry]) => ({
+    title: file,
+    sub: `${entry.message} (${entry.time.toLocaleTimeString()})`,
+    state: failed.has(file) ? 'error' : undefined,
+  }));
+};
+
 window.plugin.sync.signOut = function () {
-  window.gapi.auth2
+  return window.gapi.auth2
     .getAuthInstance()
     .signOut()
     .then(function () {
@@ -800,12 +838,8 @@ window.plugin.sync.signOut = function () {
       window.plugin.sync.parentFolderID = null;
       window.plugin.sync.parentFolderIDrequested = false;
 
-      window.plugin.sync.toggleAuthButton();
-      window.plugin.sync.toggleDialogLink();
-      window.plugin.sync.updateAccountInfo();
-
       window.plugin.sync.logger.log('all', 'Signed out');
-      window.plugin.sync.updateLog(window.plugin.sync.logger.getLogs());
+      window.plugin.sync.refreshPage();
     });
 };
 
@@ -835,39 +869,35 @@ window.plugin.sync.stopAllIntervals = function () {
   fields.anyFail = false;
 };
 
-window.plugin.sync.toggleDialogLink = function () {
-  var authed, anyFail;
-  authed = window.plugin.sync.authorizer.isAuthed();
-  anyFail = window.plugin.sync.registeredPluginsFields.anyFail;
-
-  IITC.toolbox.updateButton('sync-show-dialog', {
-    class: !authed || anyFail ? 'sync-show-dialog-error' : '',
-  });
-};
-
-window.plugin.sync.showDialog = function () {
-  window.dialog({ html: window.plugin.sync.dialogHTML, title: 'Sync', modal: true, id: 'sync-setting' });
-  window.plugin.sync.toggleAuthButton();
-  window.plugin.sync.toggleDialogLink();
-  window.plugin.sync.updateAccountInfo();
-  window.plugin.sync.updateLog(window.plugin.sync.logger.getLogs());
-};
-
-window.plugin.sync.setupDialog = function () {
-  window.plugin.sync.dialogHTML =
-    '<div id="sync-dialog">' +
-    '<button id="sync-authButton" class="sync-authButton-dimmed" ' +
-    'onclick="setTimeout(function(){window.plugin.sync.authorizer.authorize(true)}, 1)" ' +
-    'disabled="disabled">Authorize</button>' +
-    '<button id="sync-signOutButton" style="display:none" ' +
-    'onclick="window.plugin.sync.signOut()">Sign Out</button>' +
-    '<div id="sync-account"></div>' +
-    '<div id="sync-log"></div>' +
-    '</div>';
-  IITC.toolbox.addButton({
-    id: 'sync-show-dialog',
-    label: 'Sync',
-    action: window.plugin.sync.showDialog,
+window.plugin.sync.registerOptions = () => {
+  IITC.options.register('sync', {
+    title: 'Sync',
+    // red while signed out or after a failure
+    shortcut: () => ({
+      class: !window.plugin.sync.authorizer?.isAuthed() || window.plugin.sync.registeredPluginsFields?.anyFail ? 'sync-show-dialog-error' : '',
+    }),
+    blocks: [
+      {
+        type: 'action',
+        title: 'Google account',
+        description: () => (window.plugin.sync.authorizer.isAuthorizing() ? 'Signing in…' : 'Sync keeps plugin data in your Google Drive'),
+        button: 'Sign in',
+        visible: () => !window.plugin.sync.authorizer.isAuthed(),
+        enabled: () => !window.plugin.sync.authorizer.isAuthorizing(),
+        action: () => window.plugin.sync.authorizer.authorize(),
+      },
+      {
+        type: 'action',
+        title: 'Google account',
+        description: () => window.plugin.sync.accountText(),
+        button: 'Sign out',
+        visible: () => window.plugin.sync.authorizer.isAuthed(),
+        action: () => window.plugin.sync.signOut(),
+      },
+      { type: 'heading', title: 'Files' },
+      { type: 'text', text: 'Nothing synced yet', visible: () => !Object.keys(window.plugin.sync.logger.logs).length },
+      { type: 'list', items: () => window.plugin.sync.fileItems() },
+    ],
   });
 };
 
@@ -875,54 +905,22 @@ window.plugin.sync.setupCSS = function () {
   $('<style>')
     .prop('type', 'text/css')
     .html(
-      '.sync-authButton-dimmed {\
-            opacity: 0.5;\
-          }\
-          .sync-show-dialog-error {\
+      '.sync-show-dialog-error {\
             color: #FF2222;\
-          }\
-          #sync-log {\
-            height: 300px;\
-            white-space: pre-wrap;\
-            white-space: -moz-pre-wrap;\
-            white-space: -o-pre-wrap;\
-            word-wrap: break-word;\
-            overflow-y: auto;\
-          }\
-          .sync-log-block {\
-            background: #ffffff1a;\
-            padding: 5px;\
-            margin: 0.5em 0;\
-          }\
-          .sync-log-file {\
-            margin: 0;\
-          }\
-          .sync-log-message {\
-            margin: 0;\
-            text-align: right;\
-          }\
-          #sync-signOutButton {\
-            margin-left: 0.5em;\
-          }\
-          #sync-account {\
-            margin: 0.5em 0;\
-            font-size: 0.9em;\
-            color: #ccc;\
-            word-break: break-all;\
           }'
     )
     .appendTo('head');
 };
 
 var setup = function () {
-  window.plugin.sync.logger = new window.plugin.sync.Logger({ logLimit: 10, logUpdateCallback: window.plugin.sync.updateLog });
+  window.plugin.sync.logger = new window.plugin.sync.Logger({ logLimit: 10, logUpdateCallback: window.plugin.sync.refreshPage });
   window.plugin.sync.loadUUID();
   window.plugin.sync.setupCSS();
-  window.plugin.sync.setupDialog();
 
   window.plugin.sync.authorizer = new window.plugin.sync.Authorizer({
-    authCallback: [window.plugin.sync.toggleAuthButton, window.plugin.sync.toggleDialogLink, window.plugin.sync.updateAccountInfo],
+    authCallback: [window.plugin.sync.refreshPage],
   });
+  window.plugin.sync.registerOptions();
   window.plugin.sync.registeredPluginsFields = new window.plugin.sync.RegisteredPluginsFields({
     authorizer: window.plugin.sync.authorizer,
   });
@@ -931,6 +929,11 @@ var setup = function () {
   $.getScript(GOOGLEAPI).done(function () {
     window.gapi.load('client:auth2', window.plugin.sync.authorizer.authorize);
   });
+
+  pendingRegistrations.splice(0).forEach((args) => window.plugin.sync.registerMapForSync(...args));
+
+  // lets plugins that ran before this one was loaded register their fields
+  window.runHooks('pluginSyncReady');
 };
 
 setup.priority = 'high';

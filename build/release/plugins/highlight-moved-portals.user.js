@@ -2,7 +2,7 @@
 // @author         screach
 // @name           IITC plugin: Highlight moved portals
 // @category       Highlighter
-// @version        0.1.1
+// @version        0.1.3
 // @description    Highlights portals with links with different location data
 // @id             highlight-moved-portals
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,14 +21,19 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'highlight-moved-portals';
 //END PLUGIN AUTHORS NOTE
 
 /* exported setup, changelog --eslint */
-/* global L */
+/* global IITC, L */
 
 var changelog = [
+  {
+    version: '0.1.3',
+    changes: ['Refactoring: use IITC.portal API instead of legacy globals'],
+  },
+  { version: '0.1.2', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.1.1',
     changes: ['Version upgrade due to a change in the wrapper: plugin icons are now vectorized'],
@@ -50,7 +55,7 @@ var getLinkData = (lguid) => {
 };
 
 var toLatLng = (latE6, lngE6) => {
-  return L.latLng(latE6 / 1e6, lngE6 / 1e6);
+  return new L.LatLng(latE6 / 1e6, lngE6 / 1e6);
 };
 
 var getDLatLng = (lguid) => {
@@ -67,14 +72,14 @@ movedPortals.highlightMovedPortals = (data) => {
   var portalData = data.portal.options.data;
   var latLng = toLatLng(portalData.latE6, portalData.lngE6);
 
-  var portalLinks = window.getPortalLinks(data.portal.options.guid);
+  var portalLinks = IITC.portal.getLinks(data.portal.options.guid);
   if (portalLinks.in.some((lguid) => !getDLatLng(lguid).equals(latLng)) || portalLinks.out.some((lguid) => !getOLatLng(lguid).equals(latLng))) {
     data.portal.setStyle(movedPortals.styles);
   }
 };
 
 var setup = () => {
-  window.addPortalHighlighter('Moved portals', movedPortals.highlightMovedPortals);
+  IITC.portal.highlighter.add('Moved portals', movedPortals.highlightMovedPortals);
 };
 
 setup.info = plugin_info; //add the script info data to the function as a property

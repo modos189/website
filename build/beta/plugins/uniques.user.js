@@ -2,7 +2,7 @@
 // @author         3ch01c
 // @name           IITC plugin: Uniques
 // @category       Misc
-// @version        0.2.7.20260904.111504
+// @version        0.2.8.20261113.185036
 // @description    Allow manual entry of portals visited/captured. Use the 'highlighter-uniques' plugin to show the uniques on the map, and 'sync' to share between multiple browsers or desktop/mobile. It will try and guess which portals you have captured from COMM/portal details, but this will not catch every case.
 // @id             uniques
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'beta';
-plugin_info.dateTimeVersion = '2026-09-04-111504';
+plugin_info.dateTimeVersion = '2026-11-13-185036';
 plugin_info.pluginId = 'uniques';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,10 @@ plugin_info.pluginId = 'uniques';
 /* global IITC -- eslint */
 
 var changelog = [
+  {
+    version: '0.2.8',
+    changes: ['Register with the Sync plugin regardless of plugin load order', 'Keep its own portal GUID cache, as the core one was removed'],
+  },
   {
     version: '0.2.7',
     changes: ['Refactoring: fix eslint'],
@@ -341,9 +345,12 @@ window.plugin.uniques.syncQueue = function () {
   }, window.plugin.uniques.SYNC_DELAY);
 };
 
-// Call after IITC and all plugin loaded
-window.plugin.uniques.registerFieldForSyncing = function () {
-  if (!window.plugin.sync) return;
+window.plugin.uniques.registerFieldForSyncing = () => {
+  // sync may not be loaded yet, and fires this hook once it is
+  if (!window.plugin.sync) {
+    window.addHook('pluginSyncReady', window.plugin.uniques.registerFieldForSyncing);
+    return;
+  }
   window.plugin.sync.registerMapForSync('uniques', 'uniques', window.plugin.uniques.syncCallback, window.plugin.uniques.syncInitialed);
 };
 

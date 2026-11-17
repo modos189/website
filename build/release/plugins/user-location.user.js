@@ -2,7 +2,7 @@
 // @author         cradle
 // @name           IITC plugin: User Location
 // @category       Tweaks
-// @version        0.3.0
+// @version        0.3.1
 // @description    Show user location marker on map
 // @id             user-location
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'user-location';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,7 @@ plugin_info.pluginId = 'user-location';
 /* global L -- eslint */
 
 const changelog = [
+  { version: '0.3.1', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.3.0',
     changes: ['Add browser geolocation and compass support'],
@@ -120,14 +121,14 @@ window.plugin.userLocation.setup = function () {
 
   const latlng = new L.LatLng(0, 0);
 
-  const icon = L.divIcon({
-    iconSize: L.point(32, 32),
-    iconAnchor: L.point(16, 16),
+  const icon = new L.DivIcon({
+    iconSize: new L.Point(32, 32),
+    iconAnchor: new L.Point(16, 16),
     className: 'user-location',
     html: `<div class="container ${cssClass} circle"><div class="outer"></div><div class="inner"></div></div>`,
   });
 
-  const marker = L.marker(latlng, {
+  const marker = new L.Marker(latlng, {
     icon: icon,
     zIndexOffset: 300,
     interactive: false,
@@ -269,7 +270,7 @@ window.plugin.userLocation.locate = function (lat, lng, accuracy, persistentZoom
   const latAccuracy = (180 * accuracy) / 40075017;
   const lngAccuracy = latAccuracy / Math.cos((Math.PI / 180) * lat);
 
-  const bounds = L.latLngBounds([lat - latAccuracy, lng - lngAccuracy], [lat + latAccuracy, lng + lngAccuracy]);
+  const bounds = new L.LatLngBounds([lat - latAccuracy, lng - lngAccuracy], [lat + latAccuracy, lng + lngAccuracy]);
 
   // an extremely close view is pretty pointless (especially with maps that support zoom level 20+)
   // so limit to 17 (enough to see all portals)

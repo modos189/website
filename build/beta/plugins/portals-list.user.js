@@ -2,7 +2,7 @@
 // @author         teo96
 // @name           IITC plugin: Portals list
 // @category       Info
-// @version        0.4.5.20260904.111504
+// @version        0.4.6.20261113.185036
 // @description    Display a sortable list of all visible portals with full details about the team, resonators, links, etc.
 // @id             portals-list
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'beta';
-plugin_info.dateTimeVersion = '2026-09-04-111504';
+plugin_info.dateTimeVersion = '2026-11-13-185036';
 plugin_info.pluginId = 'portals-list';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,10 @@ plugin_info.pluginId = 'portals-list';
 /* global IITC -- eslint */
 
 var changelog = [
+  {
+    version: '0.4.6',
+    changes: ['Use a Material Symbols icon for the mobile pane'],
+  },
   {
     version: '0.4.5',
     changes: ['Refactoring: fix eslint'],
@@ -368,7 +372,7 @@ window.plugin.portalslist.portalTable = function (sortBy, sortOrder, filter, rev
     cell.className = 'name ' + filterName;
     cell.textContent = label + ':';
     cell.title = `Show only ${label} portals`;
-    $(cell).click(function () {
+    $(cell).on('click', function () {
       if (this.classList.contains('active')) {
         $('#portalslist')
           .empty()
@@ -391,7 +395,7 @@ window.plugin.portalslist.portalTable = function (sortBy, sortOrder, filter, rev
       cell.textContent = length;
     } else {
       cell.title = `Hide ${label} portals `;
-      $(cell).click(function () {
+      $(cell).on('click', function () {
         if (this.classList.contains('active')) {
           $('#portalslist')
             .empty()
@@ -436,7 +440,7 @@ window.plugin.portalslist.portalTable = function (sortBy, sortOrder, filter, rev
         cell.classList.add('sorted');
       }
 
-      $(cell).click(function () {
+      $(cell).on('click', function () {
         var order;
         if (i === sortBy) {
           order = -sortOrder;
@@ -516,7 +520,7 @@ var setup = function () {
   window.plugin.portalslist.filter = 0;
 
   if (window.useAppPanes()) {
-    window.app.addPane('plugin-portalslist', 'Portals list', 'ic_action_paste');
+    window.app.addPane('plugin-portalslist', 'Portals list', 'list');
     window.addHook('paneChanged', window.plugin.portalslist.onPaneChanged);
   } else {
     IITC.toolbox.addButton({

@@ -2,7 +2,7 @@
 // @author         Hollow011
 // @name           IITC plugin: Available AP statistics
 // @category       Info
-// @version        0.4.5
+// @version        0.4.7
 // @description    Displays the per-team AP gains available in the current view.
 // @id             ap-stats
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,13 +21,22 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'ap-stats';
 //END PLUGIN AUTHORS NOTE
 
+/* global IITC -- eslint */
 /* exported setup, changelog --eslint */
 
 var changelog = [
+  {
+    version: '0.4.7',
+    changes: ['Refactoring: use IITC.map API instead of legacy globals'],
+  },
+  {
+    version: '0.4.6',
+    changes: ['Take Machina into account'],
+  },
   {
     version: '0.4.5',
     changes: ['Refactoring: fix eslint'],
@@ -82,7 +91,7 @@ window.plugin.compAPStats.updateNoPortals = function () {
 };
 
 window.plugin.compAPStats.update = function (hasFinished) {
-  if (!window.getDataZoomTileParameters().hasPortals) {
+  if (!IITC.map.tiles.getDataZoomParameters().hasPortals) {
     window.plugin.compAPStats.updateNoPortals(hasFinished);
     return;
   }
@@ -95,6 +104,7 @@ window.plugin.compAPStats.update = function (hasFinished) {
       `Destroy and capture ${data.destroyPortals} portals\n` +
       `Destroy ${data.destroyLinks} links and ${data.destroyFields} fields\n` +
       `Capture ${data.capturePortals} neutral portals, complete ${data.finishPortals} portals\n` +
+      `Reclaim ${data.reclaimPortals} machina portals\n` +
       `(unknown additional AP for links/fields)`;
     return `<tr><td>${team}</td><td style="text-align:right" title="${title}">${window.digits(data.AP)}</td></tr>`;
   };
@@ -106,8 +116,8 @@ window.plugin.compAPStats.update = function (hasFinished) {
 
 window.plugin.compAPStats.compAPStats = function () {
   var result = {
-    res: { AP: 0, destroyPortals: 0, capturePortals: 0, finishPortals: 0, destroyLinks: 0, destroyFields: 0 },
-    enl: { AP: 0, destroyPortals: 0, capturePortals: 0, finishPortals: 0, destroyLinks: 0, destroyFields: 0 },
+    res: { AP: 0, destroyPortals: 0, capturePortals: 0, finishPortals: 0, destroyLinks: 0, destroyFields: 0, reclaimPortals: 0 },
+    enl: { AP: 0, destroyPortals: 0, capturePortals: 0, finishPortals: 0, destroyLinks: 0, destroyFields: 0, reclaimPortals: 0 },
   };
 
   var displayBounds = window.map.getBounds();
@@ -131,7 +141,6 @@ window.plugin.compAPStats.compAPStats = function () {
 
     // AP to destroy this portal
     var destroyAp = (data.resCount || 0) * window.DESTROY_RESONATOR;
-
     if (portal.options.team === window.TEAM_ENL) {
       result.res.AP += destroyAp + PORTAL_FULL_DEPLOY_AP;
       result.res.destroyPortals++;
@@ -146,11 +155,22 @@ window.plugin.compAPStats.compAPStats = function () {
         result.res.AP += completePortalAp;
         result.res.finishPortals++;
       }
+    } else if (portal.options.team === window.TEAM_MAC) {
+      // it's a machina portal, destroy AP for both teams.
+      result.enl.AP += destroyAp + PORTAL_FULL_DEPLOY_AP + window.RECLAIM_PORTAL_FROM_MACHINA;
+      result.res.AP += destroyAp + PORTAL_FULL_DEPLOY_AP + window.RECLAIM_PORTAL_FROM_MACHINA;
+
+      result.enl.destroyPortals++;
+      result.res.destroyPortals++;
+
+      result.enl.reclaimPortals++;
+      result.res.reclaimPortals++;
     } else {
-      // it's a neutral portal, potential for both teams.  by definition no fields or edges
+      // it's a neutral portal, potential for both teams. by definition no fields or edges
       result.enl.AP += PORTAL_FULL_DEPLOY_AP;
-      result.enl.capturePortals++;
       result.res.AP += PORTAL_FULL_DEPLOY_AP;
+
+      result.enl.capturePortals++;
       result.res.capturePortals++;
     }
   });
@@ -160,10 +180,15 @@ window.plugin.compAPStats.compAPStats = function () {
     // only consider links that start/end on-screen
     var points = link.getLatLngs();
     if (displayBounds.contains(points[0]) || displayBounds.contains(points[1])) {
-      if (link.options.team === window.TEAM_ENL) {
+      if (link.options.team !== window.TEAM_RES) {
+        // res gets points if the link is not their own team.
+        // this will match if link team is ENL or MAC
         result.res.AP += window.DESTROY_LINK;
         result.res.destroyLinks++;
-      } else if (link.options.team === window.TEAM_RES) {
+      }
+      if (link.options.team !== window.TEAM_ENL) {
+        // enl gets points if the link is not their own team.
+        // this will match if link team is RES or MAC
         result.enl.AP += window.DESTROY_LINK;
         result.enl.destroyLinks++;
       }
@@ -175,10 +200,13 @@ window.plugin.compAPStats.compAPStats = function () {
     // only consider fields with at least one vertex on screen
     var points = field.getLatLngs();
     if (displayBounds.contains(points[0]) || displayBounds.contains(points[1]) || displayBounds.contains(points[2])) {
-      if (field.options.team === window.TEAM_ENL) {
+      // Although there were no reports about machina fields yet, we'll stick to the same new logic as for links.
+      // If at some day machina dares to build fields, this will then work, too.
+      if (field.options.team !== window.TEAM_RES) {
         result.res.AP += window.DESTROY_FIELD;
         result.res.destroyFields++;
-      } else if (field.options.team === window.TEAM_RES) {
+      }
+      if (field.options.team !== window.TEAM_ENL) {
         result.enl.AP += window.DESTROY_FIELD;
         result.enl.destroyFields++;
       }

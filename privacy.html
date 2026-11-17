@@ -11,14 +11,14 @@
     <link type="text/css" rel="stylesheet" href="css/fonts.css?ffa21d972db3db71716f28643b0aadab" media="screen,projection"/>
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="css/user.css?a5755a53d765f87b78c6d669f2515f2c" media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="css/badge.css?6fda0ca73e22717d9adab7e58223396f" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/user.css?c1040bce425769d5f53c3d6f5fdfe546" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/badge.css?583ddd30cc75a88bdc48cb4a12e242ee" media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="css/card.css?bc0abeca5b4c432aad2e9c2f926e2b67" media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="css/buttons.css?4740dd96ffd45ee4a334ec91332929b6" media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="css/aside.css?fa52a0e482a6a4188ce23f3a26e9d0f1" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/aside.css?c2232f434275ec8f0f79f989b3ab8bf1" media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="css/header.css?8db3351989fcc4d6a48cb4fcee7d4008" media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="css/plugins-list.css?cd79830618a67acd97ab2e57c0a3924b" media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="css/plugins-card.css?91cb3742e69b58bef7299effc0646857" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/plugins-list.css?ccaadd6162f945a99a00158771b237d1" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/plugins-card.css?7763518f07cfc56bc66165a903e429e1" media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="css/plugins-modal.css?2b4010f3a4f5f93f85b6aa69be8063da" media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="css/telegram-widget-frame.css?ae90e820b776cb1d9cd93e1b8e643c92" media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="css/iitc-screenshots.css?82046495d41c6c899dc8d14dee8d8ce9" media="screen,projection"/>
@@ -93,7 +93,7 @@
 
                     <div class="metadata">
                         <strong>Effective Date:</strong> 29 August 2025<br>
-                        <strong>Last Updated:</strong> 29 August 2025
+                        <strong>Last Updated:</strong> 15 November 2026
                     </div>
 
                     <h3>Overview</h3>
@@ -101,17 +101,40 @@
                     <p>IITC-CE ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we handle information in connection with our applications.</p>
 
                     <h3>Data Collection by IITC-CE Applications</h3>
-                    <p><strong>We do not collect, store, or transmit any personal data or user information.</strong></p>
+                    <p><strong>IITC-CE developers do not collect, store, or receive any personal data.</strong></p>
 
                     <p>IITC-CE applications function as enhanced web browsers that:</p>
                     <ul>
                         <li>Load intel.ingress.com (Niantic's official Ingress Intel website) in a webview</li>
                         <li>Apply userscripts to enhance the interface with additional features</li>
-                        <li>Do not collect any personal information from users</li>
+                        <li>Do not send any personal information to IITC-CE developers</li>
                         <li>Do not store user data on our servers</li>
                         <li>Do not track user behavior or usage patterns</li>
-                        <li>Do not require user accounts or registration</li>
+                        <li>Do not require an IITC-CE account or registration</li>
                     </ul>
+
+                    <h3>Crash and Error Reporting (Sentry)</h3>
+                    <p>To improve app stability and diagnose issues, IITC-CE applications may use <a href="https://sentry.io" target="_blank">Sentry</a>, a third-party error tracking service, to automatically send crash and error reports when the application encounters a problem.</p>
+
+                    <p><strong>Each error report may include the following non-personal technical data:</strong></p>
+                    <ul>
+                        <li><strong>Error details:</strong> error type, stack trace, and related diagnostic information</li>
+                        <li><strong>App information:</strong> application version, build number, and foreground/background state</li>
+                        <li><strong>Device information:</strong> device manufacturer, model, screen resolution, processor count, total and available memory and storage</li>
+                        <li><strong>Operating system:</strong> OS name, version, build number, and kernel version</li>
+                        <li><strong>Runtime context:</strong> battery level, charging status, network connection type (e.g. Wi-Fi or cellular), device orientation, and device locale/timezone</li>
+                        <li><strong>Random device identifier:</strong> a randomly generated ID used solely to group errors from the same device — it is not linked to any user account or personal identity</li>
+                    </ul>
+
+                    <p><strong>What is NOT collected:</strong></p>
+                    <ul>
+                        <li>No names, email addresses, phone numbers or account credentials — Sentry has no access to what you type in the app, including on sign-in pages</li>
+                        <li>No IP addresses — IP address storage is disabled in our Sentry configuration</li>
+                        <li>No user-generated content or gameplay data</li>
+                        <li>No screenshots, screen recordings, or session replays — these Sentry features are explicitly disabled</li>
+                    </ul>
+
+                    <p>This data is used solely to identify and fix application errors and is not used for usage tracking, advertising, or profiling. Data is processed by Sentry in accordance with their <a href="https://sentry.io/privacy/" target="_blank">Privacy Policy</a>.</p>
 
                     <h3>How IITC-CE Applications Work</h3>
                     <p>IITC-CE applications are specialized browsers that:</p>
@@ -127,7 +150,7 @@
                     </div>
 
                     <h3>Third-Party Services - Ingress Intel</h3>
-                    <p>When you use IITC-CE applications, you are directly accessing intel.ingress.com, operated by Niantic, Inc.:</p>
+                    <p>When you use IITC-CE applications, you are directly accessing intel.ingress.com, operated by Niantic Spatial, Inc.:</p>
                     <ul>
                         <li><strong>All user data collection and storage</strong> is handled by intel.ingress.com according to Niantic's Privacy Policy</li>
                         <li><strong>We have no access to or control over</strong> the data processed by intel.ingress.com</li>
@@ -135,11 +158,14 @@
                     </ul>
 
                     <div class="card-panel important">
-                        <strong>Important:</strong> Please review <a href="https://nianticlabs.com/privacy" target="_blank">Niantic's Privacy Policy</a> to understand what data they collect when you use intel.ingress.com.
+                        <strong>Important:</strong> Please review <a href="https://www.nianticspatial.com/privacy-consumer-games" target="_blank">Niantic Spatial's Privacy Policy</a> to understand what data they collect when you use intel.ingress.com.
                     </div>
 
+                    <h3>Sign-in to Ingress Intel</h3>
+                    <p>To use the app, you sign in to intel.ingress.com with your existing Niantic account (via Google or Apple) on the official sign-in pages shown inside the app's webview. On these pages you may enter your email address or phone number. This data is sent directly to Niantic, Google or Apple and processed under their privacy policies (<a href="https://www.nianticspatial.com/privacy-consumer-games" target="_blank">Niantic Spatial</a>, <a href="https://policies.google.com/privacy" target="_blank">Google</a>, <a href="https://www.apple.com/legal/privacy/" target="_blank">Apple</a>). IITC-CE developers do not receive, store or have access to it.</p>
+
                     <h3>Children's Privacy</h3>
-                    <p>IITC-CE applications do not collect any information from users of any age. However, intel.ingress.com (accessed through our applications) is operated by Niantic and may have age restrictions. Parents should review Niantic's terms and privacy policy.</p>
+                    <p>IITC-CE developers do not collect personal information from users of any age. However, intel.ingress.com (accessed through our applications) is operated by Niantic and may have age restrictions. Parents should review Niantic's terms and privacy policy.</p>
 
                     <h3>Changes to This Privacy Policy</h3>
                     <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated "Last Updated" date.</p>
@@ -153,7 +179,7 @@
                     <p>Since we do not collect any personal data, there is no personal data for you to access, modify, or delete from our systems. For any data collected by intel.ingress.com, please contact Niantic directly.</p>
 
                     <div class="card-panel">
-                        <strong>Summary:</strong> IITC-CE applications are enhanced browsers that display intel.ingress.com with improved functionality. We don't collect any user data - all data collection is handled by intel.ingress.com according to Niantic's Privacy Policy.
+                        <strong>Summary:</strong> IITC-CE applications are enhanced browsers that display intel.ingress.com with improved functionality. We don't collect any personal user data. Anonymous crash reports may be sent via Sentry to help us improve app stability. All other data collection is handled by intel.ingress.com according to Niantic's Privacy Policy.
                     </div>
 
                 </div>
@@ -183,6 +209,6 @@
     </footer>
 
     <script type="text/javascript" src="js/materialize.min.js"></script>
-    <script type="text/javascript" src="js/user.js?92a978636032a7bc02614a1398ca21c8"></script>
+    <script type="text/javascript" src="js/user.js?f69e15a61ecc44d9064ef9be7990b4e2"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 // @author         danielatkins
 // @name           IITC plugin: Overlay KML / GPX / GeoJSON
 // @category       Layer
-// @version        0.3.3
+// @version        0.3.4
 // @description    Allow users to overlay their own KML / GPX / GeoJSON files on top of IITC.
 // @id             overlay-kml
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'overlay-kml';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,7 @@ plugin_info.pluginId = 'overlay-kml';
 /* global L -- eslint */
 
 var changelog = [
+  { version: '0.3.4', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.3.32',
     changes: ['Refactoring: fix eslint'],
@@ -120,10 +121,10 @@ overlayKML.layerOptions = {
         var style = overlayKML.layerOptions.style;
         color = style && style.defaults && style.defaults['marker-color'];
       }
-      icon = L.divIcon.coloredSvg(color, overlayKML.iconSizes);
+      icon = new L.DivIcon.ColoredSvg(color, overlayKML.iconSizes);
     }
     // old icon: new L.Icon.Default(overlayKML.iconSizes);
-    return L.marker(latlng, { icon: icon });
+    return new L.Marker(latlng, { icon: icon });
   },
 
   // https://leafletjs.com/reference.html#geojson-oneachfeature

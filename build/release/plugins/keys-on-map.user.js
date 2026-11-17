@@ -2,7 +2,7 @@
 // @author         xelio
 // @name           IITC plugin: Keys on map
 // @category       Layer
-// @version        0.3.4
+// @version        0.3.5
 // @description    Show the manually entered key counts from the 'keys' plugin on the map.
 // @id             keys-on-map
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'keys-on-map';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,7 @@ plugin_info.pluginId = 'keys-on-map';
 /* global L -- eslint */
 
 var changelog = [
+  { version: '0.3.5', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.3.4',
     changes: ['Refactoring: fix eslint'],
@@ -90,8 +91,8 @@ window.plugin.keysOnMap.renderKey = function (guid, latLng) {
 
   var keyCount = window.plugin.keys.keys[guid];
   if (keyCount > 0) {
-    var key = L.marker(latLng, {
-      icon: L.divIcon({
+    var key = new L.Marker(latLng, {
+      icon: new L.DivIcon({
         className: 'plugin-keys-on-map-key',
         iconAnchor: [6, 7],
         iconSize: [12, 10],

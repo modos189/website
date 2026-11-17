@@ -2,7 +2,7 @@
 // @author         fstopienski
 // @name           IITC plugin: Linked portals
 // @category       Portal Info
-// @version        0.4.3
+// @version        0.4.5
 // @description    Try to show the linked portals (image, name and link direction) in portal detail view and jump to linked portal on click.  Some details may not be available if the linked portal is not in the current view.
 // @id             linked-portals-show
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,14 +21,19 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'linked-portals-show';
 //END PLUGIN AUTHORS NOTE
 
 /* exported setup, changelog --eslint */
-/* global L -- eslint */
+/* global IITC, L -- eslint */
 
 var changelog = [
+  {
+    version: '0.4.5',
+    changes: ['Refactoring: use IITC.portal and IITC.utils APIs instead of legacy globals'],
+  },
+  { version: '0.4.4', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.4.3',
     changes: ['Refactoring: fix eslint'],
@@ -73,7 +78,7 @@ showLinkedPortal.makePortalLinkContent = function ($div, info, data) {
   if (data.image) {
     $('<img>')
       .attr({
-        src: window.fixPortalImageUrl(data.image),
+        src: IITC.portal.fixImageUrl(data.image),
         class: 'minImg',
         alt: data.title,
       })
@@ -91,7 +96,7 @@ showLinkedPortal.getPortalLinkTooltip = function ($div, info, data) {
     $('<div>').html(lengthFull)
   );
   if (showLinkedPortal.imageInTooltip && data.image) {
-    $('<img>').attr('src', window.fixPortalImageUrl(data.image)).addClass('minImg').appendTo(tooltip);
+    $('<img>').attr('src', IITC.portal.fixImageUrl(data.image)).addClass('minImg').appendTo(tooltip);
   }
   return tooltip.html();
 };
@@ -115,7 +120,7 @@ showLinkedPortal.makePortalLinkInfo = function ($div, info, data) {
 showLinkedPortal.portalDetail = function (data) {
   showLinkedPortal.removePreview();
 
-  var portalLinks = window.getPortalLinks(data.guid);
+  var portalLinks = IITC.portal.getLinks(data.guid);
   var length = portalLinks.in.length + portalLinks.out.length;
 
   var c = 1;
@@ -135,7 +140,7 @@ showLinkedPortal.portalDetail = function (data) {
     var lat = link[key + 'LatE6'] / 1e6;
     var lng = link[key + 'LngE6'] / 1e6;
 
-    var length = L.latLng(link.oLatE6 / 1e6, link.oLngE6 / 1e6).distanceTo([link.dLatE6 / 1e6, link.dLngE6 / 1e6]);
+    var length = new L.LatLng(link.oLatE6 / 1e6, link.oLngE6 / 1e6).distanceTo([link.dLatE6 / 1e6, link.dLngE6 / 1e6]);
     var info = {
       guid: guid,
       lat: lat,
@@ -146,7 +151,7 @@ showLinkedPortal.portalDetail = function (data) {
     var $div = $('<div>')
       .addClass('link link' + c + ' ' + direction)
       .data(info);
-    var data = (window.portals[guid] && window.portals[guid].options.data) || window.portalDetail.get(guid) || {};
+    var data = (window.portals[guid] && window.portals[guid].options.data) || IITC.portal.details.get(guid) || {};
     showLinkedPortal.makePortalLinkInfo($div, info, data);
     $div.appendTo($showLinkedPortalContainer);
 
@@ -190,21 +195,21 @@ showLinkedPortal.renderPortalDetails = function (ev) {
 
   var info = $(this).data();
 
-  var position = L.latLng(info.lat, info.lng);
+  var position = new L.LatLng(info.lat, info.lng);
   if (!window.map.getBounds().contains(position)) {
     window.map.panInside(position);
   }
   if (window.portals[info.guid]) {
-    window.renderPortalDetails(info.guid);
+    IITC.portal.display.renderDetails(info.guid);
   } else {
-    window.zoomToAndShowPortal(info.guid, position);
+    IITC.portal.zoomToAndShow(info.guid, position);
   }
 };
 
 showLinkedPortal.requestPortalData = function () {
   var $element = $(this);
   var info = $element.data();
-  window.portalDetail.request(info.guid).done(function (data) {
+  IITC.portal.details.request(info.guid).done(function (data) {
     showLinkedPortal.makePortalLinkInfo($element, info, data);
     // update tooltip
     var tooltipId = $element.attr('aria-describedby');
@@ -216,7 +221,7 @@ showLinkedPortal.requestPortalData = function () {
 
 showLinkedPortal.showLinkOnMap = function () {
   // close portal info in order to preview link on map
-  if (window.isSmartphone()) {
+  if (IITC.utils.isSmartphone()) {
     window.show('map');
   }
   if (!showLinkedPortal.preview) {
@@ -224,7 +229,7 @@ showLinkedPortal.showLinkOnMap = function () {
   }
 
   var info = $(this).data();
-  var position = L.latLng(info.lat, info.lng);
+  var position = new L.LatLng(info.lat, info.lng);
   if (!window.map.getBounds().contains(position)) {
     var targetBounds = [position, window.portals[window.selectedPortal].getLatLng()];
     window.map.fitBounds(targetBounds, { padding: [15, 15], maxZoom: window.map.getZoom() });
@@ -235,10 +240,10 @@ showLinkedPortal.showPreview = function () {
   showLinkedPortal.removePreview();
 
   var info = $(this).data();
-  var remote = L.latLng(info.lat, info.lng);
+  var remote = new L.LatLng(info.lat, info.lng);
   var local = window.portals[window.selectedPortal].getLatLng();
 
-  showLinkedPortal.preview = L.layerGroup().addTo(window.map);
+  showLinkedPortal.preview = new L.LayerGroup().addTo(window.map);
 
   L.circleMarker(remote, showLinkedPortal.previewOptions).addTo(showLinkedPortal.preview);
 

@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'zoom-slider';
 //END PLUGIN AUTHORS NOTE
 
@@ -133,7 +133,7 @@ function loadLeafletZoomslider() {
 
 			setPosition: function (y) {
 				L.DomUtil.setPosition(this._element,
-									  L.point(0, this._adjust(y)));
+					new L.Point(0, this._adjust(y)));
 			},
 
 			setValue: function (v) {

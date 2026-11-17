@@ -2,7 +2,7 @@
 // @author         breunigs
 // @name           IITC plugin: Player activity tracker
 // @category       Layer
-// @version        0.14.0
+// @version        0.14.2
 // @description    Draw trails for the path a user took onto the map based on status messages in COMMs. Uses up to three hours of data. Does not request chat data on its own, even if that would be useful.
 // @id             player-activity-tracker
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'player-activity-tracker';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,11 @@ plugin_info.pluginId = 'player-activity-tracker';
 /* global IITC, L -- eslint */
 
 var changelog = [
+  {
+    version: '0.14.2',
+    changes: ['Refactoring: use IITC.chat, IITC.portal and IITC.utils APIs instead of legacy globals'],
+  },
+  { version: '0.14.1', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.14.0',
     changes: ['Using `IITC.utils.formatAgo` instead of the plugin own function', 'Refactoring to make it easier to extend plugin functions'],
@@ -111,7 +116,7 @@ window.plugin.playerTracker.setup = function () {
     }
   });
 
-  window.plugin.playerTracker.playerPopup = new L.Popup({ offset: L.point([1, -34]) });
+  window.plugin.playerTracker.playerPopup = new L.Popup({ offset: new L.Point([1, -34]) });
 
   window.addHook('publicChatDataAvailable', window.plugin.playerTracker.handleData);
 
@@ -157,11 +162,11 @@ window.plugin.playerTracker.zoomListener = function () {
     window.plugin.playerTracker.drawnTracesRes.clearLayers();
     ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
     // note: zoomListener is also called at init time to set up things, so we only need to do this in here
-    window.chat.backgroundChannelData('plugin.playerTracker', 'all', false); // disable this plugin's interest in 'all' COMM
+    IITC.chat.backgroundChannelData('plugin.playerTracker', 'all', false); // disable this plugin's interest in 'all' COMM
   } else {
     ctrl.removeClass('disabled').attr('title', '');
     // note: zoomListener is also called at init time to set up things, so we only need to do this in here
-    window.chat.backgroundChannelData('plugin.playerTracker', 'all', true); // enable this plugin's interest in 'all' COMM
+    IITC.chat.backgroundChannelData('plugin.playerTracker', 'all', true); // enable this plugin's interest in 'all' COMM
   }
 };
 
@@ -305,7 +310,7 @@ window.plugin.playerTracker.getLatLngFromEvent = function (ev) {
     lngs += latlng[1];
   });
 
-  return L.latLng(lats / ev.latlngs.length, lngs / ev.latlngs.length);
+  return new L.LatLng(lats / ev.latlngs.length, lngs / ev.latlngs.length);
 };
 
 window.plugin.playerTracker.drawData = function () {
@@ -400,7 +405,7 @@ window.plugin.playerTracker.drawData = function () {
     // as per OverlappingMarkerSpiderfier docs, click events (popups, etc) must be handled via it rather than the standard
     // marker click events. so store the popup text in the options, then display it in the oms click handler
     const markerPos = gllfe(last);
-    var m = L.marker(markerPos, { icon: icon, opacity: absOpacity, desc: popup[0], title: tooltip });
+    var m = new L.Marker(markerPos, { icon: icon, opacity: absOpacity, desc: popup[0], title: tooltip });
     m.addEventListener('spiderfiedclick', window.plugin.playerTracker.onClickListener);
 
     // m.bindPopup(title);
@@ -452,19 +457,19 @@ window.plugin.playerTracker.getPortalLink = function (data) {
   return $('<a>')
     .addClass('text-overflow-ellipsis')
     .css('max-width', '15em')
-    .text(window.chat.getChatPortalName(data))
+    .text(IITC.comm.getChatPortalName(data))
     .prop({
-      title: window.chat.getChatPortalName(data),
-      href: window.makePermalink(position),
+      title: IITC.comm.getChatPortalName(data),
+      href: IITC.portal.display.makePermalink(position),
     })
-    .click(function (event) {
-      window.selectPortalByLatLng(position);
+    .on('click', function (event) {
+      IITC.portal.selectByLatLng(position);
       event.preventDefault();
       return false;
     })
-    .dblclick(function (event) {
+    .on('dblclick', function (event) {
       window.map.setView(position, window.DEFAULT_ZOOM);
-      window.selectPortalByLatLng(position);
+      IITC.portal.selectByLatLng(position);
       event.preventDefault();
       return false;
     });
@@ -501,7 +506,7 @@ window.plugin.playerTracker.centerMapOnUser = function (nick) {
   var last = data.events[data.events.length - 1];
   var position = window.plugin.playerTracker.getLatLngFromEvent(last);
 
-  if (window.isSmartphone()) window.show('map');
+  if (IITC.utils.isSmartphone()) window.show('map');
   window.map.setView(position, window.map.getZoom());
 
   if (data.marker) {
@@ -520,7 +525,7 @@ window.plugin.playerTracker.onNicknameClicked = function (info) {
 window.plugin.playerTracker.onSearchResultSelected = function (result, event) {
   event.stopPropagation(); // prevent chat from handling the click
 
-  if (window.isSmartphone()) window.show('map');
+  if (IITC.utils.isSmartphone()) window.show('map');
 
   // if the user moved since the search was started, check if we have a new set of data
   if (false === window.plugin.playerTracker.centerMapOnUser(result.nickname)) window.map.setView(result.position);

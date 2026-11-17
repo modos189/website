@@ -2,7 +2,7 @@
 // @author         ZasoGD
 // @name           IITC plugin: Multi Projects Extension
 // @category       Controls
-// @version        0.1.5.20260904.111504
+// @version        0.2.0.20261113.185036
 // @description    Create separated projects in some plugins.
 // @id             multi-projects-extension
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'beta';
-plugin_info.dateTimeVersion = '2026-09-04-111504';
+plugin_info.dateTimeVersion = '2026-11-13-185036';
 plugin_info.pluginId = 'multi-projects-extension';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,15 @@ plugin_info.pluginId = 'multi-projects-extension';
 /* global IITC -- eslint */
 
 var changelog = [
+  {
+    version: '0.2.0',
+    changes: [
+      'Register projects regardless of plugin load order',
+      'Keep the selected project across reloads',
+      'Ignore a scan for a project that is not registered',
+      'Draw icons from the bundled font',
+    ],
+  },
   {
     version: '0.1.5',
     changes: ['Refactoring: fix eslint'],
@@ -64,7 +73,10 @@ window.plugin.mpe.dialog = {};
 window.plugin.mpe.action = {};
 
 window.plugin.mpe.obj.projects = {};
-window.plugin.mpe.obj.opt = { settings: { manager: [], sidebar: [] } };
+window.plugin.mpe.obj.opt = { settings: { sidebar: [] } };
+
+const pendingProjects = [];
+window.plugin.mpe.isReady = false;
 
 // ------------------------------------------------------
 // STORAGE
@@ -75,10 +87,12 @@ window.plugin.mpe.storage.saveStorage = function () {
 };
 window.plugin.mpe.storage.loadStorage = function () {
   window.plugin.mpe.obj.opt = JSON.parse(window.localStorage[window.plugin.mpe.storage.NAME]);
+  // the projects hidden in the manager dialog, which the options page replaces
+  delete window.plugin.mpe.obj.opt.settings.manager;
 };
 window.plugin.mpe.storage.checkStorage = function () {
   if (window.localStorage[window.plugin.mpe.storage.NAME] === undefined) {
-    window.plugin.mpe.obj.opt = { settings: { manager: [], sidebar: [] } };
+    window.plugin.mpe.obj.opt = { settings: { sidebar: [] } };
     window.plugin.mpe.storage.saveStorage();
   }
   window.plugin.mpe.storage.loadStorage();
@@ -132,25 +146,36 @@ window.plugin.mpe.data.getProjects = function (PJ) {
   return window.plugin.mpe.obj.projects[PJ].pj;
 };
 
-window.plugin.mpe.data.isInSidebar = function (PJ) {
-  var arrSidebar = window.plugin.mpe.obj.opt['settings']['sidebar'];
-  var index = arrSidebar.indexOf(PJ);
-  if (index >= 0) {
-    return index;
+// the default project is the absence of an entry, so old storages need no migration
+window.plugin.mpe.data.getSavedKeyPj = (PJ) => window.plugin.mpe.obj.opt.settings.current?.[PJ];
+window.plugin.mpe.data.saveKeyPj = (PJ, storageKey) => {
+  const { settings } = window.plugin.mpe.obj.opt;
+  settings.current ??= {};
+
+  if (storageKey === window.plugin.mpe.data.getPreKeyPj(PJ)) {
+    delete settings.current[PJ];
+  } else {
+    settings.current[PJ] = storageKey;
   }
-  return -1;
+  window.plugin.mpe.storage.saveStorage();
 };
-window.plugin.mpe.data.isInManager = function (PJ) {
-  var arrSidebar = window.plugin.mpe.obj.opt['settings']['manager'];
-  var index = arrSidebar.indexOf(PJ);
-  if (index >= 0) {
-    return index;
-  }
-  return -1;
+
+window.plugin.mpe.data.isInSidebar = (PJ) => IITC.options.get(`mpe.sidebar_${PJ}`) === true;
+
+// the sidebar flags were kept in plugin-mpe: each moves to its option once its plugin registers
+window.plugin.mpe.data.migrateSidebar = (PJ) => {
+  const { sidebar } = window.plugin.mpe.obj.opt.settings;
+  if (!sidebar?.includes(PJ)) return;
+  IITC.options.set(`mpe.sidebar_${PJ}`, true);
+  sidebar.splice(sidebar.indexOf(PJ), 1);
+  window.plugin.mpe.storage.saveStorage();
 };
 
 window.plugin.mpe.data.getFaClass = function (PJ) {
   return window.plugin.mpe.obj.projects[PJ].fa;
+};
+window.plugin.mpe.data.getIcon = function (PJ) {
+  return window.plugin.mpe.obj.projects[PJ].icon;
 };
 window.plugin.mpe.data.getTitle = function (PJ) {
   return window.plugin.mpe.obj.projects[PJ].title;
@@ -180,6 +205,10 @@ window.plugin.mpe.data.scanStorageForAll = function () {
 };
 window.plugin.mpe.data.scanStorageForOne = function (name) {
   var PROJ = window.plugin.mpe.obj.projects[name];
+  // not registered yet: setMultiProjects scans as soon as it is
+  if (!PROJ) {
+    return;
+  }
   PROJ.pj = [];
 
   //        if(window.localStorage[PROJ.defaultKey] !== undefined){
@@ -189,6 +218,7 @@ window.plugin.mpe.data.scanStorageForOne = function (name) {
     }
   }
   //        }
+  IITC.options.refresh(window.plugin.mpe.PAGE_ID);
 };
 
 // ------------------------------------------------------
@@ -215,13 +245,8 @@ window.plugin.mpe.getHTML.projectOptions = function (PJ) {
 window.plugin.mpe.getHTML.project = function (PJ) {
   var PROJ = window.plugin.mpe.obj.projects[PJ];
   var listElem = '';
-  var txtNew = '+';
-  var txtDel = 'X';
-
-  if (window.plugin.faIcon) {
-    txtNew = '<i class="fa fa-plus"></i>';
-    txtDel = '<i class="fa fa-trash"></i>';
-  }
+  var txtNew = '<iitc-icon fallback="+">add</iitc-icon>';
+  var txtDel = '<iitc-icon fallback="X">delete</iitc-icon>';
 
   listElem += `<div class="mpe manager ${PJ} list-group-item" data-mpe="${PJ}">`;
   listElem += `<h4>${PROJ.title}</h4>`;
@@ -237,41 +262,6 @@ window.plugin.mpe.getHTML.project = function (PJ) {
 
   return listElem;
 };
-window.plugin.mpe.getHTML.projectsAll = function () {
-  var html = '';
-
-  for (var name in window.plugin.mpe.obj.projects) {
-    html += window.plugin.mpe.getHTML.project(name);
-  }
-  return html;
-};
-window.plugin.mpe.getHTML.prjSett = function (PJ) {
-  var PROJ = window.plugin.mpe.obj.projects[PJ];
-  var listElem = '';
-
-  var inManager = window.plugin.mpe.data.isInManager(PJ) < 0 ? 'checked' : '';
-  var inSidebar = window.plugin.mpe.data.isInSidebar(PJ) >= 0 ? 'checked' : '';
-
-  listElem += `<div class="mpe settings ${PJ}" data-mpe="${PJ}">`;
-  listElem += `<h4>${PROJ.title}</h4>`;
-  listElem += `<div>`;
-  listElem += `<label><input type="checkbox" ${inManager} onclick="window.plugin.mpe.action.toggleManager('${PJ}');" />in Manager</label>`;
-  listElem += `<label><input type="checkbox" ${inSidebar} onclick="window.plugin.mpe.action.toggleSidebar('${PJ}');" />in Sidebar</label>`;
-  //                listElem += '<div class="clear"></div>';
-  listElem += '</div>';
-  listElem += '</div>';
-
-  return listElem;
-};
-window.plugin.mpe.getHTML.prjSettAll = function () {
-  var html = '';
-
-  for (var type in window.plugin.mpe.obj.projects) {
-    html += window.plugin.mpe.getHTML.prjSett(type);
-  }
-  return html;
-};
-
 window.plugin.mpe.ui.deleteOption = function (PJ, storageName) {
   var PROJ = window.plugin.mpe.obj.projects[PJ];
   if (storageName !== PROJ.defaultKey) {
@@ -289,14 +279,6 @@ window.plugin.mpe.ui.redrawHTMLOptions = function (PJ) {
   $(`.mpe[data-mpe="${PJ}"] select`).html(html);
 };
 
-window.plugin.mpe.ui.addControl = function () {
-  IITC.toolbox.addButton({
-    label: 'MultiProjects',
-    action: window.plugin.mpe.dialog.openMain,
-    class: 'list-group-item',
-    icon: 'fa-files-o',
-  });
-};
 window.plugin.mpe.ui.appendContainerInSidebar = function () {
   if (!$('#multi-projects.mpeSidebar').length) {
     $('#sidebar').append('<div id="multi-projects" class="mpeSidebar list-group"></div>');
@@ -306,35 +288,6 @@ window.plugin.mpe.ui.appendContainerInSidebar = function () {
 // ------------------------------------------------------
 // DIALOGS
 // ------------------------------------------------------
-window.plugin.mpe.dialog.openMain = function () {
-  //        window.plugin.mpe.data.scanStorageForAll();
-  var html = window.plugin.mpe.getHTML.projectsAll();
-
-  window.dialog({
-    title: 'Multi Projects Manager',
-    html: `<div class="mpeManager">${html}</div>`,
-    dialogClass: 'ui-dialog-mpe',
-    minWidth: 300,
-    buttons: {
-      SETTINGS: function () {
-        window.plugin.mpe.dialog.openSettings();
-      },
-    },
-  });
-
-  var list = window.plugin.mpe.obj.projects;
-  for (var name in list) {
-    window.plugin.mpe.ui.toggleManager(name);
-  }
-};
-window.plugin.mpe.dialog.openSettings = function () {
-  window.dialog({
-    title: 'Multi Projects Settings',
-    html: `<div class="mpeSettings">${window.plugin.mpe.getHTML.prjSettAll()}</div>`,
-    dialogClass: 'ui-dialog-mpe',
-    minWidth: 300,
-  });
-};
 window.plugin.mpe.dialog.insertNameNewProject = function () {
   var promptAction = prompt('Choose a Project Name.\nNB: you can use only a-z, A-Z, 0-9, "() []" and " "', '');
 
@@ -345,48 +298,12 @@ window.plugin.mpe.dialog.insertNameNewProject = function () {
 };
 
 // ------------------------------------------------------
-// VISIBILITY OPT (IN MANAGER, IN SIDEBAR)
+// VISIBILITY IN SIDEBAR
 // ------------------------------------------------------
-window.plugin.mpe.action.toggleSidebar = function (PJ) {
-  window.plugin.mpe.data.toggleSidebar(PJ);
-  window.plugin.mpe.storage.saveStorage();
-  window.plugin.mpe.ui.toggleSidebar(PJ);
-};
-window.plugin.mpe.action.toggleManager = function (PJ) {
-  window.plugin.mpe.data.toggleManager(PJ);
-  window.plugin.mpe.storage.saveStorage();
-  window.plugin.mpe.ui.toggleManager(PJ);
-};
-
-window.plugin.mpe.data.toggleSidebar = function (PJ) {
-  var arrSidebar = window.plugin.mpe.obj.opt['settings']['sidebar'];
-
-  var index = window.plugin.mpe.data.isInSidebar(PJ);
-  if (index >= 0) {
-    arrSidebar.splice(index, 1);
-    return false;
-  } else {
-    arrSidebar.push(PJ);
-    return true;
-  }
-};
-window.plugin.mpe.data.toggleManager = function (PJ) {
-  var arrSidebar = window.plugin.mpe.obj.opt['settings']['manager'];
-
-  var index = window.plugin.mpe.data.isInManager(PJ);
-  if (index >= 0) {
-    arrSidebar.splice(index, 1);
-    return false;
-  } else {
-    arrSidebar.push(PJ);
-    return true;
-  }
-};
-
 window.plugin.mpe.ui.toggleSidebar = function (PJ) {
   var entry = $('.mpeSidebar .mpe.' + PJ);
 
-  if (window.plugin.mpe.data.isInSidebar(PJ) === -1) {
+  if (!window.plugin.mpe.data.isInSidebar(PJ)) {
     entry.remove();
   } else if (entry.length === 0) {
     var icon = getProjectIcon(PJ);
@@ -399,26 +316,20 @@ window.plugin.mpe.ui.toggleSidebar = function (PJ) {
 function getProjectIcon(PJ) {
   var title = window.plugin.mpe.data.getTitle(PJ);
 
+  var icon = window.plugin.mpe.data.getIcon(PJ);
+  if (icon.length !== 0) {
+    return '<iitc-icon class="left" title="' + title + '">' + icon + '</iitc-icon>';
+  }
+
   if (window.plugin.faIcon) {
     var fa = window.plugin.mpe.data.getFaClass(PJ);
     fa = fa.length !== 0 ? fa : 'nofa';
     return '<i class="left fa ' + fa + '" title="' + title + '"></i>';
-  } else {
-    var short = title ? title.substr(0, 3) : 'n/a';
-    return '<i class="left fa" title="' + title + '">' + short + '</i>';
   }
+
+  var short = title ? title.substr(0, 3) : 'n/a';
+  return '<i class="left fa" title="' + title + '">' + short + '</i>';
 }
-
-window.plugin.mpe.ui.toggleManager = function (PJ) {
-  var elem = $('.mpeManager .mpe.' + PJ + '');
-
-  var isHidden = window.plugin.mpe.data.isInManager(PJ);
-  if (isHidden >= 0) {
-    elem.hide();
-  } else {
-    elem.show();
-  }
-};
 
 // ------------------------------------------------------
 // ACTIONS
@@ -429,6 +340,7 @@ window.plugin.mpe.action.switchProject = function (PJ, storageKey) {
 
   // change in obj
   window.plugin.mpe.data.setKey(PJ, storageKey);
+  window.plugin.mpe.data.saveKeyPj(PJ, storageKey);
 
   pj.func_pre();
 
@@ -439,6 +351,7 @@ window.plugin.mpe.action.switchProject = function (PJ, storageKey) {
   pj.func_post();
 
   window.plugin.mpe.ui.redrawHTMLOptions(PJ);
+  IITC.options.refresh(window.plugin.mpe.PAGE_ID);
 
   const data = {
     event: 'switch',
@@ -460,15 +373,30 @@ window.plugin.mpe.action.createNewProject = function (PJ, label) {
     return false;
   }
 
-  var isValid = window.plugin.mpe.data.validateName(name);
-  if (isValid === true) {
-    var storageName = window.plugin.mpe.data.nameToField(PJ, name);
-    window.plugin.mpe.data.addStorageToPJ(PJ, storageName);
-    //            window.plugin.mpe.ui.appendOption(PJ, newName);
-    window.plugin.mpe.action.switchProject(PJ, storageName);
-  } else {
-    alert('Failed. Invalid Name');
+  try {
+    window.plugin.mpe.action.createProject(PJ, name);
+  } catch (e) {
+    alert(`Failed. ${e.message}`);
   }
+};
+
+// true, or why a project cannot have this name
+window.plugin.mpe.data.checkName = (PJ, name) => {
+  if (name === '') return 'Enter a name';
+  if (!window.plugin.mpe.data.validateName(name)) return 'Invalid name: use only a-z, A-Z, 0-9, _, -, (), [] and spaces';
+  if (window.plugin.mpe.data.getProjects(PJ).includes(window.plugin.mpe.data.nameToField(PJ, name))) return `"${name}" already exists`;
+  return true;
+};
+
+// creates the project and switches to it; throws for a name that cannot be used
+window.plugin.mpe.action.createProject = (PJ, text) => {
+  const name = text.trim();
+  const check = window.plugin.mpe.data.checkName(PJ, name);
+  if (check !== true) throw new Error(check);
+
+  const storageName = window.plugin.mpe.data.nameToField(PJ, name);
+  window.plugin.mpe.data.addStorageToPJ(PJ, storageName);
+  window.plugin.mpe.action.switchProject(PJ, storageName);
 };
 window.plugin.mpe.action.deleteProject = function (PJ, storage) {
   if (storage === undefined) {
@@ -490,15 +418,45 @@ window.plugin.mpe.action.deleteProject = function (PJ, storage) {
 
     //            window.plugin.mpe.data.setDefaultKey(PJ);
 
-    // to switch to default_key and load the default storage
-    var defaultKey = window.plugin.mpe.data.getPreKeyPj(PJ);
-    window.plugin.mpe.action.switchProject(PJ, defaultKey);
+    if (storage === PROJ.currKey) {
+      // to switch to default_key and load the default storage
+      var defaultKey = window.plugin.mpe.data.getPreKeyPj(PJ);
+      window.plugin.mpe.action.switchProject(PJ, defaultKey);
+    } else {
+      window.plugin.mpe.action.reportDelete(PJ, storage);
+    }
   }
+  return promptAction;
+};
+
+// a project other than the one in use is gone: the plugin keeps its project, and learns of the deletion
+// through the same hook as of a switch, which is how sync of its data finds the projects that are gone
+window.plugin.mpe.action.reportDelete = (PJ, storageKey) => {
+  const pj = window.plugin.mpe.obj.projects[PJ];
+  window.plugin.mpe.ui.redrawHTMLOptions(PJ);
+  IITC.options.refresh(window.plugin.mpe.PAGE_ID);
+  window.runHooks('mpe', {
+    event: 'delete',
+    data: {
+      namespace: pj.namespace,
+      title: pj.title,
+      defaultStorage: pj.defaultKey,
+      prevStorage: pj.currKey,
+      currentStorage: pj.currKey,
+      deletedStorage: storageKey,
+    },
+  });
 };
 
 // ------------------------------------------------------
 
 window.plugin.mpe.setMultiProjects = function (settings) {
+  // setup may not have run yet: it replays whatever registered before it
+  if (!window.plugin.mpe.isReady) {
+    pendingProjects.push(settings);
+    return;
+  }
+
   window.plugin.mpe.storage.loadStorage();
   window.plugin.mpe.ui.appendContainerInSidebar();
 
@@ -506,16 +464,20 @@ window.plugin.mpe.setMultiProjects = function (settings) {
     if (!settings.title) {
       settings.title = 'Untitled';
     }
+    if (!settings.icon) {
+      settings.icon = '';
+    }
     if (!settings.fa) {
       settings.fa = '';
     }
     if (!settings.func_pre) {
-      settings.func_pre = '';
+      settings.func_pre = () => {};
     }
 
     var newMPE = {
       namespace: settings.namespace,
       title: settings.title,
+      icon: settings.icon,
       fa: settings.fa,
       defaultKey: settings.defaultKey,
       currKey: settings.defaultKey,
@@ -526,9 +488,105 @@ window.plugin.mpe.setMultiProjects = function (settings) {
     };
 
     window.plugin.mpe.obj.projects[settings.namespace] = newMPE;
+    window.plugin.mpe.registerOptions();
+    window.plugin.mpe.data.migrateSidebar(settings.namespace);
     window.plugin.mpe.data.scanStorageForOne(settings.namespace);
     window.plugin.mpe.ui.toggleSidebar(settings.namespace);
+    window.plugin.mpe.action.restoreProject(settings.namespace);
   }
+};
+
+// plugins always register on their default key, so an earlier choice is re-applied here
+window.plugin.mpe.action.restoreProject = (PJ) => {
+  // the switch runs plugin code that expects every plugin to be set up
+  if (!window.iitcLoaded) {
+    window.addHook('iitcLoaded', () => window.plugin.mpe.action.restoreProject(PJ));
+    return;
+  }
+
+  const storageKey = window.plugin.mpe.data.getSavedKeyPj(PJ);
+  if (storageKey === undefined || storageKey === window.plugin.mpe.data.getCurrKeyPj(PJ)) return;
+
+  // the project may have been deleted in another tab
+  if (!window.plugin.mpe.data.getProjects(PJ).includes(storageKey)) {
+    window.plugin.mpe.data.saveKeyPj(PJ, window.plugin.mpe.data.getPreKeyPj(PJ));
+    return;
+  }
+
+  window.plugin.mpe.action.switchProject(PJ, storageKey);
+};
+
+// ------------------------------------------------------
+// OPTIONS
+// ------------------------------------------------------
+window.plugin.mpe.PAGE_ID = 'multi-projects-extension';
+
+window.plugin.mpe.projectChoices = (PJ) => [
+  { id: window.plugin.mpe.data.getPreKeyPj(PJ), title: 'Default project' },
+  ...window.plugin.mpe.data.getProjects(PJ).map((storageKey) => ({ id: storageKey, title: window.plugin.mpe.data.fieldToName(PJ, storageKey) })),
+];
+
+// a section for every plugin registered so far, in the order they registered, so the blocks already drawn
+// keep their place; the page is declared again as each plugin registers. The project in use stays in
+// plugin-mpe, on this device only
+window.plugin.mpe.registerOptions = () => {
+  const projects = Object.keys(window.plugin.mpe.obj.projects);
+  IITC.options.register(window.plugin.mpe.PAGE_ID, {
+    title: 'Multi Projects',
+    namespace: 'mpe',
+    shortcut: { label: 'MultiProjects', icon: 'folder_copy' },
+    blocks: [
+      { type: 'text', text: 'No plugin with projects is enabled. Bookmarks and Draw Tools have them', visible: projects.length === 0 },
+      ...projects.flatMap((PJ) => {
+        const isDefault = (project) => project.id === window.plugin.mpe.data.getPreKeyPj(PJ);
+        return [
+          { type: 'heading', title: window.plugin.mpe.data.getTitle(PJ) },
+          {
+            type: 'repeat',
+            over: () => window.plugin.mpe.projectChoices(PJ),
+            blocks: [
+              {
+                type: 'choice',
+                title: 'In use',
+                selected: (project) => project.id === window.plugin.mpe.data.getCurrKeyPj(PJ),
+                action: (project) => window.plugin.mpe.action.switchProject(PJ, project.id),
+              },
+              {
+                type: 'action',
+                // the default project stays, emptied
+                title: (project) => (isDefault(project) ? 'Clear' : 'Delete'),
+                icon: (project) => (isDefault(project) ? 'delete_sweep' : 'delete'),
+                action: (project) => {
+                  if (!window.plugin.mpe.action.deleteProject(PJ, project.id)) return undefined;
+                  return isDefault(project) ? 'Cleared' : 'Deleted';
+                },
+              },
+            ],
+          },
+          {
+            type: 'action',
+            title: 'New project',
+            action: async () => {
+              const name = await IITC.utils.promptText({
+                title: `New project in ${window.plugin.mpe.data.getTitle(PJ)}`,
+                label: 'Letters, digits, spaces and _ - ( ) [ ]',
+                validate: (text) => window.plugin.mpe.data.checkName(PJ, text),
+              });
+              if (name === undefined) return undefined;
+              window.plugin.mpe.action.createProject(PJ, name);
+              return `Created "${name}"`;
+            },
+          },
+          {
+            type: 'boolean',
+            key: `sidebar_${PJ}`,
+            title: 'Show in the sidebar',
+            onChange: () => window.plugin.mpe.ui.toggleSidebar(PJ),
+          },
+        ];
+      }),
+    ],
+  });
 };
 
 window.plugin.mpe.setupCSS = function () {
@@ -540,20 +598,15 @@ window.plugin.mpe.setupCSS = function () {
         '.mpe .left{float:left;}' +
         '.mpe .right{float:right;}' +
         '.mpe .clear{clear:both;}' +
-        '.mpe .fa{line-height:20px;}' +
-        '.ui-dialog .mpe{width:90%;margin:8px auto 8px;}' +
+        '.mpe .fa, .mpe iitc-icon{line-height:1;}' +
         '.mpe h4{margin:0 0 4px;font-size:15px;font-style:italic;}' +
-        '.mpe select, .mpe a{border:1px solid #ffce00;padding:1px 4px 2px;background:rgba(8,48,78,.9);height:23px;color:#ffce00;}' +
+        '.mpe select, .mpe a{border:1px solid #ffce00;padding:1px 4px 2px;background:rgba(8,48,78,.9);min-height:23px;color:#ffce00;}' +
         '.mpe select{width:72%;margin: 0 3%;}' +
-        '.mpe a{width:11%;}' +
-        '.ui-dialog-mpe button{margin-left:6px;padding:4px 8px 2px;}' +
-        '.mpe.settings > div{border:1px solid #ffce00;padding:1px 5px 3px;background:rgba(8,48,78,.9);display:inline-block;}' +
-        '.mpe.settings label{cursor:pointer;color:#ffce00;margin:0 2px 0px;}' +
-        '.mpe.settings label input{margin:4px 4px;}' +
+        '.mpe a{width:11%;display:flex;align-items:center;justify-content:center;}' +
         '#sidebar .mpeSidebar{}' +
         '#sidebar .mpeSidebar .mpe{width:100%;padding:3px 4px;}' +
         '#sidebar .mpeSidebar .mpe h4{display:none;}' +
-        '#sidebar .mpeSidebar .mpe > .fa{color:#ccc;width:8%;height:23px;margin-right:1%}' +
+        '#sidebar .mpeSidebar .mpe > .fa, #sidebar .mpeSidebar .mpe > iitc-icon{color:#ccc;width:8%;min-height:23px;margin-right:1%;display:flex;align-items:center;justify-content:center;}' +
         "#sidebar .mpeSidebar .mpe > .fa.nofa:before{content:'\0';}" +
         '#sidebar .mpeSidebar .mpe a{}' +
         '#sidebar .mpeSidebar .mpe select{width:63%;}'
@@ -564,11 +617,17 @@ window.plugin.mpe.setupCSS = function () {
 var setup = function () {
   window.plugin.mpe.storage.checkStorage();
   window.plugin.mpe.setupCSS();
-  window.plugin.mpe.ui.addControl();
+  window.plugin.mpe.registerOptions();
   window.plugin.mpe.ui.appendContainerInSidebar();
+
+  window.plugin.mpe.isReady = true;
+  pendingProjects.splice(0).forEach((settings) => window.plugin.mpe.setMultiProjects(settings));
+
+  // lets plugins that ran before MPE register their projects
+  window.runHooks('pluginMpeReady');
 };
 
-setup.priority = 'high';
+setup.priority = 'highest';
 
 setup.info = plugin_info; //add the script info data to the function as a property
 if (typeof changelog !== 'undefined') setup.info.changelog = changelog;

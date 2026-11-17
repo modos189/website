@@ -2,7 +2,7 @@
 // @author         jonatkins
 // @name           IITC plugin: Ingress scoring regions
 // @category       Layer
-// @version        0.3.4.20260904.111504
+// @version        0.3.5.20261113.185036
 // @description    Show the regional scoring cells grid on the map
 // @id             regions
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'beta';
-plugin_info.dateTimeVersion = '2026-09-04-111504';
+plugin_info.dateTimeVersion = '2026-11-13-185036';
 plugin_info.pluginId = 'regions';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,10 @@ plugin_info.pluginId = 'regions';
 /* global L -- eslint */
 
 var changelog = [
+  {
+    version: '0.3.5',
+    changes: ['Fix region cells near the antimeridian'],
+  },
   { version: '0.3.4', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.3.3',
@@ -484,34 +488,29 @@ window.plugin.regions.regionName = function (cell) {
   return name;
 };
 
-window.plugin.regions.search = function (query) {
-  var terms = query.term.replace(/\s+/g, '').split(/[,;]/);
-  var matches = terms.map(function (string) {
-    return string.match(window.plugin.regions.REGEXP);
-  });
-  if (
-    !matches.every(function (match) {
-      return match !== null;
-    })
-  )
-    return;
+// Parses a region name by REGEXP; omitted face and number are taken from the region at the map center
+window.plugin.regions.parseName = (name) => {
+  const match = name.replace(/\s+/g, '').match(window.plugin.regions.REGEXP);
+  if (!match) return null;
 
-  var currentCell = window.plugin.regions.regionName(window.S2.S2Cell.FromLatLng(window.map.getCenter(), 6));
-
-  matches.forEach(function (match) {
+  if (!match[1] || !match[2]) {
+    const currentCell = window.plugin.regions.getNameFromLatLng(window.map.getCenter());
     if (!match[1]) match[1] = currentCell.slice(0, 2);
-    else match[1] = match[1].toUpperCase();
-
     if (!match[2]) match[2] = currentCell.slice(2, 4);
-
-    match[3] = match[3].toUpperCase();
-
-    var result = window.plugin.regions.getSearchResult(match);
-    if (result) query.addResult(result);
-  });
+  }
+  match[1] = match[1].toUpperCase();
+  match[3] = match[3].toUpperCase();
+  return match;
 };
 
-window.plugin.regions.getSearchResult = function (match) {
+window.plugin.regions.getCellFromName = function (name) {
+  const match = window.plugin.regions.parseName(name);
+  // without the last number the name is a group of 16 scoring regions; its center would pick one of them arbitrarily
+  if (!match || match[4] === undefined) return;
+  return window.plugin.regions.getCellFromMatch(match);
+};
+
+window.plugin.regions.getCellFromMatch = function (match) {
   var faceId = window.plugin.regions.FACE_NAMES.indexOf(match[1]);
   var id1 = parseInt(match[2]) - 1;
   var codeWordId = window.plugin.regions.CODE_WORDS.indexOf(match[3]);
@@ -519,18 +518,45 @@ window.plugin.regions.getSearchResult = function (match) {
 
   if (faceId === -1 || id1 < 0 || id1 > 15 || codeWordId === -1 || id2 < 0 || id2 > 15) return;
 
-  // for Odd faces Nia swaps id & codename
   if (faceId & 1) {
     [id1, codeWordId] = [codeWordId, id1];
   }
 
-  // looks good. now we need the face/i/j values for this cell face is used as-is
-  // id1 is the region 'i' value (first 4 bits), codeword is the 'j' value (first 4 bits)
   var cell = window.S2.S2Cell.FromFaceIJ(faceId, [id1, codeWordId], 4);
+  if (id2 === undefined) return cell;
+
+  var positions = cell.getFaceAndQuads()[1];
+  positions.push(Math.floor(id2 / 4), id2 % 4);
+  return window.S2.S2Cell.FromFacePosition(faceId, positions);
+};
+
+window.plugin.regions.getNameFromLatLng = function (latLng) {
+  return window.plugin.regions.regionName(window.S2.S2Cell.FromLatLng(latLng, 6));
+};
+
+window.plugin.regions.search = function (query) {
+  var terms = query.term.split(/[,;]/);
+  var matches = terms.map(window.plugin.regions.parseName);
+  if (
+    !matches.every(function (match) {
+      return match !== null;
+    })
+  )
+    return;
+
+  matches.forEach(function (match) {
+    var result = window.plugin.regions.getSearchResult(match);
+    if (result) query.addResult(result);
+  });
+};
+
+window.plugin.regions.getSearchResult = function (match) {
+  var cell = window.plugin.regions.getCellFromMatch(match);
+  if (!cell) return;
 
   var result = {};
 
-  if (id2 === undefined) {
+  if (match[4] === undefined) {
     result.description = 'Regional score cells (cluster of 16 cells)';
     result.icon = 'data:image/svg+xml;base64,' + btoa('\
 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" version="1.1">\
@@ -544,11 +570,6 @@ window.plugin.regions.getSearchResult = function (match) {
 	<path style="fill:orange;stroke:none" d="M 1,3.5 9,0 11,8.5 3,12 z"/>\
 </svg>\
 ');
-
-    // eslint-disable-next-line no-unused-vars
-    const [_, positions] = cell.getFaceAndQuads();
-    positions.push(Math.floor(id2 / 4), id2 % 4);
-    cell = window.S2.S2Cell.FromFacePosition(faceId, positions);
   }
 
   var corners = cell.getCornerLatLngs();
@@ -560,9 +581,30 @@ window.plugin.regions.getSearchResult = function (match) {
   return result;
 };
 
+const getCellCorners = (cell) => {
+  const centerLng = window.map.getCenter().lng;
+  const corners = cell.getCornerLatLngs();
+  corners.forEach((ll) => {
+    ll.lng += Math.round((centerLng - ll.lng) / 360) * 360;
+  });
+  return corners;
+};
+
+const getCellCenter = (cell) => {
+  const centerLng = window.map.getCenter().lng;
+  const center = cell.getLatLng();
+  center.lng += Math.round((centerLng - center.lng) / 360) * 360;
+  return center;
+};
+
 window.plugin.regions.update = function () {
   window.plugin.regions.regionLayer.clearLayers();
 
+  drawAllCells();
+  drawAllFaces();
+};
+
+const drawAllCells = () => {
   var bounds = window.map.getBounds();
 
   var seenCells = {};
@@ -575,12 +617,12 @@ window.plugin.regions.update = function () {
       seenCells[cellStr] = true;
 
       // is it on the screen?
-      var corners = cell.getCornerLatLngs();
-      var cellBounds = new L.LatLngBounds(corners);
+      const corners = getCellCorners(cell);
+      const cellBounds = new L.LatLngBounds(corners);
 
       if (cellBounds.intersects(bounds)) {
         // on screen - draw it
-        window.plugin.regions.drawCell(cell);
+        window.plugin.regions.drawCell(cell, corners);
 
         // and recurse to our neighbors
         var neighbors = cell.getNeighbors();
@@ -599,42 +641,27 @@ window.plugin.regions.update = function () {
 
     drawCellAndNeighbors(cell);
   }
+};
 
-  // the six cube side boundaries. we cheat by hard-coding the coords as it's simple enough
-  var latLngs = [
-    [45, -180],
-    [35.264389682754654, -135],
-    [35.264389682754654, -45],
-    [35.264389682754654, 45],
-    [35.264389682754654, 135],
-    [45, 180],
-  ];
+const drawAllFaces = () => {
+  // the six cube side boundaries
+  // longitude is fixed, latitude is at (45° + x*90°)
+  const lat = 35.264389682754654;
+  const lng_step = 90;
+  const globalCellOptions = { color: 'red', weight: 7, opacity: 0.5, interactive: false };
 
-  var globalCellOptions = { color: 'red', weight: 7, opacity: 0.5, interactive: false };
+  const bounds = window.map.getBounds();
+  let lng_start = Math.floor((bounds.getWest() + 45) / lng_step);
+  let lng_end = Math.floor((bounds.getEast() + 45) / lng_step);
 
-  for (let i = 0; i < latLngs.length - 1; i++) {
-    // the geodesic line code can't handle a line/polyline spanning more than (or close to?) 180 degrees, so we draw
-    // each segment as a separate line
-    var poly1 = L.geodesicPolyline([latLngs[i], latLngs[i + 1]], globalCellOptions);
-    window.plugin.regions.regionLayer.addLayer(poly1);
-
-    // southern mirror of the above
-    var poly2 = L.geodesicPolyline(
+  for (let f = lng_start; f <= lng_end; f++) {
+    const lng = f * lng_step - 45;
+    const poly = L.geodesicPolyline(
       [
-        [-latLngs[i][0], latLngs[i][1]],
-        [-latLngs[i + 1][0], latLngs[i + 1][1]],
-      ],
-      globalCellOptions
-    );
-    window.plugin.regions.regionLayer.addLayer(poly2);
-  }
-
-  // and the north-south lines. no need for geodesic here
-  for (let i = -135; i <= 135; i += 90) {
-    var poly = L.polyline(
-      [
-        [35.264389682754654, i],
-        [-35.264389682754654, i],
+        new L.LatLng(lat, lng),
+        new L.LatLng(lat, lng + lng_step), // North
+        new L.LatLng(-lat, lng + lng_step), // to south
+        new L.LatLng(-lat, lng), // south
       ],
       globalCellOptions
     );
@@ -642,14 +669,9 @@ window.plugin.regions.update = function () {
   }
 };
 
-window.plugin.regions.drawCell = function (cell) {
-  // TODO: move to function - then call for all cells on screen
-
-  // corner points
-  var corners = cell.getCornerLatLngs();
-
+window.plugin.regions.drawCell = function (cell, corners) {
   // center point
-  var center = cell.getLatLng();
+  let center = getCellCenter(cell);
 
   // name
   var name = window.plugin.regions.regionName(cell);

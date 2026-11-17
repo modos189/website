@@ -2,7 +2,7 @@
 // @author         jonatkins
 // @name           IITC plugin: Ingress scoring regions
 // @category       Layer
-// @version        0.3.3
+// @version        0.3.5
 // @description    Show the regional scoring cells grid on the map
 // @id             regions
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'regions';
 //END PLUGIN AUTHORS NOTE
 
@@ -29,6 +29,11 @@ plugin_info.pluginId = 'regions';
 /* global L -- eslint */
 
 var changelog = [
+  {
+    version: '0.3.5',
+    changes: ['Fix region cells near the antimeridian'],
+  },
+  { version: '0.3.4', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.3.3',
     changes: ['Refactoring: fix eslint'],
@@ -396,7 +401,7 @@ S2.S2Cell.prototype.getNeighbors = function() {
 
 ;
 
-  window.plugin.regions.regionLayer = L.layerGroup();
+  window.plugin.regions.regionLayer = new L.LayerGroup();
 
   $('<style>')
     .prop('type', 'text/css')
@@ -554,14 +559,35 @@ window.plugin.regions.getSearchResult = function (match) {
 
   result.title = window.plugin.regions.regionName(cell);
   result.layer = L.geodesicPolygon(corners, { fill: false, color: 'red', interactive: false });
-  result.bounds = L.latLngBounds(corners);
+  result.bounds = new L.LatLngBounds(corners);
 
   return result;
+};
+
+const getCellCorners = (cell) => {
+  const centerLng = window.map.getCenter().lng;
+  const corners = cell.getCornerLatLngs();
+  corners.forEach((ll) => {
+    ll.lng += Math.round((centerLng - ll.lng) / 360) * 360;
+  });
+  return corners;
+};
+
+const getCellCenter = (cell) => {
+  const centerLng = window.map.getCenter().lng;
+  const center = cell.getLatLng();
+  center.lng += Math.round((centerLng - center.lng) / 360) * 360;
+  return center;
 };
 
 window.plugin.regions.update = function () {
   window.plugin.regions.regionLayer.clearLayers();
 
+  drawAllCells();
+  drawAllFaces();
+};
+
+const drawAllCells = () => {
   var bounds = window.map.getBounds();
 
   var seenCells = {};
@@ -574,12 +600,12 @@ window.plugin.regions.update = function () {
       seenCells[cellStr] = true;
 
       // is it on the screen?
-      var corners = cell.getCornerLatLngs();
-      var cellBounds = L.latLngBounds([corners[0], corners[1]]).extend(corners[2]).extend(corners[3]);
+      const corners = getCellCorners(cell);
+      const cellBounds = new L.LatLngBounds(corners);
 
       if (cellBounds.intersects(bounds)) {
         // on screen - draw it
-        window.plugin.regions.drawCell(cell);
+        window.plugin.regions.drawCell(cell, corners);
 
         // and recurse to our neighbors
         var neighbors = cell.getNeighbors();
@@ -598,42 +624,27 @@ window.plugin.regions.update = function () {
 
     drawCellAndNeighbors(cell);
   }
+};
 
-  // the six cube side boundaries. we cheat by hard-coding the coords as it's simple enough
-  var latLngs = [
-    [45, -180],
-    [35.264389682754654, -135],
-    [35.264389682754654, -45],
-    [35.264389682754654, 45],
-    [35.264389682754654, 135],
-    [45, 180],
-  ];
+const drawAllFaces = () => {
+  // the six cube side boundaries
+  // longitude is fixed, latitude is at (45° + x*90°)
+  const lat = 35.264389682754654;
+  const lng_step = 90;
+  const globalCellOptions = { color: 'red', weight: 7, opacity: 0.5, interactive: false };
 
-  var globalCellOptions = { color: 'red', weight: 7, opacity: 0.5, interactive: false };
+  const bounds = window.map.getBounds();
+  let lng_start = Math.floor((bounds.getWest() + 45) / lng_step);
+  let lng_end = Math.floor((bounds.getEast() + 45) / lng_step);
 
-  for (let i = 0; i < latLngs.length - 1; i++) {
-    // the geodesic line code can't handle a line/polyline spanning more than (or close to?) 180 degrees, so we draw
-    // each segment as a separate line
-    var poly1 = L.geodesicPolyline([latLngs[i], latLngs[i + 1]], globalCellOptions);
-    window.plugin.regions.regionLayer.addLayer(poly1);
-
-    // southern mirror of the above
-    var poly2 = L.geodesicPolyline(
+  for (let f = lng_start; f <= lng_end; f++) {
+    const lng = f * lng_step - 45;
+    const poly = L.geodesicPolyline(
       [
-        [-latLngs[i][0], latLngs[i][1]],
-        [-latLngs[i + 1][0], latLngs[i + 1][1]],
-      ],
-      globalCellOptions
-    );
-    window.plugin.regions.regionLayer.addLayer(poly2);
-  }
-
-  // and the north-south lines. no need for geodesic here
-  for (let i = -135; i <= 135; i += 90) {
-    var poly = L.polyline(
-      [
-        [35.264389682754654, i],
-        [-35.264389682754654, i],
+        new L.LatLng(lat, lng),
+        new L.LatLng(lat, lng + lng_step), // North
+        new L.LatLng(-lat, lng + lng_step), // to south
+        new L.LatLng(-lat, lng), // south
       ],
       globalCellOptions
     );
@@ -641,14 +652,9 @@ window.plugin.regions.update = function () {
   }
 };
 
-window.plugin.regions.drawCell = function (cell) {
-  // TODO: move to function - then call for all cells on screen
-
-  // corner points
-  var corners = cell.getCornerLatLngs();
-
+window.plugin.regions.drawCell = function (cell, corners) {
   // center point
-  var center = cell.getLatLng();
+  let center = getCellCenter(cell);
 
   // name
   var name = window.plugin.regions.regionName(cell);
@@ -670,7 +676,7 @@ window.plugin.regions.drawCell = function (cell) {
       var newlat = Math.max(Math.min(center.lat, namebounds.getNorth()), namebounds.getSouth());
       var newlng = Math.max(Math.min(center.lng, namebounds.getEast()), namebounds.getWest());
 
-      var newpos = L.latLng(newlat, newlng);
+      var newpos = new L.LatLng(newlat, newlng);
 
       // ensure the new position is still within the same cell
       var newposcell = window.S2.S2Cell.FromLatLng(newpos, 6);
@@ -681,8 +687,8 @@ window.plugin.regions.drawCell = function (cell) {
     }
   }
 
-  var marker = L.marker(center, {
-    icon: L.divIcon({
+  var marker = new L.Marker(center, {
+    icon: new L.DivIcon({
       className: 'plugin-regions-name',
       iconAnchor: [100, 5],
       iconSize: [200, 10],

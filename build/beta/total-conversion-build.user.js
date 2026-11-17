@@ -1,7 +1,7 @@
 // ==UserScript==
 // @author         jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.42.2.20260904.111504
+// @version        0.43.2.20261113.185036
 // @description    Total conversion for the ingress intel map.
 // @run-at         document-end
 // @id             total-conversion-build
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'beta';
-plugin_info.dateTimeVersion = '2026-09-04-111504';
+plugin_info.dateTimeVersion = '2026-11-13-185036';
 plugin_info.pluginId = 'total-conversion-build';
 //END PLUGIN AUTHORS NOTE
 
@@ -67,6 +67,38 @@ IITC.registerLegacyAliases = function (namespace, mappings) {
 
 window.script_info = plugin_info;
 window.script_info.changelog = [
+  {
+    version: '0.43.2',
+    changes: ['Fix plugin elements in the status bar being hidden when the app shows the status'],
+  },
+  {
+    version: '0.43.1',
+    changes: ['Fix Enlightened color missing in the mobile portal info'],
+  },
+  {
+    version: '0.43.0',
+    changes: [
+      'Add antimeridian support: tiles load for the whole view, entities appear on the nearest world copy, portal selection and permalinks use the true longitude',
+      'Draw interface icons from a bundled Material Symbols font (<iitc-icon>)',
+      'Add the baseLayerChanged hook reporting the active basemap and its light or dark theme',
+      'Update jQuery to 4.0 and jQuery UI to 1.14.2, with jquery-migrate for compatibility',
+      'Move chat, comm, map and portal code into the IITC.chat, IITC.comm, IITC.map and IITC.portal namespaces; the old window.* functions remain as aliases',
+      'Prefetch portal details when the mouse rests on a portal',
+      'Detect that the user was logged out and show a dialog',
+      'Add safe-area support for the desktop layout',
+      'Keep dialogs inside the main window and fix the dialog title width on mobile',
+      'Fix incorrect "resonator levels needed for next portal level"',
+      'Fix the chat not following new messages and the channel container missing in some cases',
+      'Fix leaving idle mode when the page becomes visible again',
+      'Fix escapeHtml dropping the class attribute on allowed tags',
+      'Shorten the portal deep link used by the scanner',
+      'Remove the portal GUID position cache',
+    ],
+  },
+  {
+    version: '0.42.4',
+    changes: ['Fix CartoDB base maps not loading'],
+  },
   {
     version: '0.42.2',
     changes: ['Fix LatLng instantiation in artifacts'],
@@ -196,7 +228,7 @@ window.script_info.changelog = [
 if (document.documentElement.getAttribute('itemscope') !== null) {
   throw new Error('Ingress Intel Website is down, not a userscript issue.');
 }
-window.iitcBuildDate = '2026-09-04-111504';
+window.iitcBuildDate = '2026-11-13-185036';
 
 // disable vanilla JS
 window.onload = function () {};
@@ -265,2319 +297,19 @@ document.head.innerHTML =
  * Released under the MIT license.\
  * http://jquery.org/license\
  */\
-.ui-resizable {\
-	position: relative;\
-}\
-.ui-resizable-handle {\
-	position: absolute;\
-	font-size: 0.1px;\
-	display: block;\
-	touch-action: none;\
-}\
-.ui-resizable-disabled .ui-resizable-handle,\
-.ui-resizable-autohide .ui-resizable-handle {\
-	display: none;\
-}\
-.ui-resizable-n {\
-	cursor: n-resize;\
-	height: 7px;\
-	width: 100%;\
-	top: -5px;\
-	left: 0;\
-}\
-.ui-resizable-s {\
-	cursor: s-resize;\
-	height: 7px;\
-	width: 100%;\
-	bottom: -5px;\
-	left: 0;\
-}\
-.ui-resizable-e {\
-	cursor: e-resize;\
-	width: 7px;\
-	right: -5px;\
-	top: 0;\
-	height: 100%;\
-}\
-.ui-resizable-w {\
-	cursor: w-resize;\
-	width: 7px;\
-	left: -5px;\
-	top: 0;\
-	height: 100%;\
-}\
-.ui-resizable-se {\
-	cursor: se-resize;\
-	width: 12px;\
-	height: 12px;\
-	right: 1px;\
-	bottom: 1px;\
-}\
-.ui-resizable-sw {\
-	cursor: sw-resize;\
-	width: 9px;\
-	height: 9px;\
-	left: -5px;\
-	bottom: -5px;\
-}\
-.ui-resizable-nw {\
-	cursor: nw-resize;\
-	width: 9px;\
-	height: 9px;\
-	left: -5px;\
-	top: -5px;\
-}\
-.ui-resizable-ne {\
-	cursor: ne-resize;\
-	width: 9px;\
-	height: 9px;\
-	right: -5px;\
-	top: -5px;\
-}\
-' +
+.ui-resizable{position:relative}.ui-resizable-handle{touch-action:none;font-size:.1px;display:block;position:absolute}.ui-resizable-disabled .ui-resizable-handle,.ui-resizable-autohide .ui-resizable-handle{display:none}.ui-resizable-n{cursor:n-resize;width:100%;height:7px;top:-5px;left:0}.ui-resizable-s{cursor:s-resize;width:100%;height:7px;bottom:-5px;left:0}.ui-resizable-e{cursor:e-resize;width:7px;height:100%;top:0;right:-5px}.ui-resizable-w{cursor:w-resize;width:7px;height:100%;top:0;left:-5px}.ui-resizable-se{cursor:se-resize;width:12px;height:12px;bottom:1px;right:1px}.ui-resizable-sw{cursor:sw-resize;width:9px;height:9px;bottom:-5px;left:-5px}.ui-resizable-nw{cursor:nw-resize;width:9px;height:9px;top:-5px;left:-5px}.ui-resizable-ne{cursor:ne-resize;width:9px;height:9px;top:-5px;right:-5px}' +
   '</style>' +
   '<style>' +
   '\
-/* required styles */\
-\
-.leaflet-pane,\
-.leaflet-tile,\
-.leaflet-marker-icon,\
-.leaflet-marker-shadow,\
-.leaflet-tile-container,\
-.leaflet-pane > svg,\
-.leaflet-pane > canvas,\
-.leaflet-zoom-box,\
-.leaflet-image-layer,\
-.leaflet-layer {\
-	position: absolute;\
-	left: 0;\
-	top: 0;\
-	}\
-.leaflet-container {\
-	overflow: hidden;\
-	}\
-.leaflet-tile,\
-.leaflet-marker-icon,\
-.leaflet-marker-shadow {\
-	-webkit-user-select: none;\
-	   -moz-user-select: none;\
-	        user-select: none;\
-	  -webkit-user-drag: none;\
-	}\
-/* Prevents IE11 from highlighting tiles in blue */\
-.leaflet-tile::selection {\
-	background: transparent;\
-}\
-/* Safari renders non-retina tile on retina better with this, but Chrome is worse */\
-.leaflet-safari .leaflet-tile {\
-	image-rendering: -webkit-optimize-contrast;\
-	}\
-/* hack that prevents hw layers "stretching" when loading new tiles */\
-.leaflet-safari .leaflet-tile-container {\
-	width: 1600px;\
-	height: 1600px;\
-	-webkit-transform-origin: 0 0;\
-	}\
-.leaflet-marker-icon,\
-.leaflet-marker-shadow {\
-	display: block;\
-	}\
-/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */\
-/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */\
-.leaflet-container .leaflet-overlay-pane svg {\
-	max-width: none !important;\
-	max-height: none !important;\
-	}\
-.leaflet-container .leaflet-marker-pane img,\
-.leaflet-container .leaflet-shadow-pane img,\
-.leaflet-container .leaflet-tile-pane img,\
-.leaflet-container img.leaflet-image-layer,\
-.leaflet-container .leaflet-tile {\
-	max-width: none !important;\
-	max-height: none !important;\
-	width: auto;\
-	padding: 0;\
-	}\
-\
-.leaflet-container.leaflet-touch-zoom {\
-	-ms-touch-action: pan-x pan-y;\
-	touch-action: pan-x pan-y;\
-	}\
-.leaflet-container.leaflet-touch-drag {\
-	-ms-touch-action: pinch-zoom;\
-	/* Fallback for FF which doesn\'t support pinch-zoom */\
-	touch-action: none;\
-	touch-action: pinch-zoom;\
-}\
-.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {\
-	-ms-touch-action: none;\
-	touch-action: none;\
-}\
-.leaflet-container {\
-	-webkit-tap-highlight-color: transparent;\
-}\
-.leaflet-container a {\
-	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);\
-}\
-.leaflet-tile {\
-	filter: inherit;\
-	visibility: hidden;\
-	}\
-.leaflet-tile-loaded {\
-	visibility: inherit;\
-	}\
-.leaflet-zoom-box {\
-	width: 0;\
-	height: 0;\
-	-moz-box-sizing: border-box;\
-	     box-sizing: border-box;\
-	z-index: 800;\
-	}\
-/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */\
-.leaflet-overlay-pane svg {\
-	-moz-user-select: none;\
-	}\
-\
-.leaflet-pane         { z-index: 400; }\
-\
-.leaflet-tile-pane    { z-index: 200; }\
-.leaflet-overlay-pane { z-index: 400; }\
-.leaflet-shadow-pane  { z-index: 500; }\
-.leaflet-marker-pane  { z-index: 600; }\
-.leaflet-tooltip-pane   { z-index: 650; }\
-.leaflet-popup-pane   { z-index: 700; }\
-\
-.leaflet-map-pane canvas { z-index: 100; }\
-.leaflet-map-pane svg    { z-index: 200; }\
-\
-.leaflet-vml-shape {\
-	width: 1px;\
-	height: 1px;\
-	}\
-.lvml {\
-	behavior: url(#default#VML);\
-	display: inline-block;\
-	position: absolute;\
-	}\
-\
-\
-/* control positioning */\
-\
-.leaflet-control {\
-	position: relative;\
-	z-index: 800;\
-	pointer-events: visiblePainted; /* IE 9-10 doesn\'t have auto */\
-	pointer-events: auto;\
-	}\
-.leaflet-top,\
-.leaflet-bottom {\
-	position: absolute;\
-	z-index: 1000;\
-	pointer-events: none;\
-	}\
-.leaflet-top {\
-	top: 0;\
-	}\
-.leaflet-right {\
-	right: 0;\
-	}\
-.leaflet-bottom {\
-	bottom: 0;\
-	}\
-.leaflet-left {\
-	left: 0;\
-	}\
-.leaflet-control {\
-	float: left;\
-	clear: both;\
-	}\
-.leaflet-right .leaflet-control {\
-	float: right;\
-	}\
-.leaflet-top .leaflet-control {\
-	margin-top: 10px;\
-	}\
-.leaflet-bottom .leaflet-control {\
-	margin-bottom: 10px;\
-	}\
-.leaflet-left .leaflet-control {\
-	margin-left: 10px;\
-	}\
-.leaflet-right .leaflet-control {\
-	margin-right: 10px;\
-	}\
-\
-\
-/* zoom and fade animations */\
-\
-.leaflet-fade-anim .leaflet-popup {\
-	opacity: 0;\
-	-webkit-transition: opacity 0.2s linear;\
-	   -moz-transition: opacity 0.2s linear;\
-	        transition: opacity 0.2s linear;\
-	}\
-.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {\
-	opacity: 1;\
-	}\
-.leaflet-zoom-animated {\
-	-webkit-transform-origin: 0 0;\
-	    -ms-transform-origin: 0 0;\
-	        transform-origin: 0 0;\
-	}\
-svg.leaflet-zoom-animated {\
-	will-change: transform;\
-}\
-\
-.leaflet-zoom-anim .leaflet-zoom-animated {\
-	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);\
-	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);\
-	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);\
-	}\
-.leaflet-zoom-anim .leaflet-tile,\
-.leaflet-pan-anim .leaflet-tile {\
-	-webkit-transition: none;\
-	   -moz-transition: none;\
-	        transition: none;\
-	}\
-\
-.leaflet-zoom-anim .leaflet-zoom-hide {\
-	visibility: hidden;\
-	}\
-\
-\
-/* cursors */\
-\
-.leaflet-interactive {\
-	cursor: pointer;\
-	}\
-.leaflet-grab {\
-	cursor: -webkit-grab;\
-	cursor:    -moz-grab;\
-	cursor:         grab;\
-	}\
-.leaflet-crosshair,\
-.leaflet-crosshair .leaflet-interactive {\
-	cursor: crosshair;\
-	}\
-.leaflet-popup-pane,\
-.leaflet-control {\
-	cursor: auto;\
-	}\
-.leaflet-dragging .leaflet-grab,\
-.leaflet-dragging .leaflet-grab .leaflet-interactive,\
-.leaflet-dragging .leaflet-marker-draggable {\
-	cursor: move;\
-	cursor: -webkit-grabbing;\
-	cursor:    -moz-grabbing;\
-	cursor:         grabbing;\
-	}\
-\
-/* marker & overlays interactivity */\
-.leaflet-marker-icon,\
-.leaflet-marker-shadow,\
-.leaflet-image-layer,\
-.leaflet-pane > svg path,\
-.leaflet-tile-container {\
-	pointer-events: none;\
-	}\
-\
-.leaflet-marker-icon.leaflet-interactive,\
-.leaflet-image-layer.leaflet-interactive,\
-.leaflet-pane > svg path.leaflet-interactive,\
-svg.leaflet-image-layer.leaflet-interactive path {\
-	pointer-events: visiblePainted; /* IE 9-10 doesn\'t have auto */\
-	pointer-events: auto;\
-	}\
-\
-/* visual tweaks */\
-\
-.leaflet-container {\
-	background: #ddd;\
-	outline-offset: 1px;\
-	}\
-.leaflet-container a {\
-	color: #0078A8;\
-	}\
-.leaflet-zoom-box {\
-	border: 2px dotted #38f;\
-	background: rgba(255,255,255,0.5);\
-	}\
-\
-\
-/* general typography */\
-.leaflet-container {\
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;\
-	font-size: 12px;\
-	font-size: 0.75rem;\
-	line-height: 1.5;\
-	}\
-\
-\
-/* general toolbar styles */\
-\
-.leaflet-bar {\
-	box-shadow: 0 1px 5px rgba(0,0,0,0.65);\
-	border-radius: 4px;\
-	}\
-.leaflet-bar a {\
-	background-color: #fff;\
-	border-bottom: 1px solid #ccc;\
-	width: 26px;\
-	height: 26px;\
-	line-height: 26px;\
-	display: block;\
-	text-align: center;\
-	text-decoration: none;\
-	color: black;\
-	}\
-.leaflet-bar a,\
-.leaflet-control-layers-toggle {\
-	background-position: 50% 50%;\
-	background-repeat: no-repeat;\
-	display: block;\
-	}\
-.leaflet-bar a:hover,\
-.leaflet-bar a:focus {\
-	background-color: #f4f4f4;\
-	}\
-.leaflet-bar a:first-child {\
-	border-top-left-radius: 4px;\
-	border-top-right-radius: 4px;\
-	}\
-.leaflet-bar a:last-child {\
-	border-bottom-left-radius: 4px;\
-	border-bottom-right-radius: 4px;\
-	border-bottom: none;\
-	}\
-.leaflet-bar a.leaflet-disabled {\
-	cursor: default;\
-	background-color: #f4f4f4;\
-	color: #bbb;\
-	}\
-\
-.leaflet-touch .leaflet-bar a {\
-	width: 30px;\
-	height: 30px;\
-	line-height: 30px;\
-	}\
-.leaflet-touch .leaflet-bar a:first-child {\
-	border-top-left-radius: 2px;\
-	border-top-right-radius: 2px;\
-	}\
-.leaflet-touch .leaflet-bar a:last-child {\
-	border-bottom-left-radius: 2px;\
-	border-bottom-right-radius: 2px;\
-	}\
-\
-/* zoom control */\
-\
-.leaflet-control-zoom-in,\
-.leaflet-control-zoom-out {\
-	font: bold 18px \'Lucida Console\', Monaco, monospace;\
-	text-indent: 1px;\
-	}\
-\
-.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {\
-	font-size: 22px;\
-	}\
-\
-\
-/* layers control */\
-\
-.leaflet-control-layers {\
-	box-shadow: 0 1px 5px rgba(0,0,0,0.4);\
-	background: #fff;\
-	border-radius: 5px;\
-	}\
-.leaflet-control-layers-toggle {\
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAQAAAADQ4RFAAACf0lEQVR4AY1UM3gkARTePdvdoTxXKc+qTl3aU5U6b2Kbkz3Gtq3Zw6ziLGNPzrYx7946Tr6/ee/XeCQ4D3ykPtL5tHno4n0d/h3+xfuWHGLX81cn7r0iTNzjr7LrlxCqPtkbTQEHeqOrTy4Yyt3VCi/IOB0v7rVC7q45Q3Gr5K6jt+3Gl5nCoDD4MtO+j96Wu8atmhGqcNGHObuf8OM/x3AMx38+4Z2sPqzCxRFK2aF2e5Jol56XTLyggAMTL56XOMoS1W4pOyjUcGGQdZxU6qRh7B9Zp+PfpOFlqt0zyDZckPi1ttmIp03jX8gyJ8a/PG2yutpS/Vol7peZIbZcKBAEEheEIAgFbDkz5H6Zrkm2hVWGiXKiF4Ycw0RWKdtC16Q7qe3X4iOMxruonzegJzWaXFrU9utOSsLUmrc0YjeWYjCW4PDMADElpJSSQ0vQvA1Tm6/JlKnqFs1EGyZiFCqnRZTEJJJiKRYzVYzJck2Rm6P4iH+cmSY0YzimYa8l0EtTODFWhcMIMVqdsI2uiTvKmTisIDHJ3od5GILVhBCarCfVRmo4uTjkhrhzkiBV7SsaqS+TzrzM1qpGGUFt28pIySQHR6h7F6KSwGWm97ay+Z+ZqMcEjEWebE7wxCSQwpkhJqoZA5ivCdZDjJepuJ9IQjGGUmuXJdBFUygxVqVsxFsLMbDe8ZbDYVCGKxs+W080max1hFCarCfV+C1KATwcnvE9gRRuMP2prdbWGowm1KB1y+zwMMENkM755cJ2yPDtqhTI6ED1M/82yIDtC/4j4BijjeObflpO9I9MwXTCsSX8jWAFeHr05WoLTJ5G8IQVS/7vwR6ohirYM7f6HzYpogfS3R2OAAAAAElFTkSuQmCC);\
-	width: 36px;\
-	height: 36px;\
-	}\
-.leaflet-retina .leaflet-control-layers-toggle {\
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAQAAABvcdNgAAAEsklEQVR4AWL4TydIhpZK1kpWOlg0w3ZXP6D2soBtG42jeI6ZmQTHzAxiTbSJsYLjO9HhP+WOmcuhciVnmHVQcJnp7DFvScowZorad/+V/fVzMdMT2g9Cv9guXGv/7pYOrXh2U+RRR3dSd9JRx6bIFc/ekqHI29JC6pJ5ZEh1yWkhkbcFeSjxgx3L2m1cb1C7bceyxA+CNjT/Ifff+/kDk2u/w/33/IeCMOSaWZ4glosqT3DNnNZQ7Cs58/3Ce5HL78iZH/vKVIaYlqzfdLu8Vi7dnvUbEza5Idt36tquZFldl6N5Z/POLof0XLK61mZCmJSWjVF9tEjUluu74IUXvgttuVIHE7YxSkaYhJZam7yiM9Pv82JYfl9nptxZaxMJE4YSPty+vF0+Y2up9d3wwijfjZbabqm/3bZ9ecKHsiGmRflnn1MW4pjHf9oLufyn2z3y1D6n8g8TZhxyzipLNPnAUpsOiuWimg52psrTZYnOWYNDTMuWBWa0tJb4rgq1UvmutpaYEbZlwU3CLJm/ayYjHW5/h7xWLn9Hh1vepDkyf7dE7MtT5LR4e7yYpHrkhOUpEfssBLq2pPhAqoSWKUkk7EDqkmK6RrCEzqDjhNDWNE+XSMvkJRDWlZTmCW0l0PHQGRZY5t1L83kT0Y3l2SItk5JAWHl2dCOBm+fPu3fo5/3v61RMCO9Jx2EEYYhb0rmNQMX/vm7gqOEJLcXTGw3CAuRNeyaPWwjR8PRqKQ1PDA/dpv+on9Shox52WFnx0KY8onHayrJzm87i5h9xGw/tfkev0jGsQizqezUKjk12hBMKJ4kbCqGPVNXudyyrShovGw5CgxsRICxF6aRmSjlBnHRzg7Gx8fKqEubI2rahQYdR1YgDIRQO7JvQyD52hoIQx0mxa0ODtW2Iozn1le2iIRdzwWewedyZzewidueOGqlsn1MvcnQpuVwLGG3/IR1hIKxCjelIDZ8ldqWz25jWAsnldEnK0Zxro19TGVb2ffIZEsIO89EIEDvKMPrzmBOQcKQ+rroye6NgRRxqR4U8EAkz0CL6uSGOm6KQCdWjvjRiSP1BPalCRS5iQYiEIvxuBMJEWgzSoHADcVMuN7IuqqTeyUPq22qFimFtxDyBBJEwNyt6TM88blFHao/6tWWhuuOM4SAK4EI4QmFHA+SEyWlp4EQoJ13cYGzMu7yszEIBOm2rVmHUNqwAIQabISNMRstmdhNWcFLsSm+0tjJH1MdRxO5Nx0WDMhCtgD6OKgZeljJqJKc9po8juskR9XN0Y1lZ3mWjLR9JCO1jRDMd0fpYC2VnvjBSEFg7wBENc0R9HFlb0xvF1+TBEpF68d+DHR6IOWVv2BECtxo46hOFUBd/APU57WIoEwJhIi2CdpyZX0m93BZicktMj1AS9dClteUFAUNUIEygRZCtik5zSxI9MubTBH1GOiHsiLJ3OCoSZkILa9PxiN0EbvhsAo8tdAf9Seepd36lGWHmtNANTv5Jd0z4QYyeo/UEJqxKRpg5LZx6btLPsOaEmdMyxYdlc8LMaJnikDlhclqmPiQnTEpLUIZEwkRagjYkEibQErwhkTAKCLQEbUgkzJQWc/0PstHHcfEdQ+UAAAAASUVORK5CYII=);\
-	background-size: 26px 26px;\
-	}\
-.leaflet-touch .leaflet-control-layers-toggle {\
-	width: 44px;\
-	height: 44px;\
-	}\
-.leaflet-control-layers .leaflet-control-layers-list,\
-.leaflet-control-layers-expanded .leaflet-control-layers-toggle {\
-	display: none;\
-	}\
-.leaflet-control-layers-expanded .leaflet-control-layers-list {\
-	display: block;\
-	position: relative;\
-	}\
-.leaflet-control-layers-expanded {\
-	padding: 6px 10px 6px 6px;\
-	color: #333;\
-	background: #fff;\
-	}\
-.leaflet-control-layers-scrollbar {\
-	overflow-y: scroll;\
-	overflow-x: hidden;\
-	padding-right: 5px;\
-	}\
-.leaflet-control-layers-selector {\
-	margin-top: 2px;\
-	position: relative;\
-	top: 1px;\
-	}\
-.leaflet-control-layers label {\
-	display: block;\
-	font-size: 13px;\
-	font-size: 1.08333em;\
-	}\
-.leaflet-control-layers-separator {\
-	height: 0;\
-	border-top: 1px solid #ddd;\
-	margin: 5px -10px 5px -6px;\
-	}\
-\
-/* Default icon URLs */\
-.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */\
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAFgUlEQVR4Aa1XA5BjWRTN2oW17d3YaZtr2962HUzbDNpjszW24mRt28p47v7zq/bXZtrp/lWnXr337j3nPCe85NcypgSFdugCpW5YoDAMRaIMqRi6aKq5E3YqDQO3qAwjVWrD8Ncq/RBpykd8oZUb/kaJutow8r1aP9II0WmLKLIsJyv1w/kqw9Ch2MYdB++12Onxee/QMwvf4/Dk/Lfp/i4nxTXtOoQ4pW5Aj7wpici1A9erdAN2OH64x8OSP9j3Ft3b7aWkTg/Fm91siTra0f9on5sQr9INejH6CUUUpavjFNq1B+Oadhxmnfa8RfEmN8VNAsQhPqF55xHkMzz3jSmChWU6f7/XZKNH+9+hBLOHYozuKQPxyMPUKkrX/K0uWnfFaJGS1QPRtZsOPtr3NsW0uyh6NNCOkU3Yz+bXbT3I8G3xE5EXLXtCXbbqwCO9zPQYPRTZ5vIDXD7U+w7rFDEoUUf7ibHIR4y6bLVPXrz8JVZEql13trxwue/uDivd3fkWRbS6/IA2bID4uk0UpF1N8qLlbBlXs4Ee7HLTfV1j54APvODnSfOWBqtKVvjgLKzF5YdEk5ewRkGlK0i33Eofffc7HT56jD7/6U+qH3Cx7SBLNntH5YIPvODnyfIXZYRVDPqgHtLs5ABHD3YzLuespb7t79FY34DjMwrVrcTuwlT55YMPvOBnRrJ4VXTdNnYug5ucHLBjEpt30701A3Ts+HEa73u6dT3FNWwflY86eMHPk+Yu+i6pzUpRrW7SNDg5JHR4KapmM5Wv2E8Tfcb1HoqqHMHU+uWDD7zg54mz5/2BSnizi9T1Dg4QQXLToGNCkb6tb1NU+QAlGr1++eADrzhn/u8Q2YZhQVlZ5+CAOtqfbhmaUCS1ezNFVm2imDbPmPng5wmz+gwh+oHDce0eUtQ6OGDIyR0uUhUsoO3vfDmmgOezH0mZN59x7MBi++WDL1g/eEiU3avlidO671bkLfwbw5XV2P8Pzo0ydy4t2/0eu33xYSOMOD8hTf4CrBtGMSoXfPLchX+J0ruSePw3LZeK0juPJbYzrhkH0io7B3k164hiGvawhOKMLkrQLyVpZg8rHFW7E2uHOL888IBPlNZ1FPzstSJM694fWr6RwpvcJK60+0HCILTBzZLFNdtAzJaohze60T8qBzyh5ZuOg5e7uwQppofEmf2++DYvmySqGBuKaicF1blQjhuHdvCIMvp8whTTfZzI7RldpwtSzL+F1+wkdZ2TBOW2gIF88PBTzD/gpeREAMEbxnJcaJHNHrpzji0gQCS6hdkEeYt9DF/2qPcEC8RM28Hwmr3sdNyht00byAut2k3gufWNtgtOEOFGUwcXWNDbdNbpgBGxEvKkOQsxivJx33iow0Vw5S6SVTrpVq11ysA2Rp7gTfPfktc6zhtXBBC+adRLshf6sG2RfHPZ5EAc4sVZ83yCN00Fk/4kggu40ZTvIEm5g24qtU4KjBrx/BTTH8ifVASAG7gKrnWxJDcU7x8X6Ecczhm3o6YicvsLXWfh3Ch1W0k8x0nXF+0fFxgt4phz8QvypiwCCFKMqXCnqXExjq10beH+UUA7+nG6mdG/Pu0f3LgFcGrl2s0kNNjpmoJ9o4B29CMO8dMT4Q5ox8uitF6fqsrJOr8qnwNbRzv6hSnG5wP+64C7h9lp30hKNtKdWjtdkbuPA19nJ7Tz3zR/ibgARbhb4AlhavcBebmTHcFl2fvYEnW0ox9xMxKBS8btJ+KiEbq9zA4RthQXDhPa0T9TEe69gWupwc6uBUphquXgf+/FrIjweHQS4/pduMe5ERUMHUd9xv8ZR98CxkS4F2n3EUrUZ10EYNw7BWm9x1GiPssi3GgiGRDKWRYZfXlON+dfNbM+GgIwYdwAAAAASUVORK5CYII=);\
-	}\
-\
-\
-/* attribution and scale controls */\
-\
-.leaflet-container .leaflet-control-attribution {\
-	background: #fff;\
-	background: rgba(255, 255, 255, 0.8);\
-	margin: 0;\
-	}\
-.leaflet-control-attribution,\
-.leaflet-control-scale-line {\
-	padding: 0 5px;\
-	color: #333;\
-	line-height: 1.4;\
-	}\
-.leaflet-control-attribution a {\
-	text-decoration: none;\
-	}\
-.leaflet-control-attribution a:hover,\
-.leaflet-control-attribution a:focus {\
-	text-decoration: underline;\
-	}\
-.leaflet-control-attribution svg {\
-	display: inline !important;\
-	}\
-.leaflet-left .leaflet-control-scale {\
-	margin-left: 5px;\
-	}\
-.leaflet-bottom .leaflet-control-scale {\
-	margin-bottom: 5px;\
-	}\
-.leaflet-control-scale-line {\
-	border: 2px solid #777;\
-	border-top: none;\
-	line-height: 1.1;\
-	padding: 2px 5px 1px;\
-	white-space: nowrap;\
-	overflow: hidden;\
-	-moz-box-sizing: border-box;\
-	     box-sizing: border-box;\
-\
-	background: #fff;\
-	background: rgba(255, 255, 255, 0.5);\
-	}\
-.leaflet-control-scale-line:not(:first-child) {\
-	border-top: 2px solid #777;\
-	border-bottom: none;\
-	margin-top: -2px;\
-	}\
-.leaflet-control-scale-line:not(:first-child):not(:last-child) {\
-	border-bottom: 2px solid #777;\
-	}\
-\
-.leaflet-touch .leaflet-control-attribution,\
-.leaflet-touch .leaflet-control-layers,\
-.leaflet-touch .leaflet-bar {\
-	box-shadow: none;\
-	}\
-.leaflet-touch .leaflet-control-layers,\
-.leaflet-touch .leaflet-bar {\
-	border: 2px solid rgba(0,0,0,0.2);\
-	background-clip: padding-box;\
-	}\
-\
-\
-/* popup */\
-\
-.leaflet-popup {\
-	position: absolute;\
-	text-align: center;\
-	margin-bottom: 20px;\
-	}\
-.leaflet-popup-content-wrapper {\
-	padding: 1px;\
-	text-align: left;\
-	border-radius: 12px;\
-	}\
-.leaflet-popup-content {\
-	margin: 13px 24px 13px 20px;\
-	line-height: 1.3;\
-	font-size: 13px;\
-	font-size: 1.08333em;\
-	min-height: 1px;\
-	}\
-.leaflet-popup-content p {\
-	margin: 17px 0;\
-	margin: 1.3em 0;\
-	}\
-.leaflet-popup-tip-container {\
-	width: 40px;\
-	height: 20px;\
-	position: absolute;\
-	left: 50%;\
-	margin-top: -1px;\
-	margin-left: -20px;\
-	overflow: hidden;\
-	pointer-events: none;\
-	}\
-.leaflet-popup-tip {\
-	width: 17px;\
-	height: 17px;\
-	padding: 1px;\
-\
-	margin: -10px auto 0;\
-	pointer-events: auto;\
-\
-	-webkit-transform: rotate(45deg);\
-	   -moz-transform: rotate(45deg);\
-	    -ms-transform: rotate(45deg);\
-	        transform: rotate(45deg);\
-	}\
-.leaflet-popup-content-wrapper,\
-.leaflet-popup-tip {\
-	background: white;\
-	color: #333;\
-	box-shadow: 0 3px 14px rgba(0,0,0,0.4);\
-	}\
-.leaflet-container a.leaflet-popup-close-button {\
-	position: absolute;\
-	top: 0;\
-	right: 0;\
-	border: none;\
-	text-align: center;\
-	width: 24px;\
-	height: 24px;\
-	font: 16px/24px Tahoma, Verdana, sans-serif;\
-	color: #757575;\
-	text-decoration: none;\
-	background: transparent;\
-	}\
-.leaflet-container a.leaflet-popup-close-button:hover,\
-.leaflet-container a.leaflet-popup-close-button:focus {\
-	color: #585858;\
-	}\
-.leaflet-popup-scrolled {\
-	overflow: auto;\
-	border-bottom: 1px solid #ddd;\
-	border-top: 1px solid #ddd;\
-	}\
-\
-.leaflet-oldie .leaflet-popup-content-wrapper {\
-	-ms-zoom: 1;\
-	}\
-.leaflet-oldie .leaflet-popup-tip {\
-	width: 24px;\
-	margin: 0 auto;\
-\
-	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";\
-	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);\
-	}\
-\
-.leaflet-oldie .leaflet-control-zoom,\
-.leaflet-oldie .leaflet-control-layers,\
-.leaflet-oldie .leaflet-popup-content-wrapper,\
-.leaflet-oldie .leaflet-popup-tip {\
-	border: 1px solid #999;\
-	}\
-\
-\
-/* div icon */\
-\
-.leaflet-div-icon {\
-	background: #fff;\
-	border: 1px solid #666;\
-	}\
-\
-\
-/* Tooltip */\
-/* Base styles for the element that has a tooltip */\
-.leaflet-tooltip {\
-	position: absolute;\
-	padding: 6px;\
-	background-color: #fff;\
-	border: 1px solid #fff;\
-	border-radius: 3px;\
-	color: #222;\
-	white-space: nowrap;\
-	-webkit-user-select: none;\
-	-moz-user-select: none;\
-	-ms-user-select: none;\
-	user-select: none;\
-	pointer-events: none;\
-	box-shadow: 0 1px 3px rgba(0,0,0,0.4);\
-	}\
-.leaflet-tooltip.leaflet-interactive {\
-	cursor: pointer;\
-	pointer-events: auto;\
-	}\
-.leaflet-tooltip-top:before,\
-.leaflet-tooltip-bottom:before,\
-.leaflet-tooltip-left:before,\
-.leaflet-tooltip-right:before {\
-	position: absolute;\
-	pointer-events: none;\
-	border: 6px solid transparent;\
-	background: transparent;\
-	content: "";\
-	}\
-\
-/* Directions */\
-\
-.leaflet-tooltip-bottom {\
-	margin-top: 6px;\
-}\
-.leaflet-tooltip-top {\
-	margin-top: -6px;\
-}\
-.leaflet-tooltip-bottom:before,\
-.leaflet-tooltip-top:before {\
-	left: 50%;\
-	margin-left: -6px;\
-	}\
-.leaflet-tooltip-top:before {\
-	bottom: 0;\
-	margin-bottom: -12px;\
-	border-top-color: #fff;\
-	}\
-.leaflet-tooltip-bottom:before {\
-	top: 0;\
-	margin-top: -12px;\
-	margin-left: -6px;\
-	border-bottom-color: #fff;\
-	}\
-.leaflet-tooltip-left {\
-	margin-left: -6px;\
-}\
-.leaflet-tooltip-right {\
-	margin-left: 6px;\
-}\
-.leaflet-tooltip-left:before,\
-.leaflet-tooltip-right:before {\
-	top: 50%;\
-	margin-top: -6px;\
-	}\
-.leaflet-tooltip-left:before {\
-	right: 0;\
-	margin-right: -12px;\
-	border-left-color: #fff;\
-	}\
-.leaflet-tooltip-right:before {\
-	left: 0;\
-	margin-left: -12px;\
-	border-right-color: #fff;\
-	}\
-\
-/* Printing */\
-	\
-@media print {\
-	/* Prevent printers from removing background-images of controls. */\
-	.leaflet-control {\
-		-webkit-print-color-adjust: exact;\
-		color-adjust: exact;\
-		}\
-	}\
-' +
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;top:0;left:0}.leaflet-container{overflow:hidden}.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}.leaflet-tile::selection{background:0 0}.leaflet-safari .leaflet-tile{image-rendering:-webkit-optimize-contrast}.leaflet-safari .leaflet-tile-container{-webkit-transform-origin:0 0;width:1600px;height:1600px}.leaflet-marker-icon,.leaflet-marker-shadow{display:block}.leaflet-container .leaflet-overlay-pane svg{max-width:none!important;max-height:none!important}.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-shadow-pane img,.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer,.leaflet-container .leaflet-tile{width:auto;padding:0;max-width:none!important;max-height:none!important}.leaflet-container.leaflet-touch-zoom{-ms-touch-action:pan-x pan-y;touch-action:pan-x pan-y}.leaflet-container.leaflet-touch-drag{-ms-touch-action:pinch-zoom;touch-action:none;touch-action:pinch-zoom}.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{-ms-touch-action:none;touch-action:none}.leaflet-container{-webkit-tap-highlight-color:transparent}.leaflet-container a{-webkit-tap-highlight-color:#33b5e566}.leaflet-tile{filter:inherit;visibility:hidden}.leaflet-tile-loaded{visibility:inherit}.leaflet-zoom-box{box-sizing:border-box;z-index:800;width:0;height:0}.leaflet-overlay-pane svg{-moz-user-select:none}.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}.leaflet-vml-shape{width:1px;height:1px}.lvml{behavior:url(#default#VML);display:inline-block;position:absolute}.leaflet-control{z-index:800;pointer-events:visiblePainted;pointer-events:auto;position:relative}.leaflet-top,.leaflet-bottom{z-index:1000;pointer-events:none;position:absolute}.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}.leaflet-control{float:left;clear:both}.leaflet-right .leaflet-control{float:right}.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}.leaflet-fade-anim .leaflet-popup{opacity:0;transition:opacity .2s linear}.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1}.leaflet-zoom-animated{transform-origin:0 0}svg.leaflet-zoom-animated{will-change:transform}.leaflet-zoom-anim .leaflet-zoom-animated{-webkit-transition:-webkit-transform .25s cubic-bezier(0,0,.25,1);-moz-transition:-moz-transform .25s cubic-bezier(0,0,.25,1);transition:transform .25s cubic-bezier(0,0,.25,1)}.leaflet-zoom-anim .leaflet-tile,.leaflet-pan-anim .leaflet-tile{transition:none}.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}.leaflet-interactive{cursor:pointer}.leaflet-grab{cursor:-webkit-grab;cursor:-moz-grab;cursor:grab}.leaflet-crosshair,.leaflet-crosshair .leaflet-interactive{cursor:crosshair}.leaflet-popup-pane,.leaflet-control{cursor:auto}.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-grab .leaflet-interactive,.leaflet-dragging .leaflet-marker-draggable{cursor:move;cursor:-webkit-grabbing;cursor:-moz-grabbing;cursor:grabbing}.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-image-layer,.leaflet-pane>svg path,.leaflet-tile-container{pointer-events:none}.leaflet-marker-icon.leaflet-interactive,.leaflet-image-layer.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive,svg.leaflet-image-layer.leaflet-interactive path{pointer-events:visiblePainted;pointer-events:auto}.leaflet-container{outline-offset:1px;background:#ddd}.leaflet-container a{color:#0078a8}.leaflet-zoom-box{background:#ffffff80;border:2px dotted #38f}.leaflet-container{font-family:Helvetica Neue,Arial,Helvetica,sans-serif;font-size:.75rem;line-height:1.5}.leaflet-bar{border-radius:4px;box-shadow:0 1px 5px #000000a6}.leaflet-bar a{text-align:center;color:#000;background-color:#fff;border-bottom:1px solid #ccc;width:26px;height:26px;line-height:26px;text-decoration:none;display:block}.leaflet-bar a,.leaflet-control-layers-toggle{background-position:50%;background-repeat:no-repeat;display:block}.leaflet-bar a:hover,.leaflet-bar a:focus{background-color:#f4f4f4}.leaflet-bar a:first-child{border-top-left-radius:4px;border-top-right-radius:4px}.leaflet-bar a:last-child{border-bottom:none;border-bottom-right-radius:4px;border-bottom-left-radius:4px}.leaflet-bar a.leaflet-disabled{cursor:default;color:#bbb;background-color:#f4f4f4}.leaflet-touch .leaflet-bar a{width:30px;height:30px;line-height:30px}.leaflet-touch .leaflet-bar a:first-child{border-top-left-radius:2px;border-top-right-radius:2px}.leaflet-touch .leaflet-bar a:last-child{border-bottom-right-radius:2px;border-bottom-left-radius:2px}.leaflet-control-zoom-in,.leaflet-control-zoom-out{text-indent:1px;font:700 18px Lucida Console,Monaco,monospace}.leaflet-touch .leaflet-control-zoom-in,.leaflet-touch .leaflet-control-zoom-out{font-size:22px}.leaflet-control-layers{background:#fff;border-radius:5px;box-shadow:0 1px 5px #0006}.leaflet-control-layers-toggle{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAQAAAADQ4RFAAACf0lEQVR4AY1UM3gkARTePdvdoTxXKc+qTl3aU5U6b2Kbkz3Gtq3Zw6ziLGNPzrYx7946Tr6/ee/XeCQ4D3ykPtL5tHno4n0d/h3+xfuWHGLX81cn7r0iTNzjr7LrlxCqPtkbTQEHeqOrTy4Yyt3VCi/IOB0v7rVC7q45Q3Gr5K6jt+3Gl5nCoDD4MtO+j96Wu8atmhGqcNGHObuf8OM/x3AMx38+4Z2sPqzCxRFK2aF2e5Jol56XTLyggAMTL56XOMoS1W4pOyjUcGGQdZxU6qRh7B9Zp+PfpOFlqt0zyDZckPi1ttmIp03jX8gyJ8a/PG2yutpS/Vol7peZIbZcKBAEEheEIAgFbDkz5H6Zrkm2hVWGiXKiF4Ycw0RWKdtC16Q7qe3X4iOMxruonzegJzWaXFrU9utOSsLUmrc0YjeWYjCW4PDMADElpJSSQ0vQvA1Tm6/JlKnqFs1EGyZiFCqnRZTEJJJiKRYzVYzJck2Rm6P4iH+cmSY0YzimYa8l0EtTODFWhcMIMVqdsI2uiTvKmTisIDHJ3od5GILVhBCarCfVRmo4uTjkhrhzkiBV7SsaqS+TzrzM1qpGGUFt28pIySQHR6h7F6KSwGWm97ay+Z+ZqMcEjEWebE7wxCSQwpkhJqoZA5ivCdZDjJepuJ9IQjGGUmuXJdBFUygxVqVsxFsLMbDe8ZbDYVCGKxs+W080max1hFCarCfV+C1KATwcnvE9gRRuMP2prdbWGowm1KB1y+zwMMENkM755cJ2yPDtqhTI6ED1M/82yIDtC/4j4BijjeObflpO9I9MwXTCsSX8jWAFeHr05WoLTJ5G8IQVS/7vwR6ohirYM7f6HzYpogfS3R2OAAAAAElFTkSuQmCC);width:36px;height:36px}.leaflet-retina .leaflet-control-layers-toggle{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAQAAABvcdNgAAAEsklEQVR4AWL4TydIhpZK1kpWOlg0w3ZXP6D2soBtG42jeI6ZmQTHzAxiTbSJsYLjO9HhP+WOmcuhciVnmHVQcJnp7DFvScowZorad/+V/fVzMdMT2g9Cv9guXGv/7pYOrXh2U+RRR3dSd9JRx6bIFc/ekqHI29JC6pJ5ZEh1yWkhkbcFeSjxgx3L2m1cb1C7bceyxA+CNjT/Ifff+/kDk2u/w/33/IeCMOSaWZ4glosqT3DNnNZQ7Cs58/3Ce5HL78iZH/vKVIaYlqzfdLu8Vi7dnvUbEza5Idt36tquZFldl6N5Z/POLof0XLK61mZCmJSWjVF9tEjUluu74IUXvgttuVIHE7YxSkaYhJZam7yiM9Pv82JYfl9nptxZaxMJE4YSPty+vF0+Y2up9d3wwijfjZbabqm/3bZ9ecKHsiGmRflnn1MW4pjHf9oLufyn2z3y1D6n8g8TZhxyzipLNPnAUpsOiuWimg52psrTZYnOWYNDTMuWBWa0tJb4rgq1UvmutpaYEbZlwU3CLJm/ayYjHW5/h7xWLn9Hh1vepDkyf7dE7MtT5LR4e7yYpHrkhOUpEfssBLq2pPhAqoSWKUkk7EDqkmK6RrCEzqDjhNDWNE+XSMvkJRDWlZTmCW0l0PHQGRZY5t1L83kT0Y3l2SItk5JAWHl2dCOBm+fPu3fo5/3v61RMCO9Jx2EEYYhb0rmNQMX/vm7gqOEJLcXTGw3CAuRNeyaPWwjR8PRqKQ1PDA/dpv+on9Shox52WFnx0KY8onHayrJzm87i5h9xGw/tfkev0jGsQizqezUKjk12hBMKJ4kbCqGPVNXudyyrShovGw5CgxsRICxF6aRmSjlBnHRzg7Gx8fKqEubI2rahQYdR1YgDIRQO7JvQyD52hoIQx0mxa0ODtW2Iozn1le2iIRdzwWewedyZzewidueOGqlsn1MvcnQpuVwLGG3/IR1hIKxCjelIDZ8ldqWz25jWAsnldEnK0Zxro19TGVb2ffIZEsIO89EIEDvKMPrzmBOQcKQ+rroye6NgRRxqR4U8EAkz0CL6uSGOm6KQCdWjvjRiSP1BPalCRS5iQYiEIvxuBMJEWgzSoHADcVMuN7IuqqTeyUPq22qFimFtxDyBBJEwNyt6TM88blFHao/6tWWhuuOM4SAK4EI4QmFHA+SEyWlp4EQoJ13cYGzMu7yszEIBOm2rVmHUNqwAIQabISNMRstmdhNWcFLsSm+0tjJH1MdRxO5Nx0WDMhCtgD6OKgZeljJqJKc9po8juskR9XN0Y1lZ3mWjLR9JCO1jRDMd0fpYC2VnvjBSEFg7wBENc0R9HFlb0xvF1+TBEpF68d+DHR6IOWVv2BECtxo46hOFUBd/APU57WIoEwJhIi2CdpyZX0m93BZicktMj1AS9dClteUFAUNUIEygRZCtik5zSxI9MubTBH1GOiHsiLJ3OCoSZkILa9PxiN0EbvhsAo8tdAf9Seepd36lGWHmtNANTv5Jd0z4QYyeo/UEJqxKRpg5LZx6btLPsOaEmdMyxYdlc8LMaJnikDlhclqmPiQnTEpLUIZEwkRagjYkEibQErwhkTAKCLQEbUgkzJQWc/0PstHHcfEdQ+UAAAAASUVORK5CYII=);background-size:26px 26px}.leaflet-touch .leaflet-control-layers-toggle{width:44px;height:44px}.leaflet-control-layers .leaflet-control-layers-list,.leaflet-control-layers-expanded .leaflet-control-layers-toggle{display:none}.leaflet-control-layers-expanded .leaflet-control-layers-list{display:block;position:relative}.leaflet-control-layers-expanded{color:#333;background:#fff;padding:6px 10px 6px 6px}.leaflet-control-layers-scrollbar{padding-right:5px;overflow:hidden scroll}.leaflet-control-layers-selector{margin-top:2px;position:relative;top:1px}.leaflet-control-layers label{font-size:1.08333em;display:block}.leaflet-control-layers-separator{border-top:1px solid #ddd;height:0;margin:5px -10px 5px -6px}.leaflet-default-icon-path{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAFgUlEQVR4Aa1XA5BjWRTN2oW17d3YaZtr2962HUzbDNpjszW24mRt28p47v7zq/bXZtrp/lWnXr337j3nPCe85NcypgSFdugCpW5YoDAMRaIMqRi6aKq5E3YqDQO3qAwjVWrD8Ncq/RBpykd8oZUb/kaJutow8r1aP9II0WmLKLIsJyv1w/kqw9Ch2MYdB++12Onxee/QMwvf4/Dk/Lfp/i4nxTXtOoQ4pW5Aj7wpici1A9erdAN2OH64x8OSP9j3Ft3b7aWkTg/Fm91siTra0f9on5sQr9INejH6CUUUpavjFNq1B+Oadhxmnfa8RfEmN8VNAsQhPqF55xHkMzz3jSmChWU6f7/XZKNH+9+hBLOHYozuKQPxyMPUKkrX/K0uWnfFaJGS1QPRtZsOPtr3NsW0uyh6NNCOkU3Yz+bXbT3I8G3xE5EXLXtCXbbqwCO9zPQYPRTZ5vIDXD7U+w7rFDEoUUf7ibHIR4y6bLVPXrz8JVZEql13trxwue/uDivd3fkWRbS6/IA2bID4uk0UpF1N8qLlbBlXs4Ee7HLTfV1j54APvODnSfOWBqtKVvjgLKzF5YdEk5ewRkGlK0i33Eofffc7HT56jD7/6U+qH3Cx7SBLNntH5YIPvODnyfIXZYRVDPqgHtLs5ABHD3YzLuespb7t79FY34DjMwrVrcTuwlT55YMPvOBnRrJ4VXTdNnYug5ucHLBjEpt30701A3Ts+HEa73u6dT3FNWwflY86eMHPk+Yu+i6pzUpRrW7SNDg5JHR4KapmM5Wv2E8Tfcb1HoqqHMHU+uWDD7zg54mz5/2BSnizi9T1Dg4QQXLToGNCkb6tb1NU+QAlGr1++eADrzhn/u8Q2YZhQVlZ5+CAOtqfbhmaUCS1ezNFVm2imDbPmPng5wmz+gwh+oHDce0eUtQ6OGDIyR0uUhUsoO3vfDmmgOezH0mZN59x7MBi++WDL1g/eEiU3avlidO671bkLfwbw5XV2P8Pzo0ydy4t2/0eu33xYSOMOD8hTf4CrBtGMSoXfPLchX+J0ruSePw3LZeK0juPJbYzrhkH0io7B3k164hiGvawhOKMLkrQLyVpZg8rHFW7E2uHOL888IBPlNZ1FPzstSJM694fWr6RwpvcJK60+0HCILTBzZLFNdtAzJaohze60T8qBzyh5ZuOg5e7uwQppofEmf2++DYvmySqGBuKaicF1blQjhuHdvCIMvp8whTTfZzI7RldpwtSzL+F1+wkdZ2TBOW2gIF88PBTzD/gpeREAMEbxnJcaJHNHrpzji0gQCS6hdkEeYt9DF/2qPcEC8RM28Hwmr3sdNyht00byAut2k3gufWNtgtOEOFGUwcXWNDbdNbpgBGxEvKkOQsxivJx33iow0Vw5S6SVTrpVq11ysA2Rp7gTfPfktc6zhtXBBC+adRLshf6sG2RfHPZ5EAc4sVZ83yCN00Fk/4kggu40ZTvIEm5g24qtU4KjBrx/BTTH8ifVASAG7gKrnWxJDcU7x8X6Ecczhm3o6YicvsLXWfh3Ch1W0k8x0nXF+0fFxgt4phz8QvypiwCCFKMqXCnqXExjq10beH+UUA7+nG6mdG/Pu0f3LgFcGrl2s0kNNjpmoJ9o4B29CMO8dMT4Q5ox8uitF6fqsrJOr8qnwNbRzv6hSnG5wP+64C7h9lp30hKNtKdWjtdkbuPA19nJ7Tz3zR/ibgARbhb4AlhavcBebmTHcFl2fvYEnW0ox9xMxKBS8btJ+KiEbq9zA4RthQXDhPa0T9TEe69gWupwc6uBUphquXgf+/FrIjweHQS4/pduMe5ERUMHUd9xv8ZR98CxkS4F2n3EUrUZ10EYNw7BWm9x1GiPssi3GgiGRDKWRYZfXlON+dfNbM+GgIwYdwAAAAASUVORK5CYII=)}.leaflet-container .leaflet-control-attribution{background:#fffc;margin:0}.leaflet-control-attribution,.leaflet-control-scale-line{color:#333;padding:0 5px;line-height:1.4}.leaflet-control-attribution a{text-decoration:none}.leaflet-control-attribution a:hover,.leaflet-control-attribution a:focus{text-decoration:underline}.leaflet-control-attribution svg{display:inline!important}.leaflet-left .leaflet-control-scale{margin-left:5px}.leaflet-bottom .leaflet-control-scale{margin-bottom:5px}.leaflet-control-scale-line{white-space:nowrap;box-sizing:border-box;background:#ffffff80;border:2px solid #777;border-top:none;padding:2px 5px 1px;line-height:1.1;overflow:hidden}.leaflet-control-scale-line:not(:first-child){border-top:2px solid #777;border-bottom:none;margin-top:-2px}.leaflet-control-scale-line:not(:first-child):not(:last-child){border-bottom:2px solid #777}.leaflet-touch .leaflet-control-attribution,.leaflet-touch .leaflet-control-layers,.leaflet-touch .leaflet-bar{box-shadow:none}.leaflet-touch .leaflet-control-layers,.leaflet-touch .leaflet-bar{background-clip:padding-box;border:2px solid #0003}.leaflet-popup{text-align:center;margin-bottom:20px;position:absolute}.leaflet-popup-content-wrapper{text-align:left;border-radius:12px;padding:1px}.leaflet-popup-content{min-height:1px;margin:13px 24px 13px 20px;font-size:1.08333em;line-height:1.3}.leaflet-popup-content p{margin:1.3em 0}.leaflet-popup-tip-container{pointer-events:none;width:40px;height:20px;margin-top:-1px;margin-left:-20px;position:absolute;left:50%;overflow:hidden}.leaflet-popup-tip{pointer-events:auto;width:17px;height:17px;margin:-10px auto 0;padding:1px;transform:rotate(45deg)}.leaflet-popup-content-wrapper,.leaflet-popup-tip{color:#333;background:#fff;box-shadow:0 3px 14px #0006}.leaflet-container a.leaflet-popup-close-button{text-align:center;color:#757575;background:0 0;border:none;width:24px;height:24px;font:16px/24px Tahoma,Verdana,sans-serif;text-decoration:none;position:absolute;top:0;right:0}.leaflet-container a.leaflet-popup-close-button:hover,.leaflet-container a.leaflet-popup-close-button:focus{color:#585858}.leaflet-popup-scrolled{border-top:1px solid #ddd;border-bottom:1px solid #ddd;overflow:auto}.leaflet-oldie .leaflet-popup-content-wrapper{-ms-zoom:1}.leaflet-oldie .leaflet-popup-tip{-ms-filter:"progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";width:24px;filter:progid:DXImageTransform.Microsoft.Matrix(M11=.707107, M12=.707107, M21=-.707107, M22=.707107);margin:0 auto}.leaflet-oldie .leaflet-control-zoom,.leaflet-oldie .leaflet-control-layers,.leaflet-oldie .leaflet-popup-content-wrapper,.leaflet-oldie .leaflet-popup-tip{border:1px solid #999}.leaflet-div-icon{background:#fff;border:1px solid #666}.leaflet-tooltip{color:#222;white-space:nowrap;-webkit-user-select:none;user-select:none;pointer-events:none;background-color:#fff;border:1px solid #fff;border-radius:3px;padding:6px;position:absolute;box-shadow:0 1px 3px #0006}.leaflet-tooltip.leaflet-interactive{cursor:pointer;pointer-events:auto}.leaflet-tooltip-top:before,.leaflet-tooltip-bottom:before,.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{pointer-events:none;content:"";background:0 0;border:6px solid #0000;position:absolute}.leaflet-tooltip-bottom{margin-top:6px}.leaflet-tooltip-top{margin-top:-6px}.leaflet-tooltip-bottom:before,.leaflet-tooltip-top:before{margin-left:-6px;left:50%}.leaflet-tooltip-top:before{border-top-color:#fff;margin-bottom:-12px;bottom:0}.leaflet-tooltip-bottom:before{border-bottom-color:#fff;margin-top:-12px;margin-left:-6px;top:0}.leaflet-tooltip-left{margin-left:-6px}.leaflet-tooltip-right{margin-left:6px}.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{margin-top:-6px;top:50%}.leaflet-tooltip-left:before{border-left-color:#fff;margin-right:-12px;right:0}.leaflet-tooltip-right:before{border-right-color:#fff;margin-left:-12px;left:0}@media print{.leaflet-control{-webkit-print-color-adjust:exact;color-adjust:exact}}' +
   '</style>' +
   '<style>' +
   '\
-/* general rules ******************************************************/\
-\
-/* for printing directly from the browser, hide all UI components\
- * NOTE: @media needs to be first?\
- */\
-@media print {\
-  .leaflet-control-container { display: none !important; }\
-  #chatcontrols, #chat, #chatinput { display: none !important; }\
-  #sidebartoggle, #sidebar { display: none !important; }\
-  #updatestatus { display: none !important; }\
-  #portal_highlight_select { display: none !important; }\
-}\
-\
-:root {\
-  --safe-area-inset-top: env(safe-area-inset-top);\
-  --safe-area-inset-bottom: env(safe-area-inset-bottom);\
-  --safe-area-inset-left: env(safe-area-inset-left);\
-  --safe-area-inset-right: env(safe-area-inset-right);\
-  --sidebar-width: 300px; /* How wide should the sidebar be, in pixels */\
-  --hidden-scrollbar-width: 20px; /* How much space to leave for scrollbars, in pixels */\
-  --chat-shrinked: 60px; /* Height of chat when chat is collapsed, in pixels */\
-}\
-\
-.text-overflow-ellipsis {\
-  display: inline-block;\
-  overflow: hidden;\
-  white-space: nowrap;\
-  text-overflow: ellipsis;\
-  vertical-align: text-bottom;\
-  width: 100%;\
-}\
-\
-\
-html, body {\
-  height: 100%;\
-  width: 100%;\
-  overflow: hidden; /* workaround for #373 */\
-  background: #0e3d4e;\
-}\
-\
-#map {\
-  overflow: visible;\
-  height: 100%;\
-  width: 100%;\
-}\
-\
-\
-body {\
-  font-size: 14px;\
-  font-family: Roboto, "Helvetica Neue", Helvetica, sans-serif;\
-  margin: 0;\
-}\
-\
-/* Material Icons */\
-.material-icons {\
-  width: 24px;\
-  height: 24px;\
-}\
-\
-.icon-button {\
-  cursor: pointer;\
-}\
-\
-i.tiny { font-size: 1rem; }\
-i.small { font-size: 2rem; }\
-i.medium { font-size: 4rem; }\
-i.large { font-size: 6rem; }\
-\
-#scrollwrapper {\
-  overflow-x: hidden;\
-  overflow-y: auto;\
-  position: fixed;\
-  right: calc(-2 * var(--hidden-scrollbar-width) + 2px + var(--safe-area-inset-right));\
-  top: var(--safe-area-inset-top);\
-  width: calc(var(--sidebar-width) + 2 * var(--hidden-scrollbar-width));\
-  bottom: calc(var(--safe-area-inset-bottom) + 45px);\
-  z-index: 3001;\
-  pointer-events: none;\
-}\
-\
-#sidebar {\
-  background-color: rgba(8, 48, 78, 0.9);\
-  border-left: 1px solid #20A8B1;\
-  color: #888;\
-  position: relative;\
-  left: 0;\
-  top: 0;\
-  width: calc(var(--sidebar-width) + var(--hidden-scrollbar-width) + 1px);\
-  max-height: 100%;\
-  overflow-y:scroll;\
-  overflow-x:hidden;\
-  pointer-events: auto;\
-}\
-\
-#sidebartoggle {\
-  display: block;\
-  padding: 20px 5px;\
-  margin-top: -31px; /* -(toggle height / 2) */\
-  line-height: 10px;\
-  position: absolute;\
-  top: calc(var(--safe-area-inset-top) + 108px);\
-  z-index: 3002;\
-  background-color: rgba(8, 48, 78, 0.9);\
-  color: #FFCE00;\
-  border: 1px solid #20A8B1;\
-  border-right: none;\
-  border-radius: 5px 0 0 5px;\
-  text-decoration: none;\
-  right: var(--safe-area-inset-right);\
-}\
-body.sidebar-open #sidebartoggle {\
-  right: calc(var(--sidebar-width) + 1px + var(--safe-area-inset-right));\
-}\
-\
-.enl {\
-  color: #03fe03;\
-}\
-\
-.res {\
-  color: #00c5ff;\
-}\
-\
-.mac {\
-  color: #ff2020;\
-}\
-\
-.none {\
-  color: #fff;\
-}\
-\
-.nickname {\
-  cursor: pointer;\
-}\
-\
-a {\
-  color: #ffce00;\
-  cursor: pointer;\
-  text-decoration: none;\
-}\
-\
-a:hover {\
-  text-decoration: underline;\
-}\
-\
-.leaflet-control {\
-  user-select: none;\
-}\
-\
-.leaflet-control-container .leaflet-top.leaflet-left {\
-  width: 700px;  /* chat default width */\
-  height: calc(100% - 126px); /* chat default start */\
-  max-height: 90%;\
-  display: flex;\
-  flex-direction: column;\
-  flex-wrap: wrap;\
-  align-content: flex-start;\
-  align-items: flex-start;\
-}\
-\
-\
-.leaflet-control-layers-overlays label.disabled {\
-  text-decoration: line-through;\
-  cursor: help;\
-}\
-\
-/* base layer selection - first column */\
-.leaflet-control-layers-base {\
-  float: left;\
-  overflow-y: auto;\
-  max-height: 600px;\
-}\
-\
-/* overlays layer selection - 2nd column */\
-.leaflet-control-layers-overlays {\
-  float: left;\
-  margin-left: 8px;\
-  border-left: 1px solid #DDDDDD;\
-  padding-left: 8px;\
-  overflow-y: auto;\
-  max-height: 600px;\
-}\
-\
-/* hide the usual separator */\
-.leaflet-control-layers-separator {\
-  display: none;\
-}\
-\
-\
-/* shift controls when chat is expanded */\
-.leaflet-left .leaflet-control.chat-expand {\
-  margin-left: 720px;\
-}\
-\
-/* leaflet controls */\
-.leaflet-left, .leaflet-right {\
-  display: grid;\
-  grid-gap: 10px;\
-  justify-items: baseline;\
-}\
-\
-.leaflet-right {\
-  justify-items: end;\
-}\
-\
-.leaflet-left .leaflet-control,\
-.leaflet-right .leaflet-control {\
-  margin: 0;\
-}\
-\
-.leaflet-top {\
-  top: 10px;\
-  margin-top: var(--safe-area-inset-top);\
-}\
-.leaflet-right {\
-  right: 10px;\
-  margin-right: var(--safe-area-inset-right);\
-}\
-body.sidebar-open .leaflet-right {\
-  margin-right: calc(var(--sidebar-width) + 1px + var(--safe-area-inset-right));\
-}\
-.leaflet-bottom {\
-  bottom: 10px;\
-  margin-bottom: calc(22px + var(--safe-area-inset-bottom));\
-}\
-.leaflet-left {\
-  left: 10px;\
-  margin-left: var(--safe-area-inset-left);\
-}\
-\
-.help {\
-  cursor: help;\
-}\
-\
-.toggle {\
-  display: block;\
-  height: 0;\
-  width: 0;\
-}\
-\
-/* field mu count */\
-.fieldmu {\
-  color: #FFCE00;\
-  font-size: 13px;\
-  font-family: Roboto, "Helvetica Neue", Helvetica, sans-serif; /*override leaflet-container */\
-  text-align: center;\
-  text-shadow: 0 0 0.2em black, 0 0 0.2em black, 0 0 0.2em black;\
-  pointer-events: none;\
-}\
-\
-\
-/* chat ***************************************************************/\
-\
-#chatcontrols {\
-  color: #FFCE00;\
-  background: rgba(8, 48, 78, 0.9);\
-  position: absolute;\
-  bottom: calc(var(--chat-shrinked) + var(--safe-area-inset-bottom) + 22px);\
-  left: var(--safe-area-inset-left);\
-  z-index: 3000;\
-  height: 26px;\
-  padding-left:1px;\
-}\
-\
-#chatcontrols.expand {\
-  top: var(--safe-area-inset-top);\
-  bottom: auto;\
-}\
-\
-#chatcontrols a {\
-  margin-left: -1px;\
-  display: inline-block;\
-  width: 94px;\
-  text-align: center;\
-  height: 24px;\
-  line-height: 24px;\
-  border: 1px solid #20A8B1;\
-  vertical-align: top;\
-}\
-\
-#chatcontrols a:first-child {\
-  letter-spacing:-1px;\
-  text-decoration: none;\
-}\
-\
-#chatcontrols a.active {\
-  border-color: #FFCE00;\
-  border-bottom-width:0px;\
-  font-weight:bold;\
-  background: rgb(8, 48, 78);\
-}\
-\
-#chatcontrols a.active + a {\
-  border-left-color: #FFCE00\
-}\
-\
-\
-#chatcontrols .toggle {\
-  border-left: 10px solid transparent;\
-  border-right: 10px solid transparent;\
-  border-bottom: 10px solid #FFCE00;\
-  margin: 6px auto auto;\
-}\
-\
-#chatcontrols.expand .toggle {\
-  border-top: 10px solid #FFCE00;\
-  border-bottom: none;\
-}\
-\
-#chatcontrols .loading {\
-  background-color: rgba(255,0,0,0.3);\
-  -webkit-animation: chatloading 1.2s infinite linear;\
-  -moz-animation: chatloading 1.2s infinite linear;\
-  animation: chatloading 1.2s infinite linear;\
-}\
-\
-@-webkit-keyframes chatloading {\
-    0% { background-color: rgba(255,0,0,0.4) }\
-   50% { background-color: rgba(255,0,0,0.1) }\
-  100% { background-color: rgba(255,0,0,0.4) }\
-}\
-\
-@-moz-keyframes chatloading {\
-    0% { background-color: rgba(255,0,0,0.4) }\
-   50% { background-color: rgba(255,0,0,0.1) }\
-  100% { background-color: rgba(255,0,0,0.4) }\
-}\
-\
-@keyframes chatloading {\
-    0% { background-color: rgba(255,0,0,0.4) }\
-   50% { background-color: rgba(255,0,0,0.1) }\
-  100% { background-color: rgba(255,0,0,0.4) }\
-}\
-\
-\
-\
-#chat {\
-  position: absolute;\
-  width: 708px;\
-  max-width: 100vw;\
-  height: var(--chat-shrinked);\
-  bottom: calc(var(--safe-area-inset-bottom) + 23px);\
-  padding-left: var(--safe-area-inset-left);\
-  left: 0;\
-  z-index: 3000;\
-  background: rgba(8, 48, 78, 0.9);\
-  line-height: 15px;\
-  color: #eee;\
-  border: 1px solid #20A8B1;\
-  border-bottom: 0;\
-  box-sizing: border-box;\
-}\
-\
-em {\
-  color: red;\
-  font-style: normal;\
-}\
-\
-#chat.expand {\
-  height:auto;\
-  top: calc(var(--safe-area-inset-top) + 25px);\
-}\
-\
-\
-#chat > div {\
-  overflow-x:hidden;\
-  overflow-y:scroll;\
-  height: 100%;\
-  -webkit-box-sizing: border-box;\
-  -moz-box-sizing: border-box;\
-  box-sizing: border-box;\
-  padding: 2px;\
-  position:relative;\
-}\
-\
-#chat table, #chatinput table {\
-  width: 100%;\
-  table-layout: fixed;\
-  border-spacing: 0;\
-  border-collapse: collapse;\
-  /* make the table always scrollable */\
-  min-height: 100%;\
-  margin-bottom: 1px;\
-}\
-\
-/* expand last row if needed */\
-#chat table tr:last-child {\
-    height: 100%;\
-}\
-\
-#chatinput table {\
-  height: 100%;\
-}\
-\
-#chatinput.public mark,\
-#chatinput.public input {\
-  color: #f66;\
-}\
-\
-#chatinput.alerts mark {\
-  color: #bbb;\
-}\
-\
-#chat td, #chatinput td {\
-  font-size: 13px;\
-  vertical-align: top;\
-  padding-bottom: 3px;\
-}\
-\
-#chat .divider {\
-  color: #bbb;\
-}\
-\
-#chat .divider td:nth-child(2) {\
-  text-align: center;\
-}\
-\
-/* time */\
-#chat td:first-child, #chatinput td:first-child {\
-  width: 44px;\
-  overflow: hidden;\
-  padding-left: 2px;\
-  color: #bbb;\
-  white-space: nowrap;\
-}\
-\
-#chat time {\
-  cursor: help;\
-}\
-\
-/* nick */\
-#chat td:nth-child(2), #chatinput td:nth-child(2) {\
-  width: 91px;\
-  overflow: hidden;\
-  padding-left: 2px;\
-  white-space: nowrap;\
-}\
-\
-#chat td.system_narrowcast {\
-  color: #f66;\
-}\
-\
-#chatall tr.faction td:nth-child(3):before,\
-#chatalerts tr.faction td:nth-child(3):before {\
-  content: \'[faction]\';\
-  color: #f88;\
-  background-color: #500;\
-  margin-right: .2rem;\
-}\
-\
-#chatall tr.public td:nth-child(3):before,\
-#chatalerts tr.public td:nth-child(3):before {\
-  content: \'[public]\';\
-  color: #ff6;\
-  background-color: #550;\
-  margin-right: .2rem;\
-}\
-\
-mark {\
-  background: transparent;\
-}\
-\
-.invisep {\
-  display: inline-block;\
-  width: 1px;\
-  height: 1px;\
-  overflow:hidden;\
-  color: transparent;\
-}\
-\
-#chatinput {\
-  position: absolute;\
-  bottom: 0;\
-  left: 0;\
-  padding: 0 2px;\
-  background: rgba(8, 48, 78, 0.9);\
-  width: 708px;\
-  max-width: 100vw;\
-  height: calc(var(--safe-area-inset-bottom) + 23px);\
-  border: 1px solid #20A8B1;\
-  z-index: 3001;\
-  box-sizing: border-box;\
-  padding-bottom: var(--safe-area-inset-bottom);\
-  padding-left: var(--safe-area-inset-left);\
-}\
-\
-#chatinput td {\
-  padding-bottom: 1px;\
-  vertical-align: middle;\
-}\
-\
-\
-#chatinput input {\
-  background: transparent;\
-  color: #EEEEEE;\
-  width: 100%;\
-  height: 100%;\
-  padding:3px 4px 1px 4px;\
-}\
-\
-.bidi-isolate {\
-    unicode-bidi: isolate;\
-}\
-\
-\
-/* sidebar ************************************************************/\
-\
-#sidebar > * {\
-  border-bottom: 1px solid #20A8B1;\
-  -webkit-box-sizing: border-box;\
-  -moz-box-sizing: border-box;\
-  box-sizing: border-box;\
-  width: calc(var(--sidebar-width) + 1px);\
-}\
-\
-\
-\
-#sidebartoggle .toggle {\
-  border-bottom: 10px solid transparent;\
-  border-top: 10px solid transparent;\
-}\
-\
-#sidebartoggle .open {\
-  border-right: 10px solid #FFCE00;\
-}\
-\
-#sidebartoggle .close {\
-  border-left: 10px solid #FFCE00;\
-}\
-\
-/* player stats */\
-#playerstat {\
-  height: 30px;\
-}\
-\
-h2 {\
-  color: #ffce00;\
-  font-size: 21px;\
-  padding: 0 4px;\
-  margin: 0;\
-  cursor:help;\
-  -webkit-box-sizing: border-box;\
-  -moz-box-sizing: border-box;\
-  box-sizing: border-box;\
-  width: 100%;\
-}\
-\
-h2 #name {\
-  font-weight: 300;\
-  display: inline;\
-  vertical-align: top;\
-  white-space: nowrap;\
-}\
-\
-h2 #name .playername {\
-  max-width: 70%;\
-  display: inline-block;\
-  overflow: hidden;\
-  text-overflow: ellipsis;\
-}\
-\
-h2 #stats {\
-  float: right;\
-  height: 100%;\
-  overflow: hidden;\
-}\
-\
-#signout {\
-  font-size: 12px;\
-  font-weight: normal;\
-  padding: 0 4px;\
-  background-color: rgba(8, 48, 78, 0.5);\
-  display: none; /* starts hidden */\
-  vertical-align: text-top;\
-}\
-#name:hover .playername {\
-  max-width: 50%;\
-}\
-#name:hover #signout {\
-  display: inline-block;\
-}\
-\
-h2 sup, h2 sub {\
-  display: block;\
-  font-size: 11px;\
-  margin-bottom: -2px;\
-}\
-\
-\
-/* gamestats */\
-#gamestat span {\
-  display: inline-block;\
-  font-weight: bold;\
-  cursor:help;\
-  padding: 0 3px;\
-  box-sizing: border-box;\
-}\
-\
-#gamestat .res {\
-  background: #005684;\
-}\
-\
-#gamestat .enl {\
-  background: #017f01;\
-}\
-\
-\
-/* search input, and others */\
-input:not([type]), .input,\
-input[type="text"], input[type="password"],\
-input[type="number"], input[type="email"],\
-input[type="search"], input[type="url"] {\
-  background-color: rgba(0, 0, 0, 0.3);\
-  color: #ffce00;\
-  height: 24px;\
-  padding:0px 4px 0px 4px;\
-  font-size: 12px;\
-  border:0;\
-  font-family:inherit;\
-  -webkit-box-sizing: border-box;\
-  -moz-box-sizing: border-box;\
-  box-sizing: border-box;\
-}\
-\
-#searchwrapper {\
-  position: relative;\
-}\
-#search {\
-  width: 100%;\
-  padding-left: 24px;\
-  padding-right: 36px;\
-}\
-#search::-webkit-search-cancel-button {\
-  -webkit-appearance: none;\
-}\
-#searchicon, #searchcancel, #buttongeolocation {\
-  display: flex;\
-  align-items: center;\
-  position: absolute;\
-  margin: 0;\
-  border: 0 none transparent;\
-  padding: 0 2px;\
-  height: 24px;\
-  background-color: transparent;\
-}\
-#searchicon img, #searchcancel img, #buttongeolocation img {\
-  height: 20px;\
-}\
-#searchicon {\
-  left: 0;\
-}\
-#searchcancel {\
-  right: 24px;\
-  cursor: pointer;\
-  opacity: 0;\
-  pointer-events: none;\
-  transition: opacity 0.3s ease;\
-}\
-#searchcancel.visible {\
-  opacity: 1;\
-  pointer-events: auto;\
-}\
-#buttongeolocation {\
-  right: 0;\
-  cursor: pointer;\
-}\
-#buttongeolocation:focus {\
-  outline: 1px dotted #ffce00;\
-}\
-.searchquery {\
-  max-height: 25em;\
-  overflow-y: auto;\
-}\
-#searchwrapper h3 {\
-  padding: 0 0 0 25px;\
-  position: relative;\
-  font-size: 1em;\
-  height: auto;\
-  cursor: pointer;\
-}\
-#searchwrapper h3::before {\
-  position: absolute;\
-  left: 5px;\
-  font-size: 14px;\
-  margin-right: 2px;\
-  font-weight: normal;\
-  content: "▲";\
-  transition: transform 0.3s ease;\
-}\
-#searchwrapper .searchquery.collapsed h3::before {\
-  transform: rotate(180deg);\
-}\
-#searchwrapper ul {\
-  max-height: 100%;\
-  padding-left: 16px;\
-  overflow: hidden;\
-}\
-#searchwrapper li {\
-  cursor: pointer;\
-}\
-#searchwrapper .searchquery.collapsed ul {\
-  max-height: 0;\
-}\
-#searchwrapper li a {\
-  margin-left: -14px;\
-  padding-left: 14px;\
-  background-position: 1px center;\
-  background-repeat: no-repeat;\
-  background-size: 12px 12px;\
-}\
-#searchwrapper li:focus a, #searchwrapper li:hover a {\
-  text-decoration: underline;\
-}\
-#searchwrapper li em {\
-  color: #ccc;\
-  font-size: 0.9em;\
-}\
-\
-::-webkit-input-placeholder {\
-  font-style: italic;\
-}\
-\
-:-moz-placeholder {\
-  font-style: italic;\
-}\
-\
-::-moz-placeholder {\
-  font-style: italic;\
-}\
-\
-.leaflet-control-layers input {\
-  height: auto;\
-  padding: 0;\
-}\
-\
-#portaltitle {\
-  display: flex;\
-  margin: 2px 0;\
-  line-height: 24px;\
-  white-space: nowrap;\
-}\
-\
-#portaltitle .value {\
-  overflow: hidden;\
-  text-overflow: ellipsis;\
-  flex: 1;\
-}\
-\
-#portaltitle .close {\
-  margin-right: 2px;\
-  cursor: pointer;\
-  color: #FFCE00;\
-  font-weight: normal;\
-}\
-\
-/* portal image */\
-.imgpreview {\
-  height: 190px;\
-  background: no-repeat center center;\
-  background-size: contain;\
-  cursor: help;\
-  overflow: hidden;\
-  position: relative;\
-}\
-\
-.imgpreview img.hide {\
-  display: none;\
-}\
-\
-.imgpreview .portalDetails {\
-  display: none;\
-}\
-\
-#level {\
-  font-size: 40px;\
-  text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000, 0 0 5px #fff;\
-  display: block;\
-  margin-right: 15px;\
-  text-align:right;\
-  float: right;\
-}\
-\
-/* portal mods */\
-.mods {\
-  margin: 3px auto 1px auto;\
-  width: 296px;\
-  height: 67px;\
-  text-align: center;\
-}\
-\
-.mods span {\
-  background-color: rgba(0, 0, 0, 0.3);\
-  /* can’t use inline-block because Webkit\'s implementation is buggy and\
-   * introduces additional margins in random cases. No clear necessary,\
-   * as that’s solved by setting height on .mods. */\
-  display: block;\
-  float:left;\
-  height: 63px;\
-  margin: 0 2px;\
-  overflow: hidden;\
-  padding: 2px;\
-  text-align: center;\
-  width: 63px;\
-  cursor:help;\
-  border: 1px solid #666;\
-}\
-\
-.mods span:not([title]) {\
-  cursor: auto;\
-}\
-\
-.res .mods span, .res .meter {\
-  border: 1px solid #0076b6;\
-}\
-.enl .mods span, .enl .meter {\
-  border: 1px solid #017f01;\
-}\
-\
-/* random details, resonator details */\
-#randdetails, #resodetails {\
-  width: 100%;\
-  -webkit-box-sizing: border-box;\
-  -moz-box-sizing: border-box;\
-  box-sizing: border-box;\
-  padding: 0 4px;\
-  table-layout: fixed;\
-  border-spacing: 0m;\
-  border-collapse: collapse;\
-}\
-\
-#randdetails td, #resodetails td {\
-  overflow: hidden;\
-  text-overflow: ellipsis;\
-  vertical-align: top;\
-  white-space: nowrap;\
-  width: 50%;\
-}\
-\
-#randdetails th, #resodetails th {\
-  font-weight: normal;\
-  text-align: right;\
-  width: 62px;\
-  padding:0px;\
-  padding-right:4px;\
-  padding-left:4px;\
-}\
-\
-#randdetails th + th, #resodetails th + th {\
-  text-align: left;\
-  padding-right: 4px;\
-  padding-left: 4px;\
-}\
-\
-#randdetails td:first-child, #resodetails td:first-child {\
-  text-align: right;\
-  padding-left: 2px;\
-}\
-\
-#randdetails td:last-child, #resodetails td:last-child {\
-  text-align: left;\
-  padding-right: 2px;\
-}\
-\
-\
-#randdetails {\
-  margin-top: 4px;\
-  margin-bottom: 5px;\
-}\
-\
-\
-#randdetails tt {\
-  font-family: inherit;\
-  cursor: help;\
-}\
-\
-#artifact_target, #artifact_fragments {\
-  margin-top: 4px;\
-  margin-bottom: 4px;\
-\
-  margin-left: 8px;\
-  margin-right: 8px;\
-}\
-\
-\
-/* resonators */\
-#resodetails {\
-  margin-bottom: 0px;\
-}\
-\
-.meter {\
-  background: #000;\
-  cursor: help;\
-  display: inline-block;\
-  height: 18px;\
-  padding: 1px;\
-  width: 100%;\
-  -webkit-box-sizing: border-box;\
-  -moz-box-sizing: border-box;\
-  box-sizing: border-box;\
-  position: relative;\
-  left: 0;\
-  top: 0;\
-}\
-\
-.meter.north {\
-  overflow: hidden;\
-}\
-.meter.north:before {\
-  content: "";\
-  background-color: red;\
-  border: 1px solid #000000;\
-  border-radius: 100%;\
-  display: block;\
-  height: 6px;\
-  width: 6px;\
-  left: 50%;\
-  top: -3px;\
-  margin-left: -4px;\
-  position: absolute;\
-}\
-\
-.meter span {\
-  display: block;\
-  height: 14px;\
-}\
-\
-.meter-level {\
-  position: absolute;\
-  left: 0;\
-  right: 0;\
-  top: -2px;\
-  text-shadow: 0.0em 0.0em 0.3em #808080;\
-  text-align: center;\
-  word-spacing: 4px; /* to leave some space for the north indicator */\
-}\
-\
-/* links below resos */\
-\
-.linkdetails {\
-  margin-bottom: 0px;\
-  text-align: center;\
-}\
-\
-.linkdetails aside {\
-  display: inline-block;\
-  white-space: nowrap;\
-  margin-left: 5px;\
-  margin-right: 5px;\
-}\
-\
-#toolbox {\
-  display: none !important;\
-}\
-\
-#toolbox, #toolbox_component {\
-  text-align: left;    /* centre didn\'t look as nice here as it did above in .linkdetails */\
-}\
-\
-#toolbox > a, #toolbox_component > a {\
-  margin-left: 5px;\
-  margin-right: 5px;\
-  white-space: nowrap;\
-  display: inline-block;\
-}\
-\
-/* a common portal display takes this much space (prevents moving\
- * content when first selecting a portal) */\
-\
-#portaldetails {\
-  min-height: 63px;\
-}\
-\
-/* history details */\
-#historydetails {\
-  text-align: center;\
-  color: #ffce00;\
-}\
-\
-#historydetails .missing {\
-}\
-\
-#historydetails span {\
-  color: #ff4a4a;\
-}\
-\
-#historydetails span.completed {\
-  color: #03fe03;\
-}\
-\
-/* update status */\
-#updatestatus {\
-  width: var(--sidebar-width);\
-  background-color: rgba(8, 48, 78, 0.9);\
-  border-bottom: 0;\
-  border-top: 1px solid #20A8B1;\
-  border-left: 1px solid #20A8B1;\
-  bottom: 0;\
-  color: #ffce00;\
-  font-size:13px;\
-  padding: 4px;\
-  padding-bottom: var(--safe-area-inset-bottom);\
-  position: fixed;\
-  right: var(--safe-area-inset-right);\
-  z-index: 3002;\
-  box-sizing: border-box;\
-}\
-\
-#updatestatus .map {\
-  margin-left: 8px;\
-}\
-\
-#loadlevel {\
-  background: #FFF;\
-  color: #000000;\
-  display: inline-block;\
-  min-width: 1.8em;\
-  border: 1px solid #20A8B1;\
-  border-width: 0 1px;\
-  margin: -4px 0;\
-  padding: 4px 0.2em;\
-}\
-\
-#innerstatus .failed-request {\
-  color: #f66;\
-}\
-\
-/* Dialogs\
- */\
-.ui-tooltip, .ui-dialog {\
-  position: absolute;\
-  z-index: 9500;\
-  background-color: rgba(8, 48, 78, 0.9);\
-  border: 1px solid #20A8B1;\
-  color: #eee;\
-  font-size: 13px;\
-  line-height: 15px;\
-  padding: 2px 4px;\
-}\
-\
-.ui-tooltip {\
-  max-width: 300px;\
-}\
-\
-.ui-widget-overlay {\
-  height: 100%;\
-  left: 0;\
-  position: fixed;\
-  top: 0;\
-  width: 100%;\
-  z-index: 10000;\
-  background:  #444;\
-  opacity: 0.6;\
-}\
-\
-.ui-modal {\
-  z-index: 10001 !important;\
-}\
-\
-.ui-tooltip {\
-  z-index: 10002 !important;\
-}\
-\
-.ui-tooltip, .ui-dialog a {\
-  color: #FFCE00;\
-}\
-\
-.ui-dialog {\
-  padding: 0;\
-  border-radius: 2px;\
-}\
-\
-.ui-dialog-modal .ui-dialog-titlebar-close {\
-  display: none;\
-}\
-\
-.ui-dialog-titlebar {\
-  font-size: 13px;\
-  line-height: 15px;\
-  text-align: center;\
-  padding: 4px;\
-  background-color: rgba(8, 60, 78, 0.9);\
-}\
-\
-.ui-dialog-title {\
-  font-weight: bold;\
-  margin-left: 8px;\
-  margin-right: 45px;\
-  width: calc(100% - 45px);\
-}\
-\
-.ui-dialog-title-active {\
-  color: #ffce00;\
-}\
-\
-.ui-dialog-title-inactive {\
-  color: #ffffff;\
-}\
-\
-.ui-dialog-titlebar-button {\
-  position: absolute;\
-  display: table-cell;\
-  vertical-align: middle;\
-  text-align: center;\
-  width: 17px;\
-  height: 17px;\
-  top: 3px;\
-  cursor: pointer;\
-  border: 1px solid rgb(32, 168, 177);\
-  background-color: rgba(0, 0, 0, 0);\
-  padding: 0;\
-}\
-\
-.ui-dialog-titlebar-button:active {\
-  background-color: rgb(32, 168, 177);\
-}\
-\
-.ui-dialog-titlebar-button-close {\
-  right: 4px;\
-}\
-\
-.ui-dialog-titlebar-button-collapse {\
-  right: 25px;\
-}\
-\
-.ui-dialog-titlebar-button-collapse-expanded {\
-  /* For future changes */\
-}\
-\
-.ui-dialog-titlebar-button-collapse-collapsed {\
-  background-color: rgb(32, 168, 177);\
-}\
-\
-.ui-dialog-titlebar-button-collapse::after,\
-.ui-dialog-titlebar-button-close::after,\
-.ui-dialog-titlebar-button-close::before {\
-  content: "";\
-  position: absolute;\
-  top: 3px;\
-  left: 50%;\
-  width: 11px;\
-  margin-left: -6px;\
-  height: 0;\
-  border-top: 2px solid rgb(32, 168, 177);\
-}\
-.ui-dialog-titlebar-button-close::after {\
-  transform: translateY(3.5px) rotate(45deg);\
-  -webkit-transform: translateY(3.5px) rotate(45deg);\
-}\
-.ui-dialog-titlebar-button-close::before {\
-  transform: translateY(3.5px) rotate(-45deg);\
-  -webkit-transform: translateY(3.5px) rotate(-45deg);\
-}\
-.ui-dialog-titlebar-button.ui-state-active::after,\
-.ui-dialog-titlebar-button.ui-state-active::before,\
-.ui-dialog-titlebar-button.ui-dialog-titlebar-button-collapse-collapsed::after,\
-.ui-dialog-titlebar-button.ui-dialog-titlebar-button-collapse-collapsed::before,\
-.ui-dialog-titlebar-button:active::after,\
-.ui-dialog-titlebar-button:active::before {\
-  border-top-color: rgba(8, 60, 78, 0.9);\
-}\
-\
-.ui-dialog-content {\
-  padding: 12px;\
-  overflow: auto;\
-  position: relative;\
-\
-  /* Limiting the height of dialog content on small screens */\
-  /* 57px – height .ui-dialog-titlebar + .ui-dialog-buttonpane */\
-  /* 24px – padding 12px * 2 */\
-  /*  2px – border 1px * 2 */\
-  max-height: calc(100vh - 57px - 24px - 2px) !important;\
-}\
-\
-.ui-dialog {\
-  max-width: calc(100vw - 1rem);\
-}\
-\
-.ui-dialog-content-hidden {\
-  display: none !important;\
-}\
-\
-.ui-dialog-buttonpane {\
-  padding: 6px;\
-  border-top: 1px solid #20A8B1;\
-}\
-\
-.ui-dialog-buttonset {\
-  text-align: right;\
-}\
-\
-.ui-dialog-buttonset button,\
-.ui-dialog-content button {\
-  padding: 2px;\
-  min-width: 40px;\
-  color: #FFCE00;\
-  border: 1px solid #FFCE00;\
-  background-color: rgba(8, 48, 78, 0.9);\
-}\
-\
-.ui-dialog-buttonset button:hover {\
-  text-decoration: underline;\
-}\
-\
-td {\
-  padding: 0;\
-  vertical-align: top;\
-}\
-\
-td + td {\
-  padding-left: 4px;\
-}\
-\
-#qrcode > canvas {\
-  border: 8px solid white;\
-}\
-\
-/* redeem results *****************************************************/\
-.redeemReward {\
-  font-family: Inconsolata, Consolas, Menlo, "Courier New", monospace;\
-  list-style-type: none;\
-  padding: 0;\
-  font-size: 14px;\
-}\
-.redeemReward .itemlevel {\
-  font-weight: bold;\
-  text-shadow: 0 0 1px #000; /* L8 is hard to read on blue background */\
-}\
-/*\
-.redeem-result-table {\
-  font-size: 14px;\
-  table-layout: fixed;\
-}\
-\
-.redeem-result tr > td:first-child {\
-  width: 50px;\
-  text-align: right;\
-}\
-\
-.redeem-result-html {\
-  font-family: Inconsolata, Consolas, Menlo, "Courier New", monospace;\
-}\
-*/\
-\
-.pl_nudge_date:after {\
-  background: no-repeat url(//commondatastorage.googleapis.com/ingress.com/img/nudge_pointy.png);\
-  position:absolute;\
-  content:"";\
-  height:20px;\
-  width: 5px;\
-  right:-5px;\
-  top:-1px\
-}\
-\
-.pl_nudge_date {\
-  background-color: #724510;\
-  border-left: 1px solid #ffd652;\
-  border-bottom: 1px solid #ffd652;\
-  border-top: 1px solid #ffd652;\
-  color: #ffd652;\
-  display: block;\
-  position:relative;\
-  height: 18px;\
-  width: 36px;\
-  padding-left: 2px;\
-  left: -2px;\
-}\
-\
-.pl_nudge_player {\
-  cursor: pointer;\
-}\
-\
-.pl_nudge_me {\
-  color: #ffd652;\
-}\
-\
-.RESISTANCE {\
-  color: #00c2ff;\
-}\
-\
-.ALIENS, .ENLIGHTENED {\
-  color: #28f428;\
-}\
-\
-#portal_highlight_select {\
-  position: absolute;\
-  top:5px;\
-  left:10px;\
-  z-index: 2500;\
-  font-size:11px;\
-  background-color:#0E3C46;\
-  color:#ffce00;\
-}\
-\
-.leaflet-control-scale {\
-  order: -90;\
-}\
-\
-.leaflet-bar {\
-  border: 2px solid rgba(0, 0, 0, 0.2);\
-  box-shadow: none;\
-}\
-\
-.leaflet-bar a {\
-  text-decoration: none;\
-}\
-\
-.leaflet-control-zoom-in, .leaflet-control-zoom-out {\
-  background-size: 18px;\
-  font-size: 0 !important;\
-}\
-\
-.leaflet-control-zoom-in {\
-  background-image: url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 18 18\'%3E%3Cpath d=\'M9 3v12M3 9h12\' stroke=\'black\' stroke-width=\'2.2\' fill=\'none\'/%3E%3C/svg%3E");\
-}\
-\
-.leaflet-control-zoom-out {\
-  background-image: url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 18 18\'%3E%3Cpath d=\'M3.5 9h11\' stroke=\'black\' stroke-width=\'2.2\' fill=\'none\'/%3E%3C/svg%3E");\
-}\
-\
-\
-.portal_details th, .portal_details td {\
-  vertical-align: top;\
-  text-align: left;\
-}\
-\
-.portal_details th {\
-  white-space: nowrap;\
-  padding-right: 1em;\
-}\
-\
-.portal_details tr.padding-top th, .portal_details tr.padding-top td {\
-  padding-top: 0.7em;\
-}\
-\
-#play_button {\
-  display: none;\
-}\
-\
-\
-/** artifact dialog *****************/\
-table.artifact tr > * {\
-  background: rgba(8, 48, 78, 0.9);\
-}\
-\
-table.artifact td.info {\
-  min-width: 110px; /* min-width for info column, to ensure really long portal names don\'t crowd things out */\
-}\
-\
-table.artifact .portal {\
-  min-width: 200px; /* min-width for portal names, to ensure really long lists of artifacts don\'t crowd names out */\
-}\
-\
-\
-/* leaflet popups - restyle to match the theme of IITC */\
-#map .leaflet-popup {\
-  pointer-events: none;\
-}\
-\
-#map .leaflet-popup-content-wrapper {\
-  border-radius: 0px;\
-  -webkit-border-radius: 0px;\
-  border: 1px solid #20A8B1;\
-  background: #0e3d4e;\
-  pointer-events: auto;\
-}\
-\
-#map .leaflet-popup-content {\
-  color: #ffce00;\
-  margin: 5px 8px;\
-}\
-\
-#map .leaflet-popup-close-button {\
-  padding: 2px 1px 0 0;\
-  font-size: 12px;\
-  line-height: 8px;\
-  width: 10px;\
-  height: 10px;\
-  pointer-events: auto;\
-}\
-\
-\
-#map .leaflet-popup-tip {\
-  /* change the tip from an arrow to a simple line */\
-  background: #20A8B1;\
-  width: 1px;\
-  height: 20px;\
-  padding: 0;\
-  margin: 0 0 0 20px;\
-  -webkit-transform: none;\
-  -moz-transform: none;\
-  -ms-transform: none;\
-  -o-transform: none;\
-  transform: none;\
-}\
-\
-\
-/* misc */\
-.layer_off_warning {\
-  color: #FFCE00;\
-  margin: 8px;\
-  text-align: center;\
-}\
-\
-.cursor_help {\
-  cursor: help;\
-}\
-\
-/* region scores */\
-.cellscore .ui-accordion-header, .cellscore .ui-accordion-content {\
-	border: 1px solid #20a8b1;\
-	margin-top: -1px;\
-	display: block;\
-}\
-.cellscore .ui-accordion-header {\
-	color: #ffce00;\
-	outline: none\
-}\
-.cellscore .ui-accordion-header:before {\
-	font-size: 18px;\
-	margin-right: 2px;\
-	content: "⊞";\
-}\
-.cellscore .ui-accordion-header-active:before {\
-	content: "⊟";\
-}\
-.cellscore table {\
-	width: 90%;\
-	max-width: 360px; /* prevent width change on scrollbar appearance (after animation) */\
-}\
-\
-/* prevent nonfunctional horizontal scrollbar in Chrome (perhaps jQuery issue) */\
-.cellscore .historychart > div {\
-  overflow: auto;\
-}\
-\
-.cellscore .logscale {\
-  vertical-align: middle;\
-  margin-top: 0;\
-}\
-\
-@-moz-document url-prefix() {\
- .cellscore .logscale {\
-    transform: scale(0.8);\
-  }\
-\
-  /* prevent nonfunctional vertical scrollbar in Firefox (perhaps jQuery issue) */\
-  .cellscore > .historychart {\
-    overflow-y: hidden !important;\
-  }\
-}\
-\
-g.checkpoint:hover circle {\
-  fill-opacity: 1;\
-  stroke-width: 2px;\
-}\
-\
-.cellscore th, .cellscore td {\
-	text-align: left;\
-	padding-left: 5px;\
-}\
-.checkpoint_table {\
-	border-collapse: collapse;\
-}\
-.checkpoint_table th, .checkpoint_table td {\
-	text-align: right;\
-}\
-\
-.cellscore #overview {\
-  width: 100%;\
-}\
-\
-.cellscore #overview td {\
-  white-space: nowrap;\
-  width: 1%;\
-  text-align: right;\
-}\
-\
-.cellscore #overview th {\
-  white-space: nowrap;\
-  width: 1%;\
-  text-align: left;\
-  padding-left: 4px;\
-}\
-\
-.checkpointtooltip {\
-  min-width: 180px;\
-}\
-\
-.checkpoint_timers table {\
-  padding-top: 4px;\
-  width: 100%;\
-}\
-\
-/* tabs */\
-.ui-tabs-nav {\
-	display: block;\
-	border-bottom: 1px solid #20a8b1;\
-	border-top: 1px solid transparent;\
-	margin: 3px 0 0;\
-	padding: 0;\
-}\
-.ui-tabs-nav::after {\
-	content: \'\';\
-	clear: left;\
-	display: block;\
-	height: 0;\
-	width: 0;\
-}\
-.ui-tabs-nav li {\
-	list-style: none;\
-	display: block;\
-	float:left;\
-	margin: 0 0 -1px;\
-	border: 1px solid #20a8b1;\
-}\
-.ui-tabs-nav li.ui-tabs-active {\
-	border-bottom-color: #0F2C3F;\
-	background: #0F2C3F;\
-	border-width: 2px 2px 1px;\
-	font-weight: bold;\
-	margin: -1px 1px;\
-}\
-.ui-tabs-nav a {\
-	display: inline-block;\
-	padding: 0.2em 0.7em;\
-}\
-.ui-tabs-nav .ui-icon {\
-	display: inline-block;\
-	font-size: 0;\
-	height: 22px;\
-	overflow: hidden;\
-	position: relative;\
-	vertical-align: top;\
-	width: 16px;\
-}\
-.ui-tabs-nav .ui-icon-close::before {\
-	content: "×";\
-	font-size: 16px;\
-	height: 16px;\
-	position: absolute;\
-	text-align: center;\
-	top: 2px;\
-	vertical-align: baseline;\
-	width: 16px;\
-	cursor: pointer;\
-}\
-\
-svg.icon-button {\
-	fill: currentColor;\
-}\
-\
-.leaflet-marker-icon > svg {\
-	height: inherit;\
-	width: inherit;\
-}\
-\
-/* Warning text */\
-.warning {\
-  color: #f77;\
-  font-weight: bold;\
-  text-shadow: 1px 1px black, -1px -1px black;\
-  text-align: center;\
-}\
-\
-.ui-dialog-aboutIITC .plugin-is-standard {\
-  color: darkgray;\
-}\
-\
-.ui-dialog-aboutIITC .plugin-error {\
-  text-decoration: line-through;\
-}\
-\
-.ui-dialog-non-standard-intel .ui-dialog-buttonset button:first-child {\
-  display: none;\
-}\
-\
-.ui-dialog-non-standard-intel .ui-dialog-buttonset button:nth-child(2) {\
-  float: left;\
-}\
-' +
+@media print{.leaflet-control-container,#chatcontrols,#chat,#chatinput,#sidebar,#updatestatus,#portal_highlight_select{display:none!important}}.leaflet-control{-webkit-user-select:none;user-select:none}.leaflet-control-container .leaflet-top.leaflet-left{flex-flow:column wrap;align-content:flex-start;align-items:flex-start;width:700px;height:calc(100% - 126px);max-height:90%;display:flex}.leaflet-control-layers-overlays label.disabled{cursor:help;text-decoration:line-through}.leaflet-control-layers-base{float:left;max-height:600px;overflow-y:auto}.leaflet-control-layers-overlays{float:left;border-left:1px solid #ddd;max-height:600px;margin-left:8px;padding-left:8px;overflow-y:auto}.leaflet-control-layers-separator{display:none}.leaflet-left .leaflet-control.chat-expand{margin-left:720px}.leaflet-left,.leaflet-right{grid-gap:10px;justify-items:baseline;display:grid}.leaflet-right{justify-items:end}.leaflet-left .leaflet-control,.leaflet-right .leaflet-control{margin:0}.leaflet-top{margin-top:var(--safe-area-inset-top);top:10px}.leaflet-right{margin-right:var(--safe-area-inset-right);right:10px}.leaflet-bottom{margin-bottom:calc(22px + var(--safe-area-inset-bottom));bottom:10px}.leaflet-left{margin-left:var(--safe-area-inset-left);left:10px}.leaflet-control-scale{order:-90}.leaflet-right .iitc-sidebar-toggle{order:-10}.leaflet-right .leaflet-control-layers{order:-9}.leaflet-right .iitc-options-button{order:-8}.leaflet-right .iitc-bookmarks-button{order:-7}.leaflet-bar{box-shadow:none;border:2px solid #0003}.leaflet-bar a{text-decoration:none}.leaflet-control-zoom-in,.leaflet-control-zoom-out{background-size:18px;font-size:0!important}.leaflet-control-zoom-in{background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 18 18\'%3E%3Cpath d=\'M9 3v12M3 9h12\' stroke=\'black\' stroke-width=\'2.2\' fill=\'none\'/%3E%3C/svg%3E")}.leaflet-control-zoom-out{background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 18 18\'%3E%3Cpath d=\'M3.5 9h11\' stroke=\'black\' stroke-width=\'2.2\' fill=\'none\'/%3E%3C/svg%3E")}#map .leaflet-popup{pointer-events:none}#map .leaflet-popup-content-wrapper{border:1px solid var(--color-bg-border);pointer-events:auto;background:#0e3d4e;border-radius:0}#map .leaflet-popup-content{color:var(--color-primary);margin:5px 8px}#map .leaflet-popup-close-button{pointer-events:auto;width:10px;height:10px;padding:2px 1px 0 0;font-size:12px;line-height:8px}#map .leaflet-popup-tip{background:var(--color-bg-border);width:1px;height:20px;margin:0 0 0 20px;padding:0;transform:none}body:not(.icons-unavailable) .leaflet-control-layers-toggle,body:not(.icons-unavailable) .leaflet-retina .leaflet-control-layers-toggle{background-image:none}.leaflet-control-layers-toggle:before{content:"layers";font-family:IITC Material Symbols}.leaflet-control-layers-toggle,.iitc-control-button>a{border-radius:inherit;justify-content:center;align-items:center;display:flex}.leaflet-control-layers-toggle:hover,.iitc-control-button a:hover{background-color:#f4f4f4;text-decoration:none}.leaflet-control-layers-toggle:before,.iitc-control-button iitc-icon{color:#454545;font-size:28px}.iitc-control-button{background:#fff;border-radius:5px;flex-direction:row-reverse;align-items:flex-start;display:flex;box-shadow:0 1px 5px #0006}.leaflet-touch .iitc-control-button{box-shadow:none;background-clip:padding-box;border:2px solid #0003}.iitc-control-button>a{flex:none;width:36px;height:36px}.leaflet-touch .iitc-control-button>a{width:44px;height:44px}.iitc-control-menu{flex-direction:column;gap:2px;max-height:60vh;padding:4px 0 4px 4px;display:none;overflow-y:auto}@media (hover:hover) and (pointer:fine){.iitc-control-button:hover>.iitc-control-menu{display:flex}}.iitc-control-button:has(:focus-visible)>.iitc-control-menu{display:flex}.iitc-control-button .iitc-control-menu a{color:#333;white-space:nowrap;border-radius:4px;padding:4px 8px;font-size:13px}#chatcontrols{color:var(--color-primary);background:var(--color-bg-trans);bottom:calc(var(--chat-shrinked) + var(--safe-area-inset-bottom) + 22px);left:var(--safe-area-inset-left);z-index:3000;height:26px;padding-left:1px;position:absolute}#chatcontrols .toggle{font-size:20px;line-height:24px}#chatcontrols .toggle:before{content:"expand_less"}#chatcontrols.expand{top:var(--safe-area-inset-top);bottom:auto}#chatcontrols.expand .toggle:before{content:"expand_more"}#chatcontrols a{text-align:center;border:1px solid var(--color-bg-border);vertical-align:top;width:94px;height:24px;margin-left:-1px;line-height:24px;display:inline-block}#chatcontrols a:first-child{letter-spacing:-1px;text-decoration:none}#chatcontrols a.active{border-color:var(--color-primary);background:var(--color-bg);border-bottom-width:0;font-weight:700}#chatcontrols .loading{background-color:#ff000054;animation:1.2s linear infinite chatloading}#chatcontrols a.active+a{border-left-color:var(--color-primary)}@keyframes chatloading{0%{background-color:#f006}50%{background-color:#ff00001a}to{background-color:#f006}}#chat{width:708px;max-width:100vw;height:var(--chat-shrinked);bottom:calc(var(--safe-area-inset-bottom) + 23px);padding-left:var(--safe-area-inset-left);z-index:3000;background:var(--color-bg-trans);color:var(--color-secondary);border:1px solid var(--color-bg-border);box-sizing:border-box;border-bottom:0;line-height:15px;position:absolute;left:0}#chat.expand{height:auto;top:calc(var(--safe-area-inset-top) + 25px)}#chat .divider{color:#bbb}#chat .divider td:nth-child(2){text-align:center}em{color:red;font-style:normal}#chat>div{box-sizing:border-box;height:100%;padding:2px;position:relative;overflow:hidden scroll}#chat table,#chatinput table{table-layout:fixed;border-spacing:0;border-collapse:collapse;width:100%;min-height:100%;margin-bottom:1px}#chat table tr:last-child,#chatinput table{height:100%}#chatinput.public mark,#chatinput.public input{color:#f66}#chatinput.alerts mark{color:#bbb}#chat td,#chatinput td{vertical-align:top;padding-bottom:3px;font-size:13px}#chat td:first-child,#chatinput td:first-child{color:#bbb;white-space:nowrap;width:44px;padding-left:2px;overflow:hidden}#chat time{cursor:help}#chat td:nth-child(2),#chatinput td:nth-child(2){white-space:nowrap;width:91px;padding-left:2px;overflow:hidden}#chat td.system_narrowcast{color:#f66}#chatall tr.faction td:nth-child(3):before,#chatalerts tr.faction td:nth-child(3):before{content:"[faction]";color:#f88;background-color:#500;margin-right:.2rem}#chatall tr.public td:nth-child(3):before,#chatalerts tr.public td:nth-child(3):before{content:"[public]";color:#ff6;background-color:#550;margin-right:.2rem}mark{background:0 0}.invisep{color:#0000;width:1px;height:1px;display:inline-block;overflow:hidden}#chatinput{background:var(--color-bg-trans);width:708px;max-width:100vw;height:calc(var(--safe-area-inset-bottom) + 23px);border:1px solid var(--color-bg-border);z-index:3001;box-sizing:border-box;padding:0 2px;padding-bottom:var(--safe-area-inset-bottom);padding-left:var(--safe-area-inset-left);position:absolute;bottom:0;left:0}#chatinput td{vertical-align:middle;padding-bottom:1px}#chatinput input{color:var(--color-secondary);background:0 0;width:100%;height:100%;padding:3px 4px 1px}.bidi-isolate{unicode-bidi:isolate}.pl_nudge_date{color:#ffd652;background-color:#724510;border-top:1px solid #ffd652;border-bottom:1px solid #ffd652;border-left:1px solid #ffd652;width:36px;height:18px;padding-left:2px;display:block;position:relative;left:-2px}.pl_nudge_date:after{content:"";background:url(//commondatastorage.googleapis.com/ingress.com/img/nudge_pointy.png) no-repeat;width:5px;height:20px;position:absolute;top:-1px;right:-5px}.pl_nudge_player{cursor:pointer}.pl_nudge_me{color:#ffd652}#searchwrapper,#searchbox{position:relative}#search{width:100%;height:2em;min-height:var(--icon-target-size);padding-left:max(2em, var(--icon-target-size));padding-right:max(4em, calc(2 * var(--icon-target-size)))}#search::-webkit-search-cancel-button{-webkit-appearance:none}#searchicon,#searchcancel,#buttongeolocation{color:#bbb;min-width:var(--icon-target-size);min-height:var(--icon-target-size);background-color:#0000;border:0 #0000;justify-content:center;align-items:center;margin:auto 0;padding:0 .1em;font-size:20px;display:flex;position:absolute;top:0;bottom:0}#searchicon iitc-icon,#buttongeolocation iitc-icon{font-size:1em}#searchcancel iitc-icon{font-size:.9em}#searchicon{left:0}#searchcancel{cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s;right:24px}#searchcancel.visible{opacity:1;pointer-events:auto}#buttongeolocation{cursor:pointer;right:0}#buttongeolocation:focus{outline:1px dotted var(--color-primary)}.searchquery{max-height:25em;overflow-y:auto}#searchwrapper h3{cursor:pointer;height:auto;padding:0 0 0 23px;font-size:1em;position:relative}#searchwrapper h3:before{content:"expand_less";margin-right:2px;font-family:IITC Material Symbols;font-size:14px;font-weight:400;transition:transform .3s;position:absolute;left:4px}#searchwrapper .searchquery.collapsed h3:before{transform:rotate(180deg)}#searchwrapper ul{max-height:100%;padding-left:16px;overflow:hidden}#searchwrapper li{cursor:pointer}#searchwrapper .searchquery.collapsed ul{max-height:0}#searchwrapper li a{background-position:1px;background-repeat:no-repeat;background-size:12px 12px;margin-left:-14px;padding-left:14px}#searchwrapper li:focus a,#searchwrapper li:hover a{text-decoration:underline}#searchwrapper li em{color:#ccc;font-size:.9em}#scrollwrapper{right:calc(-2 * var(--hidden-scrollbar-width) + 2px + var(--safe-area-inset-right));top:var(--safe-area-inset-top);width:calc(var(--sidebar-width) + 2 * var(--hidden-scrollbar-width));bottom:calc(var(--safe-area-inset-bottom) + 45px);z-index:3001;pointer-events:none;position:fixed;overflow:hidden auto}#sidebar{background-color:var(--color-bg-trans);border-left:1px solid var(--color-bg-border);color:#888;width:calc(var(--sidebar-width) + var(--hidden-scrollbar-width) + 1px);pointer-events:auto;max-height:100%;position:relative;top:0;left:0;overflow:hidden scroll}body.sidebar-open .leaflet-right{margin-right:calc(var(--sidebar-width) + 1px + var(--safe-area-inset-right))}.leaflet-right .leaflet-control.iitc-sidebar-toggle{--toggle-reach:10px;box-sizing:border-box;width:calc(36px + var(--toggle-reach));height:28px;margin-right:calc(-1 * var(--toggle-reach));background-color:var(--color-bg-trans);border:1px solid var(--color-bg-border);border-right:none;border-radius:5px 0 0 5px;display:flex;box-shadow:0 1px 5px #0006}body:not(.sidebar-open) .leaflet-right .leaflet-control.iitc-sidebar-toggle{--toggle-reach:calc(10px + var(--safe-area-inset-right))}.leaflet-touch .leaflet-right .leaflet-control.iitc-sidebar-toggle{width:calc(48px + var(--toggle-reach));height:38px}.iitc-sidebar-toggle button{padding:0 var(--toggle-reach) 0 0;border-radius:inherit;color:var(--color-primary);cursor:pointer;background:0 0;border:none;flex:1;justify-content:center;align-items:center;display:flex}.iitc-sidebar-toggle button:hover{background-color:color-mix(in srgb, var(--color-bg-border) 25%, transparent)}@supports not (color:color-mix(in srgb, red, red)){.iitc-sidebar-toggle button:hover{background-color:#20a8b140}}.iitc-sidebar-toggle iitc-icon{font-size:24px}.leaflet-touch .iitc-sidebar-toggle iitc-icon{font-size:28px}#sidebar>*{box-sizing:border-box;width:calc(var(--sidebar-width) + 1px);border-bottom:1px solid #20a8b1}#playerstat{height:30px}h2{color:var(--color-primary);cursor:help;box-sizing:border-box;width:100%;margin:0;padding:0 4px;font-size:21px}h2 #name{vertical-align:top;white-space:nowrap;font-weight:300;display:inline}h2 #name .playername{text-overflow:ellipsis;max-width:70%;display:inline-block;overflow:hidden}h2 #name:hover .playername{max-width:50%}h2 #name:hover #signout{display:inline-block}h2 #stats{float:right;height:100%;overflow:hidden}h2 sup{margin-bottom:-2px;font-size:11px;display:block}h2 sub{margin-bottom:-2px;font-size:11px;display:block}#signout{background-color:var(--color-bg-trans-50);vertical-align:text-top;padding:0 4px;font-size:12px;font-weight:400;display:none}#gamestat span{cursor:help;box-sizing:border-box;padding:0 3px;font-weight:700;display:inline-block}#gamestat span.res{background:color-mix(in oklab, var(--color-res) 60%, black)}#gamestat span.enl{background:color-mix(in oklab, var(--color-enl) 60%, black)}@supports not (color:color-mix(in srgb, red, red)){#gamestat span.res{background:#006180}#gamestat span.enl{background:#018001}}input:not([type]),.input{color:var(--color-primary);box-sizing:border-box;background-color:#0000004d;border:0;height:24px;padding:0 4px;font-family:inherit;font-size:12px}input[type=text]{color:var(--color-primary);box-sizing:border-box;background-color:#0000004d;border:0;height:24px;padding:0 4px;font-family:inherit;font-size:12px}input[type=password]{color:var(--color-primary);box-sizing:border-box;background-color:#0000004d;border:0;height:24px;padding:0 4px;font-family:inherit;font-size:12px}input[type=number]{color:var(--color-primary);box-sizing:border-box;background-color:#0000004d;border:0;height:24px;padding:0 4px;font-family:inherit;font-size:12px}input[type=email]{color:var(--color-primary);box-sizing:border-box;background-color:#0000004d;border:0;height:24px;padding:0 4px;font-family:inherit;font-size:12px}input[type=search]{color:var(--color-primary);box-sizing:border-box;background-color:#0000004d;border:0;height:24px;padding:0 4px;font-family:inherit;font-size:12px}input[type=url]{color:var(--color-primary);box-sizing:border-box;background-color:#0000004d;border:0;height:24px;padding:0 4px;font-family:inherit;font-size:12px}.leaflet-control-layers input{height:auto;padding:0}#portaltitle{white-space:nowrap;margin:2px 0;line-height:24px;display:flex}#portaltitle .value{text-overflow:ellipsis;flex:1;overflow:hidden}#portaltitle iitc-icon{font-size:24px}#portaltitle .close{cursor:pointer;color:var(--color-primary);margin-right:2px;font-weight:400}.imgpreview{cursor:help;background:50%/contain no-repeat;height:190px;position:relative;overflow:hidden}.imgpreview img.hide,.imgpreview .portalDetails{display:none}#level{text-shadow:-1px -1px #000,1px -1px #000,-1px 1px #000,1px 1px #000,0 0 5px #fff;text-align:right;float:right;margin-right:15px;font-size:40px;display:block}.mods{text-align:center;width:296px;height:67px;margin:3px auto 1px}.mods span{float:left;text-align:center;cursor:help;background-color:#0000004d;border:1px solid #666;width:63px;height:63px;margin:0 2px;padding:2px;display:block;overflow:hidden}.mods span:not([title]){cursor:auto}.res .mods span,.res .meter{border:1px solid #0076b6}.enl .mods span,.enl .meter{border:1px solid #017f01}#randdetails,#resodetails{box-sizing:border-box;table-layout:fixed;border-spacing:0;border-collapse:collapse;width:100%;padding:0 4px}#randdetails td,#resodetails td{text-overflow:ellipsis;vertical-align:top;white-space:nowrap;width:50%;overflow:hidden}#randdetails th,#resodetails th{text-align:right;width:62px;padding:0 4px;font-weight:400}#randdetails th+th,#resodetails th+th{text-align:left;padding-left:4px;padding-right:4px}#randdetails td:first-child,#resodetails td:first-child{text-align:right;padding-left:2px}#randdetails td:last-child,#resodetails td:last-child{text-align:left;padding-right:2px}#randdetails{margin-top:4px;margin-bottom:5px}#randdetails tt{cursor:help;font-family:inherit}#artifact_target,#artifact_fragments{margin:4px 8px}#resodetails{margin-bottom:0}.meter{cursor:help;box-sizing:border-box;background:#000;width:100%;height:18px;padding:1px;display:inline-block;position:relative;top:0;left:0}.meter.north{overflow:hidden}.meter.north:before{content:"";background-color:red;border:1px solid #000;border-radius:100%;width:6px;height:6px;margin-left:-4px;display:block;position:absolute;top:-3px;left:50%}.meter span{height:14px;display:block}.meter-level{text-shadow:0 0 .3em gray;text-align:center;word-spacing:4px;position:absolute;top:-2px;left:0;right:0}.linkdetails{text-align:center;margin-bottom:0}.linkdetails aside{white-space:nowrap;margin-left:5px;margin-right:5px;display:inline-block}#toolbox{display:none!important}#toolbox,#toolbox_component{text-align:left}#toolbox>a,#toolbox_component>a{white-space:nowrap;margin-left:5px;margin-right:5px;display:inline-block}#toolbox_component>a>iitc-icon{margin-top:-2px;margin-right:2px;font-size:1em}#portaldetails{min-height:63px}#historydetails{text-align:center;color:var(--color-primary)}#historydetails span{color:#ff4a4a}#historydetails span.completed{color:#03fe03}#updatestatus{width:var(--sidebar-width);background-color:var(--color-bg-trans);border-bottom:0;border-top:1px solid var(--color-bg-border);border-left:1px solid var(--color-bg-border);color:var(--color-primary);padding:4px;padding-bottom:var(--safe-area-inset-bottom);bottom:0;right:var(--safe-area-inset-right);z-index:3002;box-sizing:border-box;font-size:13px;position:fixed}#updatestatus .map{margin-left:8px}#updatestatus.ghost{pointer-events:none;background:0 0;border:0}#updatestatus.ghost>*{pointer-events:auto}#loadlevel{color:#000;background:#fff;border:0 solid #20a8b1;border-width:0 1px;min-width:1.8em;margin:-4px 0;padding:4px .2em;display:inline-block}#innerstatus .failed-request{color:#f66}.redeemReward{padding:0;font-family:Inconsolata,Consolas,Menlo,Courier New,monospace;font-size:14px;list-style-type:none}.redeemReward .itemlevel{text-shadow:0 0 1px #000;font-weight:700}table.artifact tr>*{background:var(--color-bg-trans)}table.artifact td.info{min-width:110px}table.artifact .portal{min-width:200px}.ui-dialog-content.region-scoreboard-dialog,.region-scoreboard-dialog.safe-area-insets{flex-direction:column;min-height:0;display:flex;overflow:hidden}.region-scoreboard-dialog.safe-area-insets{box-sizing:border-box}.cellscore{box-sizing:border-box;flex-direction:column;flex:auto;gap:10px;min-height:0;padding:8px;display:flex;overflow-y:auto}.cellscore details.scoreboard-section{border:1px solid var(--color-bg-border);border-radius:2px;padding:8px}.cellscore .scoreboard-section>summary{color:var(--color-primary);cursor:pointer;margin:0;font-weight:700}.cellscore .region-selection>summary{flex-wrap:wrap;gap:4px 8px;display:flex}.cellscore .region-summary-name{margin-left:auto}.cellscore .scoreboard-section[open]>summary{margin-bottom:8px}.cellscore table{white-space:nowrap;width:80%;max-width:100%;margin-left:auto;margin-right:auto}.cellscore .historychart>div{width:100%}.cellscore .history-chart{width:100%;height:auto;margin-top:.5em;margin-bottom:.5em;display:block}.cellscore .logscale{vertical-align:middle;margin-top:0}.cellscore #overview{width:100%}.cellscore #overview td{white-space:nowrap;text-align:right;width:1%}.cellscore #overview th{white-space:nowrap;text-align:left;width:1%;padding-left:4px}.cellscore .region-select-form{flex-wrap:wrap;align-items:end;gap:8px;display:flex}.cellscore .region-select-form label{flex-direction:column;flex:110px;gap:3px;display:flex}.cellscore .region-select-form input{width:100%}.cellscore .checkpoint-cycle-controls{flex-wrap:wrap;justify-content:center;gap:1em;margin-bottom:8px;display:flex}.cellscore .checkpoint-cycle-controls label{align-items:center;gap:6px;display:inline-flex}.cellscore .checkpoint-cycle-controls .checkpoint-date{min-width:0}.cellscore .checkpoint-history{touch-action:pan-y}.cellscore .mac_pause{text-align:center;border:1px solid var(--color-bg-border);border-radius:5px;font-size:larger}.cellscore .daychange{border-bottom:1px dashed var(--color-bg-border)}.cellscore .region-error{color:#ff8080;margin:6px 0 0}g.checkpoint:hover circle{fill-opacity:1;stroke-width:2px}.cellscore th,.cellscore td{text-align:left;padding-left:5px}.checkpoint_table{border-collapse:collapse}.checkpoint_table th{text-align:right}.checkpoint_table td{text-align:right}.checkpointtooltip{min-width:180px}.checkpoint_timers{border:1px solid var(--color-bg-border);background:hsl(from var(--color-bg) h s 20%);border-radius:2px;flex:none;margin-top:4px;padding:4px 8px 8px}.checkpoint-timer-row{white-space:nowrap;justify-content:space-between;gap:8px;display:flex}@media (max-width:600px){.cellscore{padding:6px}.cellscore .region-select-form{flex-direction:column;align-items:stretch}.checkpoint-timer-row{gap:4px;font-size:.75em}}.iitc-export-text,.iitc-import-text{box-sizing:border-box;resize:vertical;width:100%;height:150px}.iitc-prompt-text{box-sizing:border-box;width:100%}.iitc-prompt-error:empty{display:none}.iitc-prompt-error{color:#ff8b7f}.ui-tooltip,.ui-dialog{z-index:9500;background-color:var(--color-bg-trans);border:1px solid var(--color-bg-border);padding:2px 4px;position:absolute}.ui-tooltip,.ui-dialog,.iitc-options-pane{color:var(--color-secondary);font-size:13px;line-height:15px}.ui-tooltip{max-width:300px}.ui-widget-overlay{z-index:10000;opacity:.6;background:#444;width:100%;height:100%;position:fixed;top:0;left:0}.ui-modal{z-index:10001!important}.ui-tooltip{z-index:10002!important}.ui-tooltip,.ui-dialog a{color:var(--color-primary)}.ui-dialog{border-radius:2px;max-width:calc(100vw - 1rem);padding:0}.ui-dialog-modal .ui-dialog-titlebar-close{display:none}.ui-dialog-titlebar{text-align:center;background-color:#083c4ee6;padding:4px;font-size:13px;line-height:15px}.ui-dialog-title,.text-overflow-ellipsis.ui-dialog-title{width:calc(100% - 45px);margin-left:8px;margin-right:45px;font-weight:700}.ui-dialog-title-active{color:var(--color-primary)}.ui-dialog-title-inactive{color:#fff}.ui-dialog-titlebar-button{vertical-align:middle;text-align:center;cursor:pointer;border:1px solid var(--color-bg-border);background-color:#0000;width:17px;height:17px;padding:0;display:table-cell;position:absolute;top:3px}.ui-dialog-titlebar-button:active{background-color:#20a8b1}.ui-dialog-titlebar-button-close{right:4px}.ui-dialog-titlebar-button-collapse{right:25px}.ui-dialog-titlebar-button-collapse-collapsed{background-color:var(--color-bg-border)}.ui-dialog-titlebar-button-collapse:after,.ui-dialog-titlebar-button-close:after,.ui-dialog-titlebar-button-close:before{content:"";border-top:2px solid var(--color-bg-border);width:11px;height:0;margin-left:-6px;position:absolute;top:3px;left:50%}.ui-dialog-titlebar-button-close:after{transform:translateY(3.5px)rotate(45deg)}.ui-dialog-titlebar-button-close:before{transform:translateY(3.5px)rotate(-45deg)}.ui-dialog-titlebar-button.ui-state-active:after,.ui-dialog-titlebar-button.ui-state-active:before,.ui-dialog-titlebar-button.ui-dialog-titlebar-button-collapse-collapsed:after,.ui-dialog-titlebar-button.ui-dialog-titlebar-button-collapse-collapsed:before,.ui-dialog-titlebar-button:active:after,.ui-dialog-titlebar-button:active:before{border-top-color:#083c4ee6}.ui-dialog-content{padding:12px;position:relative;overflow:auto;max-height:calc(100vh - 83px)!important}.ui-dialog-content-hidden{display:none!important}.ui-dialog-buttonpane{border-top:1px solid #20a8b1;padding:6px}.ui-dialog-buttonset{text-align:right}.ui-dialog-buttonset button,.ui-dialog-content button,.iitc-options-pane button{min-width:40px;color:var(--color-primary);border:1px solid var(--color-primary);background-color:var(--color-bg-trans);padding:2px}.ui-dialog-buttonset button:hover{text-decoration:underline}.iitc-options-page{flex-direction:column;gap:2px;display:flex}.iitc-options-row{flex-wrap:wrap;justify-content:space-between;align-items:center;gap:4px 12px;padding:3px 0;display:flex}.iitc-options-row+.iitc-options-row{border-top:1px solid #ffffff0f}.iitc-options-label{flex:12em;min-width:0}.iitc-options-control{flex-wrap:wrap;align-items:center;gap:4px 8px;margin-left:auto;display:flex}.iitc-options-buttons{flex-wrap:wrap;gap:4px;display:inline-flex}.iitc-options .iitc-options-page button{padding:3px 5px}.iitc-options-icon-button{justify-content:center;align-items:center;display:inline-flex}.iitc-options-icon-button iitc-icon{font-size:16px}.iitc-options-description,.iitc-options-sub{opacity:.75;font-size:11px}.iitc-options-heading{color:var(--color-primary);border-bottom:1px solid var(--color-bg-border);margin:12px 0 4px;padding-bottom:2px;font-size:14px}.iitc-options-heading:first-child{margin-top:0}.iitc-options-text{margin:4px 0}.iitc-options-notice{border-left:2px solid var(--color-bg-border);background:#20a8b11a;margin:4px 0;padding:6px 8px}.iitc-options-notice-warning{border-left-color:var(--color-primary);background:#ffce001a}.iitc-options-notice-error{background:#ff8b7f1a;border-left-color:#ff8b7f}.iitc-options-page button[aria-disabled=true]{opacity:.5;cursor:progress}.iitc-options-error{color:#ff8b7f;flex-basis:100%}.iitc-options-message{flex-basis:100%;align-items:flex-start;gap:4px;font-size:11px;display:flex}.iitc-options-message>iitc-icon{flex:none;font-size:14px}.iitc-options-page input[type=number]{width:6em}.iitc-options-list{margin:0;padding:0;list-style:none}.iitc-options-list li{padding:2px 0}.iitc-options-list .iitc-options-list{margin-left:16px}.iitc-options-list-head{flex:1;justify-content:space-between;gap:8px;display:flex}.iitc-options-list summary{cursor:pointer;align-items:center;gap:4px;list-style:none;display:flex}.iitc-options-list summary::-webkit-details-marker{display:none}.iitc-options-list summary>iitc-icon{flex:none}.iitc-options-list details[open]>summary>iitc-icon{transform:rotate(90deg)}.iitc-options-badge{opacity:.75;flex:none}.iitc-options-item-muted{opacity:.6}.iitc-options-item-error{color:#ff8b7f;text-decoration:line-through}.iitc-options-repeat{border-collapse:collapse;width:100%}.iitc-options-repeat th{text-align:left;padding:2px 4px;font-weight:400}.iitc-options-repeat td{text-align:left;padding:2px 4px;font-weight:400}.iitc-options-repeat :-webkit-any(th,td):first-child{padding-left:0}.iitc-options-repeat :is(th,td):first-child{padding-left:0}.iitc-options-repeat :-webkit-any(th,td):last-child{padding-right:0}.iitc-options-repeat :is(th,td):last-child{padding-right:0}.iitc-options-repeat thead th{opacity:.75;font-size:11px}.iitc-options-repeat tbody tr+tr{border-top:1px solid #ffffff0f}.iitc-options-repeat .iitc-options-cell-buttons{white-space:nowrap;text-align:right;width:1%}.iitc-options-choice{cursor:pointer;align-items:center;gap:6px;display:inline-flex}.iitc-options-choice input{margin:0}#dialog-iitc-options{padding:0;overflow:hidden}.iitc-options{grid-template-rows:minmax(0,1fr);grid-template-columns:11rem minmax(0,1fr);height:100%;display:grid;container-type:inline-size}.iitc-options-nav{z-index:0;flex-direction:column;gap:6px;min-width:0;min-height:0;padding:12px 0 12px 12px;display:flex}input[type=search].iitc-options-search{box-sizing:border-box;border-radius:5px;width:calc(100% - 12px);height:24px;min-height:24px;padding:0 9px}.iitc-options-pages{flex-direction:column;gap:2px;min-height:0;margin:0;padding:0;list-style:none;display:flex;overflow-y:auto}.iitc-options .iitc-options-page-link{width:100%;color:inherit;font:inherit;text-align:left;cursor:pointer;background:0 0;border:1px solid #0000;border-right:0;border-radius:5px 0 0 5px;padding:5px 8px;transition:all .2s;display:block}.iitc-options .iitc-options-page-link[aria-current=page]{border-color:var(--color-bg-border);color:var(--color-primary);background:var(--color-bg)}.iitc-options-found{-webkit-line-clamp:2;line-clamp:2;opacity:.75;-webkit-box-orient:vertical;font-size:11px;display:-webkit-box;overflow:hidden}.iitc-options-nothing{opacity:.75;padding:4px 6px}.iitc-options-detail{border-left:1px solid var(--color-bg-border);background:var(--color-bg);flex-direction:column;min-width:0;min-height:0;margin-left:-1px;display:flex}.iitc-options-content{flex:1;min-height:0;padding:4px 12px 12px;overflow-y:auto}.iitc-options-detail-head{align-items:center;gap:6px;margin-bottom:6px;padding:12px 12px 0;display:flex}.iitc-options-detail-head h2{width:auto;color:var(--color-primary);cursor:auto;margin:0;padding:0;font-size:16px}.iitc-options .iitc-options-back{color:inherit;cursor:pointer;background:0 0;border:0;justify-content:center;align-items:center;padding:0;display:none}.iitc-options .iitc-options-back iitc-icon{font-size:20px}@container (width<30rem){.iitc-options-nav,.iitc-options-detail{border-left:0;grid-column:1/-1;margin-left:0}.iitc-options .iitc-options-back{display:inline-flex}input[type=search].iitc-options-search{height:33px;min-height:33px;margin-bottom:6px;font-size:16px}.iitc-options-pages{background:var(--color-bg);gap:0;padding-right:12px}[data-view=page]>.iitc-options-nav,[data-view=list]>.iitc-options-detail{display:none}.iitc-options .iitc-options-page-link{border:1px solid var(--color-bg-border);text-align:center;border-top:0;border-radius:0;padding:8px}.iitc-options .iitc-options-page-link[aria-current=page]{color:inherit}.iitc-options-search:not(:placeholder-shown)~.iitc-options-pages .iitc-options-page-link{text-align:left}.iitc-options-pages li:first-child .iitc-options-page-link{border-top:1px solid var(--color-bg-border);border-radius:5px 5px 0 0}.iitc-options-pages li:last-child .iitc-options-page-link{border-radius:0 0 5px 5px}}.iitc-options-access-keys{clip-path:inset(50%);white-space:nowrap;width:1px;height:1px;position:fixed;top:0;left:0;overflow:hidden}.iitc-options-match{background:color-mix(in srgb, var(--color-primary) 22%, transparent);outline:3px solid color-mix(in srgb, var(--color-primary) 22%, transparent)}@supports not (color:color-mix(in srgb, red, red)){.iitc-options-match{background:#ffce0038;outline:3px solid #ffce0038}}.iitc-options-pane{z-index:3001;box-sizing:border-box;padding:var(--safe-area-inset-top) var(--safe-area-inset-right) var(--safe-area-inset-bottom) var(--safe-area-inset-left);background:var(--color-bg);position:fixed;top:0;bottom:0;left:0;right:0}body.icons-unavailable #searchwrapper h3:before{content:"▲"}body.icons-unavailable #chatcontrols .toggle:before{content:"▲"}body.icons-unavailable #chatcontrols.expand .toggle:before{content:"▼"}body.icons-unavailable .ui-tabs-nav .ui-icon-close:before{content:"×"}body.icons-unavailable .leaflet-control-layers-toggle:before{content:""}:root{--safe-area-inset-top:env(safe-area-inset-top);--safe-area-inset-bottom:env(safe-area-inset-bottom);--safe-area-inset-left:env(safe-area-inset-left);--safe-area-inset-right:env(safe-area-inset-right);--sidebar-width:300px;--hidden-scrollbar-width:20px;--chat-shrinked:60px;--icon-target-size:24px;--color-enl:#03fe03;--color-res:#00c5ff;--color-mac:#ff2020;--color-none:#fff;--color-primary:#ffce00;--color-secondary:#eee;--color-bg:#08304e;--color-bg-trans:color-mix(in srgb, var(--color-bg) 90%, transparent);--color-bg-trans-50:color-mix(in srgb, var(--color-bg) 50%, transparent);--color-bg-border:#20a8b1}@supports not (color:color-mix(in srgb, red, red)){:root{--color-bg-trans:#08304ee6;--color-bg-trans-50:#08304e80}}.text-overflow-ellipsis{white-space:nowrap;text-overflow:ellipsis;vertical-align:text-bottom;width:100%;display:inline-block;overflow:hidden}html,body{background:#0e3d4e;width:100%;height:100%;overflow:hidden}#map{width:100%;height:100%;overflow:visible}body{margin:0;font-family:Roboto,Helvetica Neue,Helvetica,sans-serif;font-size:14px}.icon-button{cursor:pointer;min-width:var(--icon-target-size);min-height:var(--icon-target-size);justify-content:center;align-items:center;display:inline-flex}i.tiny{font-size:1rem}i.small{font-size:2rem}i.medium{font-size:4rem}i.large{font-size:6rem}.enl{color:var(--color-enl)}.res{color:var(--color-res)}.mac{color:var(--color-mac)}.none{color:var(--color-none)}.nickname{cursor:pointer}a{color:var(--color-primary);cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}.help{cursor:help}.toggle{font-family:IITC Material Symbols;line-height:1;display:block}td{vertical-align:top;padding:0}td+td{padding-left:4px}#qrcode>canvas{border:8px solid #fff}.RESISTANCE{color:#00c2ff}.ALIENS,.ENLIGHTENED{color:#28f428}#portal_highlight_select{z-index:2500;color:var(--color-primary);background-color:#0e3c46;font-size:11px;position:absolute;top:5px;left:10px}.portal_details th,.portal_details td{vertical-align:top;text-align:left}.portal_details th{white-space:nowrap;padding-right:1em}.portal_details tr.padding-top th,.portal_details tr.padding-top td{padding-top:.7em}#play_button{display:none}.layer_off_warning{color:var(--color-primary);text-align:center;margin:8px}.cursor_help{cursor:help}.ui-tabs-nav{border-top:1px solid #0000;border-bottom:1px solid #20a8b1;margin:3px 0 0;padding:0;display:block}.ui-tabs-nav:after{content:"";clear:left;width:0;height:0;display:block}.ui-tabs-nav li{float:left;border:1px solid #20a8b1;margin:0 0 -1px;list-style:none;display:block}.ui-tabs-nav li.ui-tabs-active{background:#0f2c3f;border-width:2px 2px 1px;border-bottom-color:#0f2c3f;margin:-1px 1px;font-weight:700}.ui-tabs-nav a{padding:.2em .7em;display:inline-block}.ui-tabs-nav .ui-icon{vertical-align:top;width:16px;height:22px;font-size:0;display:inline-block;position:relative;overflow:hidden}.ui-tabs-nav .ui-icon-close:before{content:"close";text-align:center;vertical-align:baseline;cursor:pointer;width:16px;height:16px;font-family:IITC Material Symbols;font-size:16px;position:absolute;top:2px}.leaflet-marker-icon>svg{height:inherit;width:inherit}.warning{color:#f77;text-shadow:1px 1px #000,-1px -1px #000;text-align:center;font-weight:700}.ui-dialog-non-standard-intel .ui-dialog-buttonset button:first-child{display:none}.ui-dialog-non-standard-intel .ui-dialog-buttonset button:nth-child(2){float:left}::-webkit-input-placeholder{font-style:italic}:-moz-placeholder-shown{font-style:italic}::-moz-placeholder{font-style:italic}' +
+  '</style>' +
+  '<style>' +
+  '\
+@font-face{font-family:IITC Material Symbols;font-style:normal;font-weight:400;font-display:block;src:url(data:font/woff2;base64,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)format("woff2")}iitc-icon{letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;vertical-align:middle;-webkit-font-smoothing:antialiased;direction:ltr;font-family:IITC Material Symbols;font-size:1.25em;font-style:normal;font-weight:400;line-height:1;display:inline-block}iitc-icon[filled]{font-variation-settings:"FILL" 1}body.icons-unavailable iitc-icon{font-size:0!important}body.icons-unavailable iitc-icon:before{content:attr(label);font:inherit;font-size:1rem}body.icons-unavailable iitc-icon[fallback]:before{content:attr(fallback)}' +
   '</style>' +
   // note: smartphone.css injection moved into code/smartphone.js
   '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:100,100italic,300,300italic,400,400italic,500,500italic,700,700italic&subset=latin,cyrillic-ext,greek-ext,greek,vietnamese,latin-ext,cyrillic"/>';
@@ -2595,22 +327,15 @@ document.body.innerHTML =
   '  <td><mark>tell faction:</mark></td>' +
   '  <td><input id="chattext" type="text" maxlength="256" accesskey="c" title="[c]" /></td>' +
   '</tr></table></form>' +
-  '<a id="sidebartoggle" accesskey="i" title="Toggle sidebar [i]"><span class="toggle close"></span></a>' +
   '<div id="scrollwrapper">' + // enable scrolling for small screens
   '  <div id="sidebar" style="display: none">' +
   '    <div id="playerstat">t</div>' +
   '    <div id="gamestat">&nbsp;loading global control stats</div>' +
   '    <div id="searchwrapper">' +
   '      <div id="searchbox">' +
-  '        <div id="searchicon"><img src="' +
-  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjQkJCQkJCIj48cGF0aCBkPSJNNzg0LTEyMCA1MzItMzcycS0zMCAyNC02OSAzOHQtODMgMTRxLTEwOSAwLTE4NC41LTc1LjVUMTIwLTU4MHEwLTEwOSA3NS41LTE4NC41VDM4MC04NDBxMTA5IDAgMTg0LjUgNzUuNVQ2NDAtNTgwcTAgNDQtMTQgODN0LTM4IDY5bDI1MiAyNTItNTYgNTZaTTM4MC00MDBxNzUgMCAxMjcuNS01Mi41VDU2MC01ODBxMC03NS01Mi41LTEyNy41VDM4MC03NjBxLTc1IDAtMTI3LjUgNTIuNVQyMDAtNTgwcTAgNzUgNTIuNSAxMjcuNVQzODAtNDAwWiIvPjwvc3ZnPg==' +
-  '" alt="Search"/></div>' +
-  '        <div id="searchcancel"><img src="' +
-  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjQkJCQkJCIj48cGF0aCBkPSJtMzM2LTI4MC01Ni01NiAxNDQtMTQ0LTE0NC0xNDMgNTYtNTYgMTQ0IDE0NCAxNDMtMTQ0IDU2IDU2LTE0NCAxNDMgMTQ0IDE0NC01NiA1Ni0xNDMtMTQ0LTE0NCAxNDRaIi8+PC9zdmc+' +
-  '" alt="Cancel search"/></div>' +
-  '        <button title="Current location" id="buttongeolocation"><img src="' +
-  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjQkJCQkJCIj48cGF0aCBkPSJNNDQwLTQydi04MHEtMTI1LTE0LTIxNC41LTEwMy41VDEyMi00NDBINDJ2LTgwaDgwcTE0LTEyNSAxMDMuNS0yMTQuNVQ0NDAtODM4di04MGg4MHY4MHExMjUgMTQgMjE0LjUgMTAzLjVUODM4LTUyMGg4MHY4MGgtODBxLTE0IDEyNS0xMDMuNSAyMTQuNVQ1MjAtMTIydjgwaC04MFptNDAtMTU4cTExNiAwIDE5OC04MnQ4Mi0xOThxMC0xMTYtODItMTk4dC0xOTgtODJxLTExNiAwLTE5OCA4MnQtODIgMTk4cTAgMTE2IDgyIDE5OHQxOTggODJabTAtMTIwcS02NiAwLTExMy00N3QtNDctMTEzcTAtNjYgNDctMTEzdDExMy00N3E2NiAwIDExMyA0N3Q0NyAxMTNxMCA2Ni00NyAxMTN0LTExMyA0N1ptMC04MHEzMyAwIDU2LjUtMjMuNVQ1NjAtNDgwcTAtMzMtMjMuNS01Ni41VDQ4MC01NjBxLTMzIDAtNTYuNSAyMy41VDQwMC00ODBxMCAzMyAyMy41IDU2LjVUNDgwLTQwMFptMC04MFoiLz48L3N2Zz4=' +
-  '" alt="Current location"/></button>' +
+  '        <div id="searchicon"><iitc-icon fallback="🔍">search</iitc-icon></div>' +
+  '        <div id="searchcancel"><iitc-icon filled label="Cancel search" fallback="✕">cancel</iitc-icon></div>' +
+  '        <button title="Current location" id="buttongeolocation"><iitc-icon fallback="⌖">my_location</iitc-icon></button>' +
   '        <input id="search" placeholder="Search location…" type="search" accesskey="f" title="Search for a place [f]"/>' +
   '      </div>' +
   '    </div>' +
@@ -3141,6 +866,204 @@ window.log = ulog;
 
 // eslint-disable-next-line
 
+// *** module: utils_polyfills.js ***
+(function () {
+var log = ulog('utils_polyfills');
+/**
+ * @file Misc polyfills
+ *
+ * @module utils_polyfills
+ */
+
+if (!String.prototype.capitalize) {
+  Object.defineProperty(String.prototype, 'capitalize', {
+    value: function () {
+      return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
+    },
+  });
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith#polyfill
+if (!String.prototype.startsWith) {
+  Object.defineProperty(String.prototype, 'startsWith', {
+    value: function (search, rawPos) {
+      var pos = rawPos > 0 ? rawPos | 0 : 0;
+      return this.substring(pos, pos + search.length) === search;
+    },
+  });
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/trunc#polyfill
+// (required for KitKat support)
+if (!Math.trunc) {
+  Math.trunc = function (v) {
+    return v < 0 ? Math.ceil(v) : Math.floor(v);
+  };
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find#polyfill
+// https://tc39.github.io/ecma262/#sec-array.prototype.find
+if (!Array.prototype.find) {
+  Object.defineProperty(Array.prototype, 'find', {
+    value: function (predicate) {
+      // 1. Let O be ? ToObject(this value).
+      if (this === null) {
+        throw TypeError('"this" is null or not defined');
+      }
+
+      var o = Object(this);
+
+      // 2. Let len be ? ToLength(? Get(O, "length")).
+      var len = o.length >>> 0;
+
+      // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+      if (typeof predicate !== 'function') {
+        throw TypeError('predicate must be a function');
+      }
+
+      // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+      var thisArg = arguments[1];
+
+      // 5. Let k be 0.
+      var k = 0;
+
+      // 6. Repeat, while k < len
+      while (k < len) {
+        // a. Let Pk be ! ToString(k).
+        // b. Let kValue be ? Get(O, Pk).
+        // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
+        // d. If testResult is true, return kValue.
+        var kValue = o[k];
+        if (predicate.call(thisArg, kValue, k, o)) {
+          return kValue;
+        }
+        // e. Increase k by 1.
+        k++;
+      }
+
+      // 7. Return undefined.
+      return undefined;
+    },
+    configurable: true,
+    writable: true,
+  });
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#polyfill
+if (!Element.prototype.matches) {
+  Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+}
+
+if (!Element.prototype.closest) {
+  Element.prototype.closest = function (s) {
+    var el = this;
+
+    do {
+      if (Element.prototype.matches.call(el, s)) return el;
+      el = el.parentElement || el.parentNode;
+    } while (el !== null && el.nodeType === 1);
+    return null;
+  };
+}
+
+// https://github.com/KhaledElAnsari/String.prototype.padStart/blob/master/index.js
+if (!String.prototype.padStart) {
+  String.prototype.padStart = function (targetLength, padString) {
+    targetLength = Math.floor(targetLength) || 0;
+    if (targetLength < this.length) return String(this);
+
+    padString = padString ? String(padString) : ' ';
+
+    var pad = '';
+    var len = targetLength - this.length;
+    var i = 0;
+    while (pad.length < len) {
+      if (!padString[i]) {
+        i = 0;
+      }
+      pad += padString[i];
+      i++;
+    }
+
+    return pad + String(this).slice(0);
+  };
+}
+
+// Android System WebView before 93
+if (!Object.hasOwn) {
+  Object.defineProperty(Object, 'hasOwn', {
+    value: (object, key) => Object.prototype.hasOwnProperty.call(object, key),
+    configurable: true,
+    writable: true,
+  });
+}
+
+// Android System WebView before 85
+if (!String.prototype.replaceAll) {
+  Object.defineProperty(String.prototype, 'replaceAll', {
+    value: function (search, replacement) {
+      if (search instanceof RegExp) {
+        if (!search.global) throw new TypeError('replaceAll must be called with a global RegExp');
+        return this.replace(search, replacement);
+      }
+      const escaped = String(search).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return this.replace(new RegExp(escaped, 'g'), replacement);
+    },
+    configurable: true,
+    writable: true,
+  });
+}
+
+// Android System WebView before 86
+[Element, Document, DocumentFragment].forEach((type) => {
+  if (type.prototype.replaceChildren) return;
+  Object.defineProperty(type.prototype, 'replaceChildren', {
+    value: function (...nodes) {
+      while (this.lastChild) this.removeChild(this.lastChild);
+      this.append(...nodes);
+    },
+    configurable: true,
+    writable: true,
+  });
+});
+
+// Android System WebView before 98
+// Copies plain data: primitives, plain objects, arrays, Date, RegExp, Map and Set, keeping shared and
+// circular references; any other object comes back as a plain object of its own enumerable properties
+if (typeof window.structuredClone !== 'function') {
+  window.structuredClone = (value) => {
+    const copies = new Map();
+    const clone = (item) => {
+      if (typeof item === 'function' || typeof item === 'symbol') {
+        throw new DOMException(`${String(item)} could not be cloned.`, 'DataCloneError');
+      }
+      if (item === null || typeof item !== 'object') return item;
+      if (copies.has(item)) return copies.get(item);
+
+      let copy;
+      if (item instanceof Date) copy = new Date(item.getTime());
+      else if (item instanceof RegExp) copy = new RegExp(item.source, item.flags);
+      else if (item instanceof Map) copy = new Map();
+      else if (item instanceof Set) copy = new Set();
+      else if (Array.isArray(item)) copy = new Array(item.length);
+      else copy = {};
+      copies.set(item, copy);
+
+      if (item instanceof Map) item.forEach((entry, key) => copy.set(clone(key), clone(entry)));
+      else if (item instanceof Set) item.forEach((entry) => copy.add(clone(entry)));
+      else if (!(item instanceof Date || item instanceof RegExp)) {
+        Object.keys(item).forEach((key) => (copy[key] = clone(item[key])));
+      }
+      return copy;
+    };
+    return clone(value);
+  };
+}
+
+
+})();
+
+
 // *** module: _deprecated.js ***
 (function () {
 var log = ulog('_deprecated');
@@ -3453,6 +1376,25 @@ window.setupStyles = function () {
   $('head').append('<style>' + styles + '</style>');
 };
 
+/**
+ * Saves data to a file with the given filename
+ *
+ * @deprecated use {@link IITC.utils.exportFile} instead
+ * @function saveFile
+ * @param {string|BlobPart|BlobPart[]} data - The data to be saved; the app takes only strings
+ * @param {string} [filename] - The name of the file to save
+ * @param {string} [dataType] - The MIME type of the file, used to filter file types in the app
+ */
+window.saveFile = (data, filename, dataType) => IITC.utils.exportFile(data, filename, dataType);
+
+/**
+ * Opens the options window on the 'About IITC' page
+ *
+ * @deprecated use `IITC.options.open('about')` instead
+ * @function aboutIITC
+ */
+window.aboutIITC = () => IITC.options.open('about');
+
 
 })();
 
@@ -3614,12 +1556,6 @@ window.runOnAppBeforeBoot = function () {
     };
   }
 
-  if (window.app.saveFile) {
-    window.saveFile = function (data, filename, dataType) {
-      window.app.saveFile(filename || '', dataType || '*/*', data);
-    };
-  }
-
   if (window.app.intentPosLink) {
     IITC.portal.display.renderUrl = function (lat, lng, title, guid) {
       // one share link option - and the app provides an interface to share the URL,
@@ -3627,7 +1563,7 @@ window.runOnAppBeforeBoot = function () {
 
       var shareLink = $('<a>')
         .text('Share portal')
-        .click(function () {
+        .on('click', function () {
           window.app.intentPosLink(lat, lng, window.map.getZoom(), title, true, guid);
         });
       $('.linkdetails').append($('<aside>').append(shareLink));
@@ -3641,7 +1577,7 @@ window.runOnAppAfterBoot = function () {
   }
 
   if (window.app.intentPosLink) {
-    $('#permalink').click(function (e) {
+    $('#permalink').on('click', function (e) {
       e.preventDefault();
       var center = window.map.getCenter();
       window.app.intentPosLink(center.lat, center.lng, window.map.getZoom(), 'Selected map view', false);
@@ -4142,6 +2078,42 @@ window.setupTooltips = function (element) {
 };
 
 /**
+ * Marks the body on browsers that refuse the bundled icon font, so its stylesheet can fall back to the accessible labels
+ *
+ * @function setupIconFont
+ */
+function setupIconFont() {
+  if (!document.fonts) return;
+
+  var markUnavailable = function () {
+    document.body.classList.add('icons-unavailable');
+  };
+
+  // A browser told to ignore page fonts still reports the face as loaded, so
+  // the font is measured rather than asked about: its ligature collapses the
+  // five characters of an icon name into a single glyph, which no fallback does
+  var isDrawn = function () {
+    var width = function (family) {
+      var probe = document.createElement('span');
+      probe.textContent = 'close';
+      probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:100px;font-family:' + family;
+      document.body.appendChild(probe);
+      var measured = probe.offsetWidth;
+      probe.remove();
+      return measured;
+    };
+    return width('"IITC Material Symbols",monospace') !== width('monospace');
+  };
+
+  document.fonts
+    .load('1em "IITC Material Symbols"', 'close')
+    .then(function () {
+      if (!isDrawn()) markUnavailable();
+    })
+    .catch(markUnavailable);
+}
+
+/**
  * Initializes Ingress markers with custom icons.
  * @function setupIngressMarkers
  */
@@ -4205,7 +2177,8 @@ function setupIngressMarkers() {
  * @function checkingIntelURL
  */
 function checkingIntelURL() {
-  if (window.location.hostname !== 'intel.ingress.com' && localStorage['pass-checking-intel-url'] !== 'true') {
+  // on until the warning is dismissed; declared on no options page, so it stays in this browser
+  if (window.location.hostname !== 'intel.ingress.com' && IITC.options.get('iitc.intelUrlWarning', true)) {
     window.dialog({
       title: 'IITC Warning',
       html: '<p>You are running IITC on a non-standard Intel domain. Correct behavior is not guaranteed. It is recommended to use the IITC at <a href="https://intel.ingress.com">intel.ingress.com</a></p>',
@@ -4213,7 +2186,7 @@ function checkingIntelURL() {
       buttons: {
         "Don't remind me": function () {
           $(this).dialog('close');
-          localStorage['pass-checking-intel-url'] = true;
+          IITC.options.set('iitc.intelUrlWarning', false);
         },
         Dismiss: function () {
           $(this).dialog('close');
@@ -4370,10 +2343,11 @@ function updateControlBarZIndex() {
  * @function boot
  */
 function boot() {
-  log.log('loading done, booting. Built: ' + '2026-09-04-111504');
+  log.log('loading done, booting. Built: ' + '2026-11-13-185036');
   if (window.deviceID) {
     log.log('Your device ID: ' + window.deviceID);
   }
+  setupIconFont();
   IITC.smartphone._runBeforeBoot();
   window.runOnAppBeforeBoot();
 
@@ -4397,6 +2371,8 @@ function boot() {
   IITC.portal.details.setup();
   window.setupRedeem();
   window.setupSidebar();
+  IITC.options._setupWindow();
+  IITC.about.setup();
   IITC.statusbar.init();
 
   loadPlugins();
@@ -4404,8 +2380,7 @@ function boot() {
   IITC.smartphone._runAfterBoot();
   window.runOnAppAfterBoot();
 
-  // workaround for #129. Not sure why this is required.
-  // setTimeout('window.map.invalidateSize(false);', 500);
+  IITC.map.initialize();
 
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
@@ -21742,7 +19717,7 @@ function createChannelTab(channelDesc) {
   if (window.useAndroidPanes()) {
     // exlude hard coded panes
     if (channelDesc.id !== 'all' && channelDesc.id !== 'faction' && channelDesc.id !== 'alerts') {
-      app.addPane(channelDesc.id, channelDesc.name, 'ic_action_view_as_list');
+      app.addPane(channelDesc.id, channelDesc.name, 'chat');
     }
   }
 }
@@ -23395,7 +21370,7 @@ window.dialog = function (options) {
           // then dialog's bottom may go beyond screen (e.g. 'Auto draw' with a bunch of bookmarks in folder).
           // So this is just a nasty workaround for such issue.
           // todo: watch height changes and adapt automatically
-          titlebar.dblclick(sizeFix);
+          titlebar.on('dblclick', sizeFix);
 
           if (!$(this).dialog('option', 'modal')) {
             // Start out with a cloned version of the close button
@@ -23403,8 +21378,9 @@ window.dialog = function (options) {
 
             // Change it into a collapse button and set the click handler
             collapse.addClass('ui-dialog-titlebar-button-collapse ui-dialog-titlebar-button-collapse-expanded');
-            collapse.click(
-              $.proxy(function () {
+            collapse.on(
+              'click',
+              function () {
                 var collapsed = $(this).data('collapsed') === true;
 
                 // Toggle collapsed state
@@ -23412,12 +21388,12 @@ window.dialog = function (options) {
 
                 // Run callbacks if we have them
                 if ($(this).data('collapseExpandCallback')) {
-                  $.proxy($(this).data('collapseExpandCallback'), this)(!collapsed);
+                  $(this).data('collapseExpandCallback').bind(this)(!collapsed);
                 } else {
                   if (!collapsed && $(this).data('collapseCallback')) {
-                    $.proxy($(this).data('collapseCallback'), this)();
+                    $(this).data('collapseCallback').bind(this)();
                   } else if (collapsed && $(this).data('expandCallback')) {
-                    $.proxy($(this).data('expandCallback'), this)();
+                    $(this).data('expandCallback').bind(this)();
                   }
                 }
 
@@ -23446,7 +21422,7 @@ window.dialog = function (options) {
                   $(button).removeClass('ui-dialog-titlebar-button-collapse-expanded');
                   $(button).addClass('ui-dialog-titlebar-button-collapse-collapsed');
                 }
-              }, this)
+              }.bind(this)
             );
 
             // Put it into the titlebar
@@ -23462,7 +21438,7 @@ window.dialog = function (options) {
         close: function () {
           // Run the close callback if we have one
           if ($(this).data('closeCallback')) {
-            $.proxy($(this).data('closeCallback'), this)();
+            $(this).data('closeCallback').bind(this)();
           }
 
           // Make sure that we don't keep a dead dialog in focus
@@ -23481,18 +21457,18 @@ window.dialog = function (options) {
         },
         focus: function () {
           if ($(this).data('focusCallback')) {
-            $.proxy($(this).data('focusCallback'), this)();
+            $(this).data('focusCallback').bind(this)();
           }
 
           // Blur the window currently in focus unless we're gaining focus
           if (window.DIALOG_FOCUS && $(window.DIALOG_FOCUS).data('id') !== $(this).data('id')) {
-            $.proxy(function () {
+            (function () {
               if ($(this).data('blurCallback')) {
-                $.proxy($(this).data('blurCallback'), this)();
+                $(this).data('blurCallback').bind(this)();
               }
 
               $(this).closest('.ui-dialog').find('.ui-dialog-title').removeClass('ui-dialog-title-active').addClass('ui-dialog-title-inactive');
-            }, window.DIALOG_FOCUS)();
+            }).bind(window.DIALOG_FOCUS)();
           }
 
           // This dialog is now in focus
@@ -23572,295 +21548,134 @@ window.setupDialogs = function () {
 // *** module: dialog_about.js ***
 (function () {
 var log = ulog('dialog_about');
-/* global L, log -- eslint */
+/* global IITC, log -- eslint */
 
 /**
- * @file This file contains functions related to the 'About IITC' dialog.
+ * @file The 'About IITC' page of the options window: versions, links, the changelog and the list
+ *       of plugins with their changelogs. Plugins that failed to start are marked as such, and the
+ *       standard ones, built together with IITC, are shown as secondary
  * @module dialog_about
  */
 
 /**
- * Displays the 'About IITC' dialog.
- * This dialog includes the IITC version, a list of loaded plugins, and other relevant information.
+ * Plugin information as the page lists it
  *
- * @function
+ * @private
+ * @typedef {Object} PluginInfo
+ * @property {string} name - Name without the 'IITC plugin:' prefix
+ * @property {string} [version] - Version, without the build timestamp it shares with IITC
+ * @property {string} [details] - Build name and date, when they say more than the version
+ * @property {string} [description]
+ * @property {*} [error] - What stopped the plugin's setup
+ * @property {boolean} standard - Built together with this IITC
+ * @property {Array} [changelog] - Entries `{version, changes}`
  */
-window.aboutIITC = function () {
-  var html = createDialogContent();
 
-  window.dialog({
-    title: 'IITC ' + getIITCVersion(),
-    id: 'iitc-about',
-    html: html,
-    width: 'auto',
-    dialogClass: 'ui-dialog-aboutIITC',
-  });
+/**
+ * Retrieves the IITC version string
+ *
+ * @private
+ * @returns {string} The IITC version string
+ */
+const getIITCVersion = () => {
+  const iitc = window.script_info;
+  return `${iitc.script?.version || iitc.dateTimeVersion} [${iitc.buildName}]`;
 };
 
-/**
- * Creates the content for the 'About IITC' dialog.
- *
- * @function
- * @returns {string} HTML content for the about dialog.
- */
-function createDialogContent() {
-  var html = `<div><b>About IITC</b></div>
-              <div>Ingress Intel Total Conversion</div>
-              <hr>
-              <div>
-               <a href="${'https://iitc.app/'}" target="_blank">IITC Homepage</a> |
-               <a href="${'https://t.me/iitc_news'}" target="_blank">Telegram channel</a><br />
-               On the script’s homepage you can:
-               <ul>
-                 <li>Find Updates</li>
-                 <li>Get Plugins</li>
-                 <li>Report Bugs</li>
-                 <li>Contribute!</li>
-               </ul>
-              </div>
-              <hr>
-              <div>Version: ${getIITCVersion()} ${createChangelog(window.script_info)}</div>`;
-
-  if (isShortOnLocalStorage()) {
-    html += '<div class="warning">You are running low on LocalStorage memory.<br/>Please free some space to prevent data loss.</div>';
-  }
-
-  if (window.isApp && window.app.getVersionName) {
-    html += '<div>IITC Mobile ' + window.app.getVersionName() + '</div>';
-  }
-
-  var plugins = getPlugins();
-  if (plugins) {
-    html += '<div><p>Plugins:</p><ul>' + plugins + '</ul></div>';
-  }
-
-  return html;
-}
+// the build timestamp ending the IITC version ('.20240101.000000'), shared by the standard plugins
+const getIITCVersionAddition = () => window.script_info.script?.version.match(/^\d+\.\d+\.\d+(\..+)$/)?.[1];
 
 /**
- * Retrieves a list of plugins currently loaded in IITC. The list includes plugin names, versions, and descriptions.
+ * Turns the information a plugin was loaded with into what the page shows
  *
- * @function
- * @returns {string} Formatted list of plugins in HTML.
+ * @private
+ * @param {Object} info - Plugin information from boot
+ * @param {number} index - Position of the plugin in the boot order
+ * @returns {PluginInfo}
  */
-function getPlugins() {
-  var pluginsInfo = window.bootPlugins.info;
-
-  while (window.bootPlugins[0]) {
-    var plugin = window.bootPlugins.shift();
-    pluginsInfo.push(plugin.info || {});
-  }
-
-  var extra = getIITCVersionAddition();
-
-  var plugins = pluginsInfo
-    .map(convertPluginInfo)
-    .sort(function (a, b) {
-      return a.name > b.name ? 1 : -1;
-    })
-    .map(function (p) {
-      return pluginInfoToString(p, extra);
-    })
-    .join('\n');
-
-  return plugins;
-}
-
-/**
- * Converts plugin information into a structured object for easier processing.
- *
- * @function
- * @param {Object} info - The plugin information object.
- * @param {number} index - The index of the plugin in the array.
- * @returns {Object} Structured plugin information.
- */
-function convertPluginInfo(info, index) {
+const convertPluginInfo = (info, index) => {
   // Plugins metadata come from 2 sources:
   // - buildName, pluginId, dateTimeVersion: inserted in plugin body by build script
   //   (only standard plugins)
   // - script.name/version/description: from GM_info object, passed to wrapper
-  //   `script` may be not available if userscript manager does not provede GM_info
+  //   `script` may be not available if userscript manager does not provide GM_info
   //   (atm: IITC-Mobile for iOS)
-  var result = {
-    build: info.buildName,
-    changelog: info.changelog,
-    id: info.pluginId,
-    name: info.pluginId,
-    date: info.dateTimeVersion,
-    error: info.error,
-    version: undefined,
-    description: undefined,
-  };
-
-  var script = info.script;
-  if (script) {
-    if (typeof script.name === 'string') {
-      result.name = script.name.replace(/^IITC[\s-]+plugin:\s+/i, ''); // cut non-informative name part
-    }
-    result.version = script.version;
-    result.description = script.description;
-  }
-
-  if (!result.name) {
+  const script = info.script;
+  let name = typeof script?.name === 'string' ? script.name.replace(/^IITC[\s-]+plugin:\s+/i, '') : info.pluginId;
+  let description = script?.description;
+  if (!name) {
     if (window.script_info.script) {
-      // check if GM_info is available
-      result.name = '[unknown plugin: index ' + index + ']';
-      result.description = "this plugin does not have proper wrapper; report to it's author";
+      // GM_info is available, so the plugin lacks the wrapper
+      name = `[unknown plugin: index ${index}]`;
+      description = "this plugin does not have proper wrapper; report to it's author";
     } else {
       // userscript manager fault
-      result.name = '[3rd-party plugin: index ' + index + ']';
+      name = `[3rd-party plugin: index ${index}]`;
     }
   }
 
-  return result;
-}
+  let version = script?.version;
+  const extra = getIITCVersionAddition();
+  // the timestamp all standard plugins share with IITC says nothing
+  if (version && extra && version.endsWith(extra)) version = version.slice(0, -extra.length);
+  version = version || info.dateTimeVersion;
+  const details = [info.buildName && `[${info.buildName}]`, info.dateTimeVersion !== version && info.dateTimeVersion].filter(Boolean).join(' ');
 
-/**
- * Creates a changelog section for a given plugin.
- *
- * @function
- * @param {Object} plugin - The plugin for which to create the changelog.
- * @returns {string} HTML string representing the changelog.
- */
-function createChangelog(plugin) {
-  var id = 'plugin-changelog-' + plugin.id;
-  return (
-    `<a onclick="$('#${id}').toggle()">changelog</a>` +
-    `<ul id="${id}" style="display: none;">` +
-    plugin.changelog
-      .map(function (logEntry) {
-        return (
-          '<li>' +
-          logEntry.version +
-          '<ul>' +
-          logEntry.changes
-            .map(function (change) {
-              return `<li>${change}</li>`;
-            })
-            .join('') +
-          '</ul></li>'
-        );
-      })
-      .join('') +
-    '</ul>'
-  );
-}
-
-/**
- * Converts plugin information into a string format suitable for display in the 'About IITC' dialog.
- *
- * @function
- * @param {Object} p - The plugin information object.
- * @param {string} extra - Additional version information.
- * @returns {string} Formatted plugin information string.
- */
-function pluginInfoToString(p, extra) {
-  var info = {
-    changelog: '',
-    class: '',
-    description: p.description || '',
-    name: p.name,
-    verinfo: formatVerInfo(p, extra),
+  return {
+    name,
+    version,
+    details: details || undefined,
+    description,
+    error: info.error,
+    standard: info.buildName === window.script_info.buildName && info.dateTimeVersion === window.script_info.dateTimeVersion,
+    changelog: info.changelog,
   };
+};
 
-  if (isStandardPlugin(p)) {
-    info.class += 'plugin-is-standard';
-  }
-
-  if (p.error) {
-    info.class += ' plugin-error';
-    info.description = p.error;
-  }
-
-  if (p.changelog) {
-    info.changelog = createChangelog(p);
-  }
-
-  return L.Util.template('<li class="{class}" title="{description}">{name}{verinfo} {changelog}</li>', info);
-}
+// changelog entries as list entries, versions holding their changes
+const changelogItems = (changelog) =>
+  (changelog ?? []).map((entry) => ({ title: String(entry.version), items: (entry.changes ?? []).map((change) => ({ title: String(change) })) }));
 
 /**
- * Checks if a given plugin is a standard plugin based on the build name and date.
- * Standard plugins are those that match the build and date of the main IITC script.
+ * Lists the plugins loaded, by name
  *
- * @function
- * @param {Object} plugin - The plugin object to check.
- * @returns {boolean} True if the plugin is standard, false otherwise.
+ * @private
+ * @returns {Array<Object>} Entries of a `list` block
  */
-function isStandardPlugin(plugin) {
-  return plugin.build === window.script_info.buildName && plugin.date === window.script_info.dateTimeVersion;
-}
-
-/**
- * Retrieves the IITC version string.
- *
- * @function
- * @returns {string} The IITC version string.
- */
-function getIITCVersion() {
-  var iitc = window.script_info;
-  return ((iitc.script && iitc.script.version) || iitc.dateTimeVersion) + ' [' + iitc.buildName + ']';
-}
-
-/**
- * Extracts the additional version information from the IITC script version.
- *
- * @function
- * @returns {string} The additional version information, if any.
- */
-function getIITCVersionAddition() {
-  var extra = window.script_info.script && window.script_info.script.version.match(/^\d+\.\d+\.\d+(\..+)$/);
-  return extra && extra[1];
-}
-
-/**
- * Formats version information for plugins and the main script.
- * If an 'extra' parameter is provided and matches the end of the version string, it is removed.
- * This is used to cut off a common timestamp appended to versions.
- * The function also prepares a tooltip showing the build number and date, if available.
- *
- * @function formatVerInfo
- * @param {Object} p - The plugin or script object containing version information.
- * @param {string} [extra] - An optional extra string to be removed from the version information.
- * @returns {string} Formatted version string with optional HTML tooltip.
- */
-function formatVerInfo(p, extra) {
-  if (p.version && extra) {
-    var cutPos = p.version.length - extra.length;
-    // cut extra version component (timestamp) if it is equal to main script's one
-    if (p.version.substring(cutPos) === extra) {
-      p.version = p.version.substring(0, cutPos);
-    }
+const pluginItems = () => {
+  const pluginsInfo = window.bootPlugins.info;
+  // plugins that have not run their setup yet are listed as they are
+  while (window.bootPlugins[0]) {
+    pluginsInfo.push(window.bootPlugins.shift().info || {});
   }
 
-  p.version = p.version || p.date;
-  if (p.version) {
-    var tooltip = [];
-    if (p.build) {
-      tooltip.push('[' + p.build + ']');
-    }
-    if (p.date && p.date !== p.version) {
-      tooltip.push(p.date);
-    }
-    return L.Util.template(' - <code{title}>{version}</code>', {
-      title: tooltip[0] ? ' title="' + tooltip.join(' ') + '"' : '',
-      version: p.version,
+  return pluginsInfo
+    .map(convertPluginInfo)
+    .sort((a, b) => (a.name > b.name ? 1 : -1))
+    .map((plugin) => {
+      const state = plugin.error ? 'error' : plugin.standard ? 'muted' : undefined;
+      const tooltip = [plugin.error ? String(plugin.error) : plugin.description, plugin.details].filter(Boolean).join('\n');
+      return {
+        title: plugin.name,
+        badge: plugin.version,
+        tooltip: tooltip || undefined,
+        state,
+        items: plugin.changelog ? changelogItems(plugin.changelog) : undefined,
+        collapsed: true,
+      };
     });
-  }
-
-  return '';
-}
+};
 
 /**
  * Checks if the browser's local storage is running short on available space.
  * This function tries to write a specific amount of data to the local storage and captures any errors.
  * If an error occurs, it is an indication that the local storage has limited free space left.
  *
- * @function
+ * @private
  * @returns {boolean} Returns `true` if the local storage is running short on space, otherwise `false`.
  */
-function isShortOnLocalStorage() {
-  var MINIMUM_FREE_SPACE = 100000;
+const isShortOnLocalStorage = () => {
+  const MINIMUM_FREE_SPACE = 100000;
   try {
     localStorage.setItem('_MEM_CHECK_', '#'.repeat(MINIMUM_FREE_SPACE));
   } catch (e) {
@@ -23870,7 +21685,48 @@ function isShortOnLocalStorage() {
 
   localStorage.removeItem('_MEM_CHECK_');
   return false;
-}
+};
+
+/**
+ * Declares the `about` page of the options window; called at boot
+ *
+ * @memberof IITC.about
+ */
+const setup = () => {
+  IITC.options.register('about', {
+    title: 'About IITC',
+    shortcut: { class: 'cursor_help' },
+    blocks: [
+      { type: 'text', text: () => `Ingress Intel Total Conversion ${getIITCVersion()}` },
+      {
+        type: 'text',
+        // called also while the block is hidden
+        text: () => `IITC Mobile ${window.app?.getVersionName?.()}`,
+        visible: () => Boolean(window.isApp && window.app?.getVersionName),
+      },
+      {
+        type: 'notice',
+        level: 'warning',
+        text: 'You are running low on LocalStorage memory. Please free some space to prevent data loss.',
+        visible: isShortOnLocalStorage,
+      },
+      { type: 'link', title: 'IITC Homepage', url: 'https://iitc.app/' },
+      { type: 'link', title: 'Telegram channel', url: 'https://t.me/iitc_news' },
+      { type: 'text', text: 'On the homepage you can find updates, get plugins, report bugs and contribute.' },
+      { type: 'list', items: () => [{ title: 'Changelog', items: changelogItems(window.script_info.changelog), collapsed: true }] },
+      { type: 'heading', title: 'Plugins' },
+      { type: 'list', items: pluginItems },
+    ],
+  });
+};
+
+/**
+ * The 'About IITC' page
+ *
+ * @memberof IITC
+ * @namespace about
+ */
+IITC.about = { setup, _convertPluginInfo: convertPluginInfo };
 
 
 })();
@@ -24732,6 +22588,15 @@ var log = ulog('hooks');
  * - `nicknameClicked`: Event triggered when a player's nickname is clicked.
  * - `geoSearch`: Event triggered during a geographic search.
  * - `search`: Event triggered during a search operation.
+ * - `optionChanged`: Called after the value of an option has changed (see `IITC.options`), for declared
+ *                     options and for plugin state stored or removed through `IITC.options` alike;
+ *                     provides `{ key, value, oldValue, source }`. `source` is `local` unless the caller
+ *                     passes another one: sync uses `remote`, and `legacy` marks a value moved from an older build
+ * - `optionsPageRegistered`: Called after an options page is declared, once its values can be read;
+ *                             provides `{ pageId, keys }` with the keys this declaration owns. A section added
+ *                             to a page with `IITC.options.extend` is announced too, with `extensionId` and
+ *                             the id of the page it extends as `pageId`, registered or not. Declarations made
+ *                             before a handler was added are not announced again
  *
  * @module hooks
  */
@@ -24817,6 +22682,64 @@ window.removeHook = function (event, callback) {
     }
   }
 };
+
+
+})();
+
+
+// *** module: icons.js ***
+(function () {
+var log = ulog('icons');
+/**
+ * @file Defines <iitc-icon>, an icon of the bundled Material Symbols font named by its ligature
+ *
+ *     <iitc-icon>star</iitc-icon>
+ *     <iitc-icon filled>star</iitc-icon>
+ *     <iitc-icon label="Remove" fallback="X">close</iitc-icon>
+ *
+ * An icon is decorative unless it carries a label, which names it for assistive technology and
+ * stands in for it when the font is unavailable, as does the fallback character given in its place.
+ * Styles live in icons/icons.css and apply before the element is defined
+ *
+ * @module icons
+ */
+
+/**
+ * Exposes the label attribute of an icon as its accessible name, or hides an unlabelled one
+ * from assistive technology
+ *
+ * @class MaterialSymbolIcon
+ */
+class MaterialSymbolIcon extends HTMLElement {
+  static get observedAttributes() {
+    return ['label'];
+  }
+
+  connectedCallback() {
+    this.updateAccessibility();
+  }
+
+  attributeChangedCallback() {
+    this.updateAccessibility();
+  }
+
+  updateAccessibility() {
+    const label = this.getAttribute('label');
+    if (label) {
+      this.setAttribute('role', 'img');
+      this.setAttribute('aria-label', label);
+      this.removeAttribute('aria-hidden');
+    } else {
+      this.removeAttribute('role');
+      this.removeAttribute('aria-label');
+      this.setAttribute('aria-hidden', 'true');
+    }
+  }
+}
+
+if (window.customElements && !window.customElements.get('iitc-icon')) {
+  window.customElements.define('iitc-icon', MaterialSymbolIcon);
+}
 
 
 })();
@@ -24913,8 +22836,8 @@ var idleMouseMove = function (e) {
  * @function setupIdle
  */
 window.setupIdle = function () {
-  $('body').keypress(window.idleReset);
-  $('body').mousemove(idleMouseMove);
+  $('body').on('keypress', window.idleReset);
+  $('body').on('mousemove', idleMouseMove);
 
   // a hidden page goes idle within REFRESH seconds, so resume as soon as it is visible again
   document.addEventListener('visibilitychange', function () {
@@ -25515,6 +23438,12 @@ var log = ulog('map');
 IITC.map = {};
 
 /**
+ * Default map layer
+ *  used when no or an invalid base layer is stored in settings
+ */
+const DEFAULT_MAP = 'CartoDB Dark Matter';
+
+/**
  * Warning shown in the portal details panel when some standard layers are turned off
  * @type {String}
  * @memberof IITC.map
@@ -25616,6 +23545,45 @@ function getPosition() {
   }
 }
 
+// key of the CARTO basemaps that IITC comes with; a key of the user's own on the API keys page replaces it
+const CARTO_API_KEY = 'cb1_2d98_1_8c4c1ddaeb0a769373718043';
+
+/**
+ * Creates the CARTO layers and declares their key on the API keys page; a change of the key reloads their tiles
+ *
+ * @memberof IITC.map
+ * @inner
+ * @private
+ * @returns {Object.<String, L.TileLayer>} The layers by name
+ */
+function createCartoLayers() {
+  const layers = {};
+  const url = () => {
+    const key = IITC.options.get('api-keys.carto').trim() || CARTO_API_KEY;
+    return `https://{s}.basemaps.cartocdn.com/{theme}/{z}/{x}/{y}.png?key=${encodeURIComponent(key)}`;
+  };
+
+  IITC.options.extend('api-keys', 'carto', {
+    title: 'CARTO',
+    namespace: 'api-keys',
+    blocks: [
+      {
+        type: 'string',
+        key: 'carto',
+        title: 'API key',
+        description: 'For the CartoDB layers. Empty uses the key IITC comes with',
+        onChange: () => Object.values(layers).forEach((layer) => layer.setUrl(url())),
+      },
+      { type: 'link', title: 'Get a key', url: 'https://carto.com/basemaps/apikey/' },
+    ],
+  });
+
+  const attribution = IITC.map.osmAttributionTemplate;
+  layers[DEFAULT_MAP /* 'CartoDB Dark Matter' */] = L.tileLayer(url(), { attribution, theme: 'dark_all', isDark: true });
+  layers['CartoDB Positron'] = L.tileLayer(url(), { attribution, theme: 'light_all', isDark: false });
+  return layers;
+}
+
 /**
  * Initializes and returns a collection of default basemap layers. The function creates a set of base layers
  * including CartoDB (both dark and light themes), and various Google Maps layers (Default Ingress Map, Roads,
@@ -25641,11 +23609,7 @@ function createDefaultBaseMapLayers() {
 
   // cartodb has some nice tiles too - both dark and light subtle maps - http://cartodb.com/basemaps/
   // (not available over https though - not on the right domain name anyway)
-  const cartoAttr = IITC.map.osmAttributionTemplate;
-  const cartoAPIKey = 'cb1_2d98_1_8c4c1ddaeb0a769373718043';
-  const cartoUrl = `https://{s}.basemaps.cartocdn.com/{theme}/{z}/{x}/{y}.png?key=${cartoAPIKey}`;
-  baseLayers['CartoDB Dark Matter'] = L.tileLayer(cartoUrl, { attribution: cartoAttr, theme: 'dark_all', isDark: true });
-  baseLayers['CartoDB Positron'] = L.tileLayer(cartoUrl, { attribution: cartoAttr, theme: 'light_all', isDark: false });
+  Object.assign(baseLayers, createCartoLayers());
 
   // Google Maps - including ingress default (using the stock-intel API-key)
   baseLayers['Google Default Ingress Map'] = new L.GridLayer.GoogleMutant({
@@ -25671,6 +23635,7 @@ function createDefaultBaseMapLayers() {
   baseLayers['Google Hybrid'] = new L.GridLayer.GoogleMutant({ type: 'hybrid', isDark: true });
   baseLayers['Google Terrain'] = new L.GridLayer.GoogleMutant({ type: 'terrain', isDark: false });
 
+  console.assert(baseLayers[DEFAULT_MAP] !== undefined, `Default map layer "${DEFAULT_MAP}" not found in baseLayers`);
   return baseLayers;
 }
 
@@ -25815,7 +23780,7 @@ IITC.map.setup = function () {
   const baseLayers = createDefaultBaseMapLayers();
   const overlays = createDefaultOverlays();
 
-  const layerChooser = (window.layerChooser = new window.LayerChooser(baseLayers, overlays, { map: map }).addTo(map));
+  window.layerChooser = new window.LayerChooser(baseLayers, overlays, { map: map }).addTo(map);
 
   // as users often become confused if they accidentally switch a standard layer off, display a warning in this case
   const someStandardLayerOff = Object.values(overlays).some((layer) => !map.hasLayer(layer));
@@ -25862,13 +23827,6 @@ IITC.map.setup = function () {
 
   window.map = map;
 
-  map.on('moveend', function () {
-    const center = this.getCenter().wrap();
-    window.writeCookie('ingress.intelmap.lat', center.lat);
-    window.writeCookie('ingress.intelmap.lng', center.lng);
-    window.writeCookie('ingress.intelmap.zoom', this.getZoom());
-  });
-
   // map update status handling & update map hooks
   // ensures order of calls
   map.on('movestart', function () {
@@ -25894,35 +23852,45 @@ IITC.map.setup = function () {
   // (the code originally called the request function directly, and triggered a normal delay for the next refresh.
   //  however, the moveend/zoomend gets triggered on map load, causing a duplicate refresh. this helps prevent that
   window.startRefreshTimeout(window.ON_MOVE_REFRESH * 1000);
+};
 
-  // adds a base layer to the map. done separately from the above,
-  // so that plugins that add base layers can be the default
-  window.addHook('iitcLoaded', function () {
-    const stored = layerChooser.getLayer(layerChooser.lastBaseLayerName);
-    map.addLayer(stored || baseLayers['CartoDB Dark Matter']);
+IITC.map.initialize = function () {
+  const map = window.map;
+  const layerChooser = window.layerChooser;
 
-    // (setting an initial position, before a base layer is added, causes issues with leaflet) // todo check
-    let pos = getPosition();
-    if (!pos) {
-      pos = { center: [0, 0], zoom: 1 };
-      map.locate({ setView: true });
-    }
-    map.setView(pos.center, pos.zoom, { reset: true });
+  // set base layer
+  const stored = layerChooser.getLayer(layerChooser.lastBaseLayerName);
+  map.addLayer(stored || layerChooser.getLayer(DEFAULT_MAP));
 
-    parseURLParameters();
+  // (setting an initial position, before a base layer is added, causes issues with leaflet) // todo check
+  let pos = getPosition();
+  if (!pos) {
+    pos = { center: [0, 0], zoom: 1 };
+    map.locate({ setView: true });
+  }
+  map.setView(pos.center, pos.zoom, { reset: true });
 
-    // todo check
-    // leaflet no longer ensures the base layer zoom is suitable for the map (a bug? feature change?), so do so here
-    map.on('baselayerchange', function () {
-      map.setZoom(map.getZoom());
-      layerChooser.notifyBaseLayerChange();
-    });
+  parseURLParameters();
 
-    // also fire for the initial base layer
+  // todo check
+  // leaflet no longer ensures the base layer zoom is suitable for the map (a bug? feature change?), so do so here
+  map.on('baselayerchange', function () {
+    map.setZoom(map.getZoom());
     layerChooser.notifyBaseLayerChange();
+  });
 
-    // Start map refresh (after Map location is set)
-    IITC.map.request.start();
+  // also fire for the initial base layer
+  layerChooser.notifyBaseLayerChange();
+
+  // Start map refresh (after Map location is set)
+  IITC.map.request.start();
+
+  // Store the map position in cookies on moveend
+  map.on('moveend', function () {
+    const center = this.getCenter().wrap();
+    window.writeCookie('ingress.intelmap.lat', center.lat);
+    window.writeCookie('ingress.intelmap.lng', center.lng);
+    window.writeCookie('ingress.intelmap.zoom', this.getZoom());
   });
 };
 
@@ -26310,7 +24278,28 @@ var log = ulog('map_renderer');
  */
 IITC.map.Renderer = function () {
   this.portalMarkerScale = undefined;
+
+  // longitude every entity is drawn around: each one goes to its world copy nearest this anchor
+  this.worldAnchorLng = window.map.getCenter().lng;
+  window.map.on('move', () => {
+    const centerLng = window.map.getCenter().lng;
+    // a drag wrapped by worldCopyJump, setView, flyTo or a long pan can take the view away from the anchor;
+    // the margin keeps small moves cheap and stops entities near the antipode from flipping between copies
+    if (Math.abs(centerLng - this.worldAnchorLng) <= IITC.map.Renderer.WORLD_ANCHOR_MARGIN) return;
+
+    this.worldAnchorLng = centerLng;
+    this.placeOnWorldCopy();
+  });
 };
+
+/**
+ * How far in degrees the map center may move away from the world anchor before every entity is placed again.
+ * Entities stay on the copy shown while the view is narrower than 270 degrees minus the longitude span of a shape
+ *
+ * @type {number}
+ * @memberof IITC.map.Renderer
+ */
+IITC.map.Renderer.WORLD_ANCHOR_MARGIN = 45;
 
 /**
  * Default style for link polylines
@@ -26616,10 +24605,9 @@ IITC.map.Renderer.prototype.deleteFieldEntity = function (guid) {
  * @memberof IITC.map.Renderer
  * @param {string} guid - The globally unique identifier of the portal.
  * @param {number} latE6 - The latitude of the portal in E6 format.
- * @param {number} lngE6 - The longitude of the portal in E6 format.
+ * @param {number} lngE6 - The true (unshifted) longitude of the portal in E6 format.
  * @param {string} team - The team faction of the portal.
  * @param {number} [timestamp=0] - Timestamp of the portal data. Defaults to 0 to allow newer data sources to override
- * @param {number} [timestamp] - The timestamp of the portal data.
  */
 IITC.map.Renderer.prototype.createPlaceholderPortalEntity = function (guid, latE6, lngE6, team, timestamp) {
   // intel no longer returns portals at anything but the closest zoom
@@ -26646,9 +24634,43 @@ IITC.map.Renderer.prototype.createPlaceholderPortalEntity = function (guid, latE
   this.createPortalEntity(ent, 'core'); // placeholder
 };
 
+// pull a longitude to the world copy nearest the anchor, so an entity crossing the antimeridian
+// spans the short way round instead of ~360 degrees
+const nearestWorldCopy = (lngE6, anchorE6) => lngE6 - Math.round((lngE6 - anchorE6) / (360 * 1e6)) * 360 * 1e6;
+
+// lay out a link or field on a single world copy: the points stay continuous across the antimeridian
+// and the whole shape goes to the copy nearest the anchor, independent of the tile that delivered it
+const worldCopyLatLngs = (points, anchorE6) => {
+  const lngsE6 = points.map((point) => nearestWorldCopy(point.lngE6, points[0].lngE6));
+  const midE6 = (Math.min(...lngsE6) + Math.max(...lngsE6)) / 2;
+  const offsetE6 = nearestWorldCopy(midE6, anchorE6) - midE6;
+  return points.map((point, i) => new L.LatLng(point.latE6 / 1e6, (lngsE6[i] + offsetE6) / 1e6));
+};
+
+const linkEnds = (data) => [
+  { latE6: data.oLatE6, lngE6: data.oLngE6 },
+  { latE6: data.dLatE6, lngE6: data.dLngE6 },
+];
+
+// move a drawn link or field to the given world copy
+const moveShapeToWorldCopy = (shape, latlngs) => {
+  if (shape.getLatLngs()[0].lng !== latlngs[0].lng) shape.setLatLngs(latlngs);
+};
+
+// move a portal marker to the given world copy - its data keeps the true longitude
+// the stored point is mutated in place, so layers sharing it (labels, ornaments) follow the marker
+const moveToWorldCopy = (portal, lng) => {
+  const pos = portal.getLatLng();
+  if (pos.lng === lng) return;
+  pos.lng = lng;
+  portal.setLatLng(pos);
+};
+
 /**
  * Creates a portal entity from the provided game entity data.
  * If the portal already exists and the new data is more recent, it replaces the existing data.
+ *
+ * The entity data keeps the true longitude, the marker is drawn on the world copy nearest the world anchor
  *
  * @function
  * @memberof IITC.map.Renderer
@@ -26694,7 +24716,7 @@ IITC.map.Renderer.prototype.createPortalEntity = function (ent, details) {
     previousData = structuredClone(p.getDetails());
   }
 
-  const latlng = new L.LatLng(data.latE6 / 1e6, data.lngE6 / 1e6);
+  const latlng = new L.LatLng(data.latE6 / 1e6, nearestWorldCopy(data.lngE6, this.worldAnchorLng * 1e6) / 1e6);
 
   let marker = undefined;
   if (oldPortal) {
@@ -26730,6 +24752,9 @@ IITC.map.Renderer.prototype.createPortalEntity = function (ent, details) {
     window.portals[data.guid] = marker;
   }
 
+  // updateDetails places the marker on the true longitude, so the world copy is applied afterwards
+  moveToWorldCopy(marker, latlng.lng);
+
   window.ornaments.addPortal(marker);
 
   // TODO? postpone adding to the map layer
@@ -26740,6 +24765,8 @@ IITC.map.Renderer.prototype.createPortalEntity = function (ent, details) {
 
 /**
  * Creates a field entity from the provided game entity data.
+ *
+ * The entity data keeps the true longitudes of the corners, the polygon is drawn on the world copy nearest the world anchor
  *
  * @function
  * @memberof IITC.map.Renderer
@@ -26778,11 +24805,7 @@ IITC.map.Renderer.prototype.createFieldEntity = function (ent) {
   }
 
   const team = window.teamStringToId(ent[2][1]);
-  const latlngs = [
-    new L.LatLng(data.points[0].latE6 / 1e6, data.points[0].lngE6 / 1e6),
-    new L.LatLng(data.points[1].latE6 / 1e6, data.points[1].lngE6 / 1e6),
-    new L.LatLng(data.points[2].latE6 / 1e6, data.points[2].lngE6 / 1e6),
-  ];
+  const latlngs = worldCopyLatLngs(data.points, this.worldAnchorLng * 1e6);
 
   const poly = L.geodesicPolygon(latlngs, {
     fillColor: window.COLORS[team],
@@ -26807,6 +24830,8 @@ IITC.map.Renderer.prototype.createFieldEntity = function (ent) {
 
 /**
  * Creates a link entity from the provided game entity data.
+ *
+ * The entity data keeps the true longitudes of both ends, the line is drawn on the world copy nearest the world anchor
  *
  * @function
  * @memberof IITC.map.Renderer
@@ -26849,7 +24874,7 @@ IITC.map.Renderer.prototype.createLinkEntity = function (ent) {
   }
 
   const team = window.teamStringToId(ent[2][1]);
-  const latlngs = [new L.LatLng(data.oLatE6 / 1e6, data.oLngE6 / 1e6), new L.LatLng(data.dLatE6 / 1e6, data.dLngE6 / 1e6)];
+  const latlngs = worldCopyLatLngs(linkEnds(data), this.worldAnchorLng * 1e6);
   const poly = L.geodesicPolyline(latlngs, {
     color: window.COLORS[team],
     ...IITC.map.Renderer.LINK_STYLE,
@@ -26910,6 +24935,31 @@ IITC.map.Renderer.prototype.addPortalToMapLayer = function (portal) {
 IITC.map.Renderer.prototype.removePortalFromMapLayer = function (portal) {
   // remove it from the portalsLevels layer
   portal.remove();
+};
+
+/**
+ * Moves every rendered entity to its world copy nearest the world anchor.
+ * The copy is derived from the true longitudes kept in the entity data, so it doesn't depend on earlier placement
+ *
+ * @memberof IITC.map.Renderer
+ */
+IITC.map.Renderer.prototype.placeOnWorldCopy = function () {
+  const anchorE6 = this.worldAnchorLng * 1e6;
+
+  for (const guid in window.portals) {
+    const portal = window.portals[guid];
+    moveToWorldCopy(portal, nearestWorldCopy(portal.options.data.lngE6, anchorE6) / 1e6);
+  }
+
+  for (const guid in window.links) {
+    const link = window.links[guid];
+    moveShapeToWorldCopy(link, worldCopyLatLngs(linkEnds(link.options.data), anchorE6));
+  }
+
+  for (const guid in window.fields) {
+    const field = window.fields[guid];
+    moveShapeToWorldCopy(field, worldCopyLatLngs(field.options.data.points, anchorE6));
+  }
 };
 
 IITC.registerLegacyAliases(IITC.map, {
@@ -27049,7 +25099,11 @@ IITC.map.Request.prototype.mapMoveStart = function () {
  * @memberof IITC.map.Request
  */
 IITC.map.Request.prototype.mapMoveEnd = function () {
-  const bounds = window.clampLatLngBounds(window.map.getBounds());
+  // longitude is compared as fetched, past 180 included; latitude beyond the projection limit is
+  // outside every possible fetch, so it must not count against the area we have
+  const view = window.map.getBounds();
+  const maxLat = window.map.options.crs.projection.MAX_LATITUDE;
+  const bounds = new L.LatLngBounds([Math.max(view.getSouth(), -maxLat), view.getWest()], [Math.min(view.getNorth(), maxLat), view.getEast()]);
 
   if (this.fetchedDataParams) {
     // we have fetched (or are fetching) data...
@@ -27181,31 +25235,24 @@ IITC.map.Request.prototype.refresh = function () {
   // then fetch order isn't optimal, but it won't break things.
   this.queuedTiles = {};
 
-  const bounds = window.clampLatLngBounds(window.map.getBounds());
+  const bounds = window.map.getBounds();
   const mapZoom = window.map.getZoom();
 
   const dataZoom = IITC.map.tiles.getDataZoomForMapZoom(mapZoom);
 
   const tileParams = IITC.map.tiles.getMapZoomParameters(dataZoom);
 
-  // DEBUG: resize the bounds so we only retrieve some data
-  // bounds = bounds.pad(-0.4);
-
-  // var debugrect = new L.Rectangle(bounds,{color: 'red', fill: false, weight: 4, opacity: 0.8}).addTo(map);
-  // setTimeout (function(){ map.removeLayer(debugrect); }, 10*1000);
-
   const x1 = IITC.map.tiles.lngToTile(bounds.getWest(), tileParams);
   const x2 = IITC.map.tiles.lngToTile(bounds.getEast(), tileParams);
-  const y1 = IITC.map.tiles.latToTile(bounds.getNorth(), tileParams);
-  const y2 = IITC.map.tiles.latToTile(bounds.getSouth(), tileParams);
+  // the view can reach past the mercator limit, the tile grid cannot
+  const y1 = Math.max(IITC.map.tiles.latToTile(bounds.getNorth(), tileParams), 0);
+  const y2 = Math.min(IITC.map.tiles.latToTile(bounds.getSouth(), tileParams), tileParams.tilesPerEdge - 1);
 
   // calculate the full bounds for the data - including the part of the tiles off the screen edge
   const dataBounds = new L.LatLngBounds([
     [IITC.map.tiles.tileToLat(y2 + 1, tileParams), IITC.map.tiles.tileToLng(x1, tileParams)],
     [IITC.map.tiles.tileToLat(y1, tileParams), IITC.map.tiles.tileToLng(x2 + 1, tileParams)],
   ]);
-  // var debugrect2 = new L.Rectangle(dataBounds,{color: 'magenta', fill: false, weight: 4, opacity: 0.8}).addTo(map);
-  // setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
 
   // store the parameters used for fetching the data. used to prevent unneeded refreshes after move/zoom
   this.fetchedDataParams = { bounds: dataBounds, mapZoom: mapZoom, dataZoom: dataZoom };
@@ -27234,7 +25281,9 @@ IITC.map.Request.prototype.refresh = function () {
   // y goes from left to right
   for (let y = y1; y <= y2; y++) {
     // x goes from bottom to top(?)
-    for (let x = x1; x <= x2; x++) {
+    // a wrapped tile id serves every world copy on screen, so one pass over a single copy covers them all
+    const xLast = Math.min(x2, x1 + tileParams.tilesPerEdge - 1);
+    for (let x = x1; x <= xLast; x++) {
       const tile_id = IITC.map.tiles.pointToTileId(tileParams, x, y);
       const latNorth = IITC.map.tiles.tileToLat(y, tileParams);
       const latSouth = IITC.map.tiles.tileToLat(y + 1, tileParams);
@@ -27933,9 +25982,10 @@ IITC.map.tiles.tileToLat = function (y, params) {
 };
 
 IITC.map.tiles.pointToTileId = function (params, x, y) {
-  // change to quadkey construction
-  // as of 2014-05-06: zoom_x_y_minlvl_maxlvl_maxhealth
+  // wrap x around the world, whichever copy it came from
+  x = ((x % params.tilesPerEdge) + params.tilesPerEdge) % params.tilesPerEdge;
 
+  // as of 2014-05-06: zoom_x_y_minlvl_maxlvl_maxhealth
   return `${params.zoom}_${x}_${y}_${params.level}_8_100`;
 };
 
@@ -27950,6 +26000,2379 @@ IITC.registerLegacyAliases(IITC.map.tiles, {
   tileToLng: 'tileToLng',
   tileToLat: 'tileToLat',
   pointToTileId: 'pointToTileId',
+});
+
+
+})();
+
+
+// *** module: options.js ***
+(function () {
+var log = ulog('options');
+/* global IITC, log -- eslint */
+
+/**
+ * Options API
+ *
+ * A plugin declares its options page with `register` in its setup, reads the values with `get` where it
+ * needs them and reacts to changes in `onChange`. The options are blocks with a `key`; the core validates
+ * every value, applies the defaults and stores only values that differ from the default. Blocks without
+ * a key are the rest of the page: actions and content. Options sync between devices by default, through
+ * the Sync plugin; `sync: false` keeps one on this device. A plugin without a page of its own adds a section
+ * to the page of another with `extend`
+ *
+ * Every value is kept under `iitc-option:<key>`. Keys that were never declared still work through
+ * `get`/`set`, without validation; until a page or an extension of one declares it, a key is read and
+ * written as undeclared
+ *
+ * @memberof IITC
+ * @namespace options
+ */
+
+/**
+ * A block of an options page; its `type` tells what it draws and which properties it reads:
+ *
+ * | `type` | Draws | Reads |
+ * | --- | --- | --- |
+ * | `boolean`, `number`, `string`, `select`, `color` | a field holding the option its `key` names | `key`, `title`, `description`, `default`, `value`, `validate`, `onChange`, `sync`; `min`, `max`, `step` for `number`; `choices` for `select`; `alpha` for `color` |
+ * | `action` | a button that runs `action` | `title`, `description`, `button`, `icon`, `action` |
+ * | `export` | Copy, and Save file with a `filename` | `title`, `description`, `data`, `filename`, `dataType` |
+ * | `import` | Paste, and Choose file with `accept` | `title`, `description`, `onData`, `accept`, `onFiles` |
+ * | `choice` | a radio before the title of each item of a `repeat`, one choice per `repeat` | `selected`, `action` |
+ * | `heading`, `link` | a section title; a link | `title`, `url` |
+ * | `text`, `notice` | a paragraph; a framed message | `text`, `level` |
+ * | `list` | entries, nested ones folded | `items` |
+ * | `repeat` | a table with a row of `blocks` for every item of `over` | `over`, `blocks` |
+ *
+ * Every block reads `visible`, and fields, actions, exports, imports and choices also `enabled`. Display
+ * properties (`title`, `description`, `button`, `icon`, `text`, `url`, `level`, `items`, `visible`, `enabled`,
+ * `value`, `selected`) take a value or a function, called whenever the page is drawn; inside a `repeat` the
+ * function receives the item
+ *
+ * @memberof IITC.options
+ * @typedef {Object} OptionBlock
+ * @property {string} type - Block type, from the table above
+ * @property {string|Function} [title] - Label of a field, an action, an `export` or an `import`, text of a `heading`
+ *                                    or a `link`
+ * @property {string|Function} [button] - Short text of the button of an `action`, such as 'Delete', next to the
+ *                                     `title`. Without it the button carries the `title`
+ * @property {string|Function} [icon] - Icon an `action` button shows instead of its text, a Material Symbols
+ *                                      name such as 'delete'; the text becomes the tooltip
+ * @property {string|Function} [description] - Explanation shown under the title
+ * @property {boolean|Function} [visible=true] - False hides the block
+ * @property {boolean|Function} [enabled=true] - False shows the block without letting the user change or run it
+ * @property {string} [key] - Name of the option a field holds, addressed as `<namespace>.<key>`; every field has one
+ * @property {*|Function} [default] - Value used while nothing valid is stored. Inside a `repeat` it may be a function
+ *                                    of the item, giving the default of the item's entry
+ * @property {*|Function} [value] - Value a field shows instead of the stored one, when it is derived from other
+ *                                  options (a flag that a broader rule already sets)
+ * @property {number} [min] - Lowest allowed `number`
+ * @property {number} [max] - Highest allowed `number`
+ * @property {number} [step] - Allowed `number` increment, counted from `min` or 0
+ * @property {Array|Function} [choices] - `select` choices: values or `{value, label}` objects. A function must
+ *                                        return all choices at once: a value missing from them is not allowed
+ * @property {boolean} [alpha] - Allows `color` values with an alpha channel (`#rrggbbaa`)
+ * @property {Function} [validate] - Returns true, or an error message for a value that is not allowed
+ * @property {Function} [onChange] - Called with `(value, oldValue, source)` after the value has changed
+ * @property {boolean} [sync=true] - False keeps the option on this device: sync neither sends nor applies it,
+ *                                   while a local backup still holds it
+ * @property {Function} [action] - Runs when an `action` block is pressed, or a `choice` is made, with the item
+ *                                 inside a `repeat`; the text it returns and the error it throws are shown next to
+ *                                 the button, and a promise is waited for
+ * @property {boolean|Function} [selected] - Whether the item is the chosen one, for a `choice`
+ * @property {Function} [data] - Returns the text an `export` block hands over; receives the item inside a `repeat`
+ * @property {string} [filename] - Lets an `export` block also save `data` as a file of this name
+ * @property {string} [dataType] - MIME type of that file
+ * @property {Function} [onData] - Receives `(text, filename, item)` from an `import` block: the pasted text, or the
+ *                                 file read; the text it returns is shown instead of 'Imported', an error it throws
+ *                                 is shown too, and a promise is waited for
+ * @property {string} [accept] - Lets an `import` block also read files of these types, as in the `accept`
+ *                               attribute of a file input
+ * @property {Function} [onFiles] - Receives `(files, item)` from an `import` block with `accept` instead of `onData`,
+ *                                  and lets the user choose several files: all of them, as `[{name, text}]`; what it
+ *                                  returns and throws is shown as for `onData`. With it, `onData` is needed only for
+ *                                  the Paste button
+ * @property {string|Function} [text] - Text of a `text` or a `notice` block
+ * @property {string|Function} [url] - Address a `link` opens
+ * @property {'info'|'warning'|'error'|Function} [level='info'] - Kind of a `notice`
+ * @property {Array<IITC.options.OptionsListItem>|Function} [items] - Entries of a `list`
+ * @property {Function} [over] - Items of a `repeat` block, returned as `[{id, title}]` with ids that stay the same between calls;
+ *                               `get` also calls it to give the items without a stored entry their default, so it
+ *                               must be able to list them whenever the options are read
+ * @property {Array<IITC.options.OptionBlock>} [blocks] - Blocks of a `repeat` block; their options hold a map of item id to value
+ */
+
+/**
+ * @memberof IITC.options
+ * @typedef {Object} OptionsListItem
+ * @property {string} title - Main text
+ * @property {string} [sub] - Second line
+ * @property {string} [badge] - Short text at the end of the line, such as a version
+ * @property {string} [tooltip] - Text shown on hover over the main line
+ * @property {'muted'|'error'} [state] - Shows the entry as secondary, or as failed
+ * @property {Array<IITC.options.OptionsListItem>} [items] - Nested entries
+ * @property {boolean} [collapsed=false] - Hides the nested entries until the entry is opened
+ */
+
+/**
+ * @memberof IITC.options
+ * @typedef {Object} OptionsPage
+ * @property {string} title - Page title
+ * @property {string} [namespace] - Prefix of the page's option keys. Defaults to the page id
+ * @property {Array<IITC.options.OptionBlock>} blocks - Page content
+ * @property {boolean|Object|Function} [shortcut] - Adds a toolbox button that opens the page, while the
+ *   `iitc.toolboxShortcuts` option is on: `true`, or the arguments of `IITC.toolbox.addButton` but `id` and
+ *   `action` (`label` is the page title by default), or a function returning them, called again on
+ *   `IITC.options.refresh(pageId)`, for a button that shows state
+ * @property {string} [accesskey] - Access key that opens the page, with the toolbox button or without it;
+ *   the button shows it in its tooltip
+ */
+
+const FIELD_TYPES = ['boolean', 'number', 'string', 'select', 'color'];
+
+const BLOCK_TYPES = [...FIELD_TYPES, 'action', 'choice', 'export', 'import', 'heading', 'text', 'link', 'list', 'notice', 'repeat'];
+
+const TYPE_DEFAULTS = {
+  boolean: false,
+  number: 0,
+  string: '',
+  color: '#000000',
+};
+
+const STORAGE_PREFIX = 'iitc-option:';
+
+// lookups take keys from plugins and imported files, so names like `constructor` must not hit Object.prototype
+const pages = Object.create(null);
+const definitions = Object.create(null);
+// sections plugins add to the pages of others, by page id and extension id; kept apart from the pages,
+// so a page registered again keeps them
+const extensions = Object.create(null);
+
+const isPlainObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+const sameValue = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+// the choices of a `select` as `{value, label}`
+const choicesOf = (def) => {
+  const choices = typeof def.choices === 'function' ? def.choices() : def.choices;
+  return (choices ?? []).map((choice) => (isPlainObject(choice) ? choice : { value: choice, label: choice }));
+};
+
+const choiceValues = (def) => choicesOf(def).map((choice) => choice.value);
+
+// the default of one value: of the option, or of the entry of a `repeat` map for an item, which a
+// function of the item may give
+const entryDefault = (def, item) => {
+  if (typeof def.default === 'function') {
+    try {
+      return def.default(item);
+    } catch (e) {
+      log.warn(`options: default of "${def.fullKey}" failed: ${e}`);
+    }
+  } else if (def.default !== undefined) return def.default;
+  if (def.type !== 'select') return TYPE_DEFAULTS[def.type];
+  try {
+    return choiceValues(def)[0];
+  } catch (e) {
+    log.warn(`options: choices of "${def.fullKey}" failed: ${e}`);
+    return undefined;
+  }
+};
+
+const defaultOf = (def) => (def.map ? {} : entryDefault(def));
+
+// a map of a `repeat` with the default entry of each item of `over` that has none stored
+const withItemDefaults = (def, map) => {
+  let items;
+  try {
+    items = def.repeat.over?.() ?? [];
+  } catch (e) {
+    log.warn(`options: items of the repeat of "${def.fullKey}" failed: ${e}`);
+    return map;
+  }
+  const result = { ...map };
+  for (const item of items) {
+    if (!Object.hasOwn(result, item.id)) result[item.id] = entryDefault(def, item);
+  }
+  return result;
+};
+
+// a map of a `repeat` without the entries equal to the default of their item; with a default function,
+// entries of ids `over` does not list stay, as do all entries while `over` fails
+const withoutItemDefaults = (def, map) => {
+  let items;
+  if (typeof def.default === 'function') {
+    try {
+      items = new Map((def.repeat.over?.() ?? []).map((item) => [item.id, item]));
+    } catch (e) {
+      log.warn(`options: items of the repeat of "${def.fullKey}" failed: ${e}`);
+      return map;
+    }
+  }
+  return Object.fromEntries(Object.entries(map).filter(([id, entry]) => (items && !items.has(id)) || !sameValue(entry, entryDefault(def, items?.get(id)))));
+};
+
+/**
+ * Checks one value against an option's type and constraints
+ *
+ * @memberof IITC.options
+ * @inner
+ * @private
+ * @returns {true|string} True, or the reason the value is not allowed
+ */
+const validateValue = (def, value) => {
+  switch (def.type) {
+    case 'boolean':
+      if (typeof value !== 'boolean') return 'not a boolean';
+      break;
+    case 'number':
+      if (typeof value !== 'number' || !Number.isFinite(value)) return 'not a number';
+      if (def.min !== undefined && value < def.min) return `less than ${def.min}`;
+      if (def.max !== undefined && value > def.max) return `greater than ${def.max}`;
+      if (def.step) {
+        const steps = (value - (def.min ?? 0)) / def.step;
+        if (Math.abs(steps - Math.round(steps)) > 1e-9) return `not a multiple of ${def.step}`;
+      }
+      break;
+    case 'string':
+      if (typeof value !== 'string') return 'not a string';
+      break;
+    case 'select':
+      try {
+        if (!choiceValues(def).includes(value)) return 'not one of the choices';
+      } catch (e) {
+        log.warn(`options: choices of "${def.fullKey}" failed: ${e}`);
+      }
+      break;
+    case 'color': {
+      const pattern = def.alpha ? /^#[0-9a-f]{6}([0-9a-f]{2})?$/i : /^#[0-9a-f]{6}$/i;
+      if (typeof value !== 'string' || !pattern.test(value)) return 'not a color';
+      break;
+    }
+  }
+
+  if (def.validate) {
+    const result = def.validate(value);
+    if (result !== true) return typeof result === 'string' ? result : 'rejected by validate';
+  }
+  return true;
+};
+
+// like validateValue; a throwing validate counts as an invalid value
+const validateEntry = (def, value) => {
+  try {
+    return validateValue(def, value);
+  } catch (e) {
+    return `check failed: ${e}`;
+  }
+};
+
+// like validateEntry, entry by entry for `repeat` maps
+const validate = (def, value) => {
+  if (!def.map) return validateEntry(def, value);
+  if (!isPlainObject(value)) return 'not a map';
+  for (const [id, entry] of Object.entries(value)) {
+    const result = validateEntry(def, entry);
+    if (result !== true) return `${id}: ${result}`;
+  }
+  return true;
+};
+
+// parsed stored value, read anew on every call so callers may change it; undefined when missing or
+// unreadable; no defaults or validation
+const readStored = (key, quiet = false) => {
+  const storageKey = STORAGE_PREFIX + key;
+  const stored = localStorage.getItem(storageKey);
+  if (stored === null) return undefined;
+
+  try {
+    return JSON.parse(stored);
+  } catch (e) {
+    if (!quiet) log.warn(`options: cannot read "${storageKey}": ${e}`);
+    return undefined;
+  }
+};
+
+// the string a value is kept as in localStorage; throws when it cannot be serialized
+const encodeStored = (value) => {
+  const stored = JSON.stringify(value);
+  if (stored === undefined) throw new TypeError('the value cannot be serialized');
+  return stored;
+};
+
+// the default of a declared option in its stored form, undefined when it cannot be stored (a select
+// whose choices are not loaded yet)
+const storedDefault = (key) => {
+  try {
+    return encodeStored(defaultOf(definitions[key]));
+  } catch {
+    return undefined;
+  }
+};
+
+// stores an encoded value; false when localStorage refuses it
+const writeStored = (storageKey, stored) => {
+  try {
+    localStorage.setItem(storageKey, stored);
+  } catch (e) {
+    log.error(`options: cannot store "${storageKey}": ${e}`);
+    return false;
+  }
+  return true;
+};
+
+// runs the optionChanged hook, then the block's onChange
+const notifyChange = (key, value, oldValue, source) => {
+  window.runHooks('optionChanged', { key, value, oldValue, source });
+  const onChange = definitions[key]?.onChange;
+  if (!onChange) return;
+  try {
+    onChange(value, oldValue, source);
+  } catch (e) {
+    log.error(`options: onChange of "${key}" failed: ${e}`);
+  }
+};
+
+/**
+ * Collects the options declared by a page, including the ones inside `repeat` blocks, and skips
+ * blocks of unknown types with a warning
+ *
+ * @memberof IITC.options
+ * @inner
+ * @private
+ * @param {string} namespace - Prefix of the page's keys
+ * @param {Array<IITC.options.OptionBlock>} blocks - Blocks to scan
+ * @param {IITC.options.OptionBlock} [repeat] - The `repeat` block the blocks are repeated in, so their options hold maps
+ * @returns {Array<Object>} Option definitions
+ */
+const collectDefinitions = (namespace, blocks, repeat = undefined) => {
+  const result = [];
+  for (const block of blocks ?? []) {
+    if (!BLOCK_TYPES.includes(block?.type)) {
+      log.warn(`options: unknown block type "${block?.type}" in "${namespace}"`);
+      continue;
+    }
+    if (block.type === 'repeat') {
+      result.push(...collectDefinitions(namespace, block.blocks, block));
+      continue;
+    }
+    if (block.key === undefined) continue;
+    if (!FIELD_TYPES.includes(block.type)) {
+      log.warn(`options: block type "${block.type}" cannot hold an option ("${block.key}")`);
+      continue;
+    }
+
+    const fullKey = `${namespace}.${block.key}`;
+    const map = repeat !== undefined;
+    // a function gives the default of an entry from its item, so it has no item to work from outside a repeat
+    if (!map && typeof block.default === 'function') {
+      log.warn(`options: "${fullKey}" takes a default function only inside a repeat`);
+      result.push({ ...block, default: undefined, fullKey, map });
+      continue;
+    }
+    result.push({ ...block, fullKey, map, repeat });
+  }
+  return result;
+};
+
+// who declared an option, for warnings
+const declarer = (def) => (def.extensionId === undefined ? `page "${def.pageId}"` : `extension "${def.extensionId}" of page "${def.pageId}"`);
+
+/**
+ * Declares the options of a page or of an extension of it in place of the ones that declaration made
+ * before; a key declared elsewhere already stays with that declaration, with a warning
+ *
+ * @memberof IITC.options
+ * @inner
+ * @private
+ * @param {string} pageId - Page id
+ * @param {string|undefined} extensionId - Extension id, undefined for the page itself
+ * @param {string} namespace - Prefix of the keys
+ * @param {Array<IITC.options.OptionBlock>} blocks - Blocks holding the options
+ * @returns {string[]} The keys declared
+ */
+const declare = (pageId, extensionId, namespace, blocks) => {
+  for (const key of Object.keys(definitions)) {
+    if (definitions[key].pageId === pageId && definitions[key].extensionId === extensionId) delete definitions[key];
+  }
+  const keys = [];
+  for (const def of collectDefinitions(namespace, blocks)) {
+    const existing = definitions[def.fullKey];
+    if (existing) {
+      log.warn(`options: "${def.fullKey}" is already declared by ${declarer(existing)}`);
+      continue;
+    }
+    definitions[def.fullKey] = { ...def, pageId, extensionId };
+    keys.push(def.fullKey);
+  }
+  return keys;
+};
+
+/**
+ * Declares an options page and the options its blocks hold. Registering a page id again replaces the
+ * earlier declaration and announces no change: a stored value the new declaration rejects reads as
+ * the default
+ *
+ * @memberof IITC.options
+ * @param {string} pageId - Unique page id, usually the plugin id
+ * @param {IITC.options.OptionsPage} page - Page declaration
+ * @returns {boolean} True if the page was registered
+ *
+ * @example <caption>A page</caption>
+ * IITC.options.register('my-plugin', {
+ *   title: 'My plugin',
+ *   shortcut: true,
+ *   blocks: [
+ *     { type: 'boolean', key: 'show', title: 'Show on the map', default: true, onChange: (show) => (show ? draw() : clear()) },
+ *     { type: 'select', key: 'style', title: 'Style', choices: ['Lines', 'Dots'], default: 'Lines', onChange: draw },
+ *     { type: 'heading', title: 'Data' },
+ *     { type: 'export', title: 'Marked portals', data: () => JSON.stringify(load()), filename: 'my-plugin.json' },
+ *     { type: 'import', title: 'Marked portals', onData: (text) => save(JSON.parse(text)), accept: '.json' },
+ *     {
+ *       type: 'action',
+ *       title: 'Forget marked portals',
+ *       button: 'Forget',
+ *       // a promise is waited for; the text returned or the error thrown shows next to the button
+ *       action: async () => {
+ *         if (!Object.keys(load()).length) throw new Error('Nothing is marked');
+ *         await save({});
+ *         return 'Forgotten';
+ *       },
+ *     },
+ *   ],
+ * });
+ * // the values are read where they are needed
+ * if (IITC.options.get('my-plugin.show')) draw();
+ *
+ * @example <caption>An option for each item of a list</caption>
+ * IITC.options.register('my-plugin', {
+ *   title: 'My plugin',
+ *   blocks: [
+ *     {
+ *       type: 'repeat',
+ *       over: () => [
+ *         { id: 'ENL', title: 'Enlightened' },
+ *         { id: 'RES', title: 'Resistance' },
+ *       ],
+ *       blocks: [{ type: 'color', key: 'color', title: 'Color', default: (item) => (item.id === 'ENL' ? '#03dc03' : '#0088ff') }],
+ *     },
+ *   ],
+ * });
+ * // a map of item id to value, with the default of every item that has nothing stored
+ * IITC.options.get('my-plugin.color'); // { ENL: '#03dc03', RES: '#0088ff' }
+ */
+const register = (pageId, page) => {
+  if (typeof pageId !== 'string' || !pageId) {
+    log.warn('options: page id is missing');
+    return false;
+  }
+  if (!Array.isArray(page?.blocks)) {
+    log.warn(`options: page "${pageId}" has no blocks`);
+    return false;
+  }
+
+  const namespace = page.namespace ?? pageId;
+  pages[pageId] = { ...page, namespace };
+  const keys = declare(pageId, undefined, namespace, page.blocks);
+
+  // last, so optionsPageRegistered handlers (sync) see the page settled
+  window.runHooks('optionsPageRegistered', { pageId, keys });
+  return true;
+};
+
+/**
+ * Adds a section to the page of another plugin, such as options of an add-on on the page of the plugin it
+ * works with. The section follows the page's own blocks under a heading of its title; sections of several
+ * extensions follow by title, whatever order their plugins load in. Its options are declared at once,
+ * whether the page is registered yet or not, and the section shows once it is. Extending the page again
+ * with the same extension id replaces the section and its options, as `register` replaces a page
+ *
+ * @memberof IITC.options
+ * @param {string} pageId - Id of the page to extend
+ * @param {string} extensionId - Unique id of the section, usually the id of the plugin adding it
+ * @param {Object} section - Section declaration
+ * @param {string} [section.title] - Heading of the section. Defaults to the extension id
+ * @param {string} [section.namespace] - Prefix of the section's option keys. Defaults to the extension id, so
+ *                                       a plugin that also registers a page of its own under its id gives the
+ *                                       section a namespace of its own: a key declared twice stays with the
+ *                                       first declaration
+ * @param {Array<IITC.options.OptionBlock>} section.blocks - Section content, of the same blocks as a page
+ * @returns {boolean} True if the section was added
+ *
+ * @example
+ * IITC.options.extend('draw-tools', 'kml-import', {
+ *   title: 'KML import',
+ *   blocks: [
+ *     { type: 'boolean', key: 'fit', title: 'Zoom to the imported shapes', default: true },
+ *     { type: 'import', title: 'KML file', onData: (text) => importKml(text), accept: '.kml' },
+ *   ],
+ * });
+ * if (IITC.options.get('kml-import.fit')) map.fitBounds(bounds);
+ *
+ * @example <caption>A key on the API keys page</caption>
+ * // the section is titled after the service, and its key reads as `api-keys.<service>`
+ * IITC.options.extend('api-keys', 'my-plugin', {
+ *   title: 'Example Maps',
+ *   namespace: 'api-keys',
+ *   blocks: [
+ *     {
+ *       type: 'string',
+ *       key: 'example-maps',
+ *       title: 'API key',
+ *       description: 'Empty uses the key IITC comes with',
+ *       onChange: () => layer.setUrl(tileUrl()),
+ *     },
+ *     { type: 'link', title: 'Get a key', url: 'https://example.com/keys' },
+ *   ],
+ * });
+ * const tileUrl = () => `https://tiles.example.com/{z}/{x}/{y}.png?key=${IITC.options.get('api-keys.example-maps').trim() || SHARED_KEY}`;
+ */
+const extend = (pageId, extensionId, section) => {
+  if (typeof pageId !== 'string' || !pageId) {
+    log.warn('options: page id is missing');
+    return false;
+  }
+  if (typeof extensionId !== 'string' || !extensionId) {
+    log.warn(`options: extension id is missing for page "${pageId}"`);
+    return false;
+  }
+  if (!Array.isArray(section?.blocks)) {
+    log.warn(`options: extension "${extensionId}" of page "${pageId}" has no blocks`);
+    return false;
+  }
+
+  const namespace = section.namespace ?? extensionId;
+  extensions[pageId] ??= Object.create(null);
+  extensions[pageId][extensionId] = { ...section, title: String(section.title ?? extensionId), namespace };
+  const keys = declare(pageId, extensionId, namespace, section.blocks);
+
+  window.runHooks('optionsPageRegistered', { pageId, extensionId, keys });
+  return true;
+};
+
+// the sections extensions add to a page, by title and then by extension id
+const sectionsOf = (pageId) =>
+  Object.entries(extensions[pageId] ?? {})
+    .map(([id, section]) => ({ ...section, id }))
+    .sort((a, b) => a.title.localeCompare(b.title) || a.id.localeCompare(b.id));
+
+/**
+ * Turns the stored value of a declared option into its effective value
+ *
+ * @memberof IITC.options
+ * @inner
+ * @private
+ * @param {string} key - Full option key
+ * @param {*} stored - Value read from localStorage, undefined when there is none
+ * @param {boolean} [quiet=false] - Skips the invalid-value warning
+ * @returns {*} The stored value if it is valid, otherwise the default; of a stored map, the valid entries
+ */
+const resolve = (key, stored, quiet = false) => {
+  const def = definitions[key];
+  if (stored === undefined) return defaultOf(def);
+
+  // one entry that went bad (a choice since removed) must not take the others with it
+  if (def.map && isPlainObject(stored)) {
+    const entries = Object.entries(stored).filter(([id, entry]) => {
+      const result = validateEntry(def, entry);
+      if (result !== true && !quiet) log.warn(`options: stored entry "${id}" of "${key}" is ignored: ${result}`);
+      return result === true;
+    });
+    return Object.fromEntries(entries);
+  }
+
+  const result = validate(def, stored);
+  if (result !== true) {
+    if (!quiet) log.warn(`options: stored value of "${key}" is ignored: ${result}`);
+    return defaultOf(def);
+  }
+  return stored;
+};
+
+// the value `get` returns: of a `repeat` map also the default entries of the items that have none stored
+const effective = (key, stored, quiet = false) => {
+  const def = definitions[key];
+  const value = resolve(key, stored, quiet);
+  return def.map ? withItemDefaults(def, value) : value;
+};
+
+/**
+ * Returns the value of an option; a declared option falls back to its default when nothing valid
+ * is stored. A map of a `repeat` holds its valid stored entries, and the default entry of each item
+ * `over` returns that has none stored; `over` must be able to list the items by then
+ *
+ * @memberof IITC.options
+ * @param {string} key - Option key, `<namespace>.<key>`
+ * @param {*} [fallback] - Value for an undeclared key with nothing stored
+ * @returns {*} The option value
+ *
+ * @example
+ * const mode = IITC.options.get('link-show-direction.mode');
+ */
+const get = (key, fallback) => {
+  const stored = readStored(key);
+  if (!definitions[key]) return stored === undefined ? fallback : stored;
+  return effective(key, stored);
+};
+
+/**
+ * Tells whether an option may travel to other devices: it is declared, and not with `sync: false`
+ *
+ * @alias IITC.options._syncs
+ * @private
+ * @param {string} key - Option key, `<namespace>.<key>`
+ * @returns {boolean} True for a declared option that syncs
+ */
+const syncs = (key) => definitions[key] !== undefined && definitions[key].sync !== false;
+
+/**
+ * Tells what localStorage holds for a key, without logging: nothing, a value that reads and passes
+ * the declaration, or one that cannot be read or fails it (an old range, choices not loaded yet)
+ *
+ * @alias IITC.options._storedState
+ * @private
+ * @param {string} key - Option key, `<namespace>.<key>`
+ * @returns {'missing'|'valid'|'invalid'} The state of the stored value
+ */
+const storedState = (key) => {
+  if (localStorage.getItem(STORAGE_PREFIX + key) === null) return 'missing';
+  const stored = readStored(key, true);
+  if (stored === undefined) return 'invalid';
+  const def = definitions[key];
+  return !def || validate(def, stored) === true ? 'valid' : 'invalid';
+};
+
+/**
+ * Tells whether an option may take a value, without storing it; an undeclared key takes any value
+ *
+ * @memberof IITC.options
+ * @param {string} key - Option key, `<namespace>.<key>`
+ * @param {*} value - Value to check
+ * @returns {true|string} True, or the reason the value is not allowed
+ */
+const check = (key, value) => (definitions[key] ? validate(definitions[key], value) : true);
+
+// values from another device apply only to declared options that do not belong to this device
+const refusesRemote = (key, source) => {
+  if (source !== 'remote') return false;
+  if (syncs(key)) return false;
+  log.warn(`options: "${key}" ${definitions[key] ? 'belongs to this device' : 'is not declared'} and ignores remote values`);
+  return true;
+};
+
+/**
+ * Stores the value of an option. Values of declared options are validated first; a value stored in the same
+ * form as the one already there changes nothing, and a value stored in the same form as the default is
+ * removed, as `reset` does. A map of a `repeat` keeps only the entries that differ from the default of their
+ * item, and is removed when none is left. The `optionChanged` hook and the block's `onChange` run when the value
+ * actually changes, and receive the value as `get` returns it
+ *
+ * Storing `undefined` under an undeclared key removes the value, as `reset` does;
+ * a declared option rejects it
+ *
+ * @memberof IITC.options
+ * @param {string} key - Option key, `<namespace>.<key>`
+ * @param {*} value - New value
+ * @param {Object} [opts]
+ * @param {string} [opts.source='local'] - Origin of the change, passed to the optionChanged hook; sync uses
+ *                                           `remote`, and `legacy` marks a value moved from an older build: it
+ *                                           gets no sync time, so the shared records win over it
+ * @returns {boolean} False if the value is not allowed or could not be stored, or if a `remote` value
+ *          targets an undeclared key or an option declared with `sync: false`
+ *
+ * @example
+ * IITC.options.set('draw-tools.color', '#a24ac3');
+ *
+ * @example <caption>Moving an option from an older localStorage key</caption>
+ * IITC.options.register('my-plugin', {
+ *   title: 'My plugin',
+ *   blocks: [{ type: 'number', key: 'radius', title: 'Radius, m', min: 0, default: 40 }],
+ * });
+ * const legacy = localStorage.getItem('plugin-my-plugin-radius');
+ * if (legacy !== null) {
+ *   // a legacy value gets no sync time, so a value synced from other devices wins over it
+ *   IITC.options.set('my-plugin.radius', Number(legacy), { source: 'legacy' });
+ *   // the value moves once
+ *   localStorage.removeItem('plugin-my-plugin-radius');
+ * }
+ */
+const set = (key, value, opts) => {
+  const source = opts?.source ?? 'local';
+  if (refusesRemote(key, source)) return false;
+  const def = definitions[key];
+  if (!def && value === undefined) {
+    reset(key, { source });
+    return true;
+  }
+
+  if (def) {
+    const result = validate(def, value);
+    if (result !== true) {
+      log.warn(`options: value of "${key}" is rejected: ${result}`);
+      return false;
+    }
+  }
+
+  const storageKey = STORAGE_PREFIX + key;
+  let encoded;
+  try {
+    encoded = encodeStored(def?.map ? withoutItemDefaults(def, value) : value);
+  } catch (e) {
+    log.error(`options: cannot store "${storageKey}": ${e}`);
+    return false;
+  }
+  // a value equal to the default is not kept, as if the option was never changed
+  if (def && encoded === storedDefault(key)) return reset(key, { source });
+  if (encoded === localStorage.getItem(storageKey)) return true;
+
+  const stored = readStored(key);
+  const oldValue = def ? effective(key, stored, true) : stored;
+  if (!writeStored(storageKey, encoded)) return false;
+
+  const current = readStored(key);
+  const newValue = def ? effective(key, current, true) : current === undefined ? value : current;
+  if (!sameValue(newValue, oldValue)) notifyChange(key, newValue, oldValue, source);
+  return true;
+};
+
+/**
+ * Removes the stored value, so a declared option returns to its default
+ *
+ * @memberof IITC.options
+ * @param {string} key - Option key, `<namespace>.<key>`
+ * @param {Object} [opts]
+ * @param {string} [opts.source='local'] - Origin of the change, passed to the optionChanged hook; sync uses `remote`
+ * @returns {boolean} False if a `remote` reset targets an undeclared key or an option declared with `sync: false`
+ *
+ * @example
+ * IITC.options.reset('draw-tools.color');
+ */
+const reset = (key, opts) => {
+  const source = opts?.source ?? 'local';
+  if (refusesRemote(key, source)) return false;
+  const def = definitions[key];
+  const stored = readStored(key);
+  const oldValue = def ? effective(key, stored, true) : stored;
+  localStorage.removeItem(STORAGE_PREFIX + key);
+
+  const value = get(key);
+  if (!sameValue(value, oldValue)) notifyChange(key, value, oldValue, source);
+  return true;
+};
+
+/**
+ * Collects the stored values of declared options; defaults are left out, so an import on another
+ * device keeps that device's defaults. Values are not validated here: choices may still be loading,
+ * and `import` checks every value anyway
+ *
+ * @alias IITC.options.exportValues
+ * @param {Object} [opts]
+ * @param {boolean} [opts.sync=false] - Leaves out options declared with `sync: false`, for sending to other devices
+ * @returns {Object<string, *>} Values by option key
+ *
+ * @example
+ * const backup = JSON.stringify(IITC.options.exportValues());
+ */
+const exportValues = (opts) => {
+  const values = {};
+  for (const key of Object.keys(definitions)) {
+    if (opts?.sync && !syncs(key)) continue;
+    const stored = readStored(key);
+    if (stored !== undefined) values[key] = stored;
+  }
+  return values;
+};
+
+/**
+ * Stores values produced by `export`. Each value goes through `set`, so it is validated
+ * and announced like any other change. Keys no registered page declares are skipped, and so are
+ * options declared with `sync: false` when the values come from another device (source `remote`)
+ *
+ * @alias IITC.options.importValues
+ * @param {Object<string, *>} values - Values by option key
+ * @param {Object} [opts]
+ * @param {string} [opts.source='local'] - Origin of the values, passed to the optionChanged hook; sync uses `remote`
+ * @returns {{applied: string[], rejected: string[], skipped: string[]}} Keys stored, keys whose value
+ *          was not allowed or could not be stored, and keys left alone
+ *
+ * @example
+ * const { rejected } = IITC.options.importValues(JSON.parse(backup));
+ */
+const importValues = (values, opts) => {
+  const result = { applied: [], rejected: [], skipped: [] };
+  if (!isPlainObject(values)) {
+    log.warn('options: import expects an object of values by key');
+    return result;
+  }
+
+  for (const [key, value] of Object.entries(values)) {
+    const def = definitions[key];
+    if (!def || (!syncs(key) && opts?.source === 'remote')) result.skipped.push(key);
+    else if (set(key, value, opts)) result.applied.push(key);
+    else result.rejected.push(key);
+  }
+  return result;
+};
+
+IITC.options = {
+  register,
+  extend,
+  get,
+  set,
+  reset,
+  exportValues,
+  importValues,
+  check,
+  _syncs: syncs,
+  _storedState: storedState,
+  _pages: pages,
+  _definitions: definitions,
+  _extensions: extensions,
+  _sections: sectionsOf,
+  // for the page renderer: the default of a value or of the entry of an item, the valid stored entries of a map
+  // without the defaults, so a change of one entry stores only that one, and the choices of a select (none when
+  // they fail)
+  _entryDefault: (key, item) => (definitions[key] ? entryDefault(definitions[key], item) : undefined),
+  _entries: (key) => (definitions[key] ? resolve(key, readStored(key), true) : readStored(key)),
+  _choices: (key) => {
+    try {
+      return definitions[key] ? choicesOf(definitions[key]) : [];
+    } catch (e) {
+      log.warn(`options: choices of "${key}" failed: ${e}`);
+      return [];
+    }
+  },
+};
+
+
+})();
+
+
+// *** module: options_api_keys.js ***
+(function () {
+var log = ulog('options_api_keys');
+/* global IITC -- eslint */
+
+/**
+ * @file The `api-keys` page, where the user enters keys of the services that IITC and plugins load maps
+ *       and data from. The page holds no fields of its own: the core and every plugin that uses a service
+ *       extend it with a section named after the service, under the `api-keys` namespace, so each key reads
+ *       as `api-keys.<service>` whichever plugin declared it
+ */
+
+IITC.options.register('api-keys', {
+  title: 'API keys',
+  blocks: [
+    {
+      type: 'text',
+      text: 'Keys of the services that map layers and plugins use. A key of your own has its own request limit, not shared with other IITC users',
+    },
+  ],
+});
+
+
+})();
+
+
+// *** module: options_general.js ***
+(function () {
+var log = ulog('options_general');
+/* global IITC -- eslint */
+
+/**
+ * @file General options of IITC, declared as the `iitc` page for options of several core modules.
+ *       This file sorts after options.js in the bundle, so the page exists before boot(), where
+ *       core modules and plugin setups first read its values
+ */
+
+// the text of a backup file: the stored values of all declared options
+const backup = () => JSON.stringify(IITC.options.exportValues(), null, 2);
+
+// stores the values of a backup, and tells what was left out
+const restore = (text) => {
+  let values;
+  try {
+    values = JSON.parse(text);
+  } catch {
+    values = undefined;
+  }
+  if (values === null || typeof values !== 'object' || Array.isArray(values)) throw new Error('This is not an options backup');
+
+  const { applied, rejected, skipped } = IITC.options.importValues(values);
+  const total = applied.length + rejected.length + skipped.length;
+  let report = `Imported ${applied.length} of ${total} options.`;
+  // options of plugins that are not installed here
+  if (skipped.length) report += ` Not declared by any plugin here: ${skipped.join(', ')}.`;
+  if (rejected.length) report += ` Not allowed or not stored: ${rejected.join(', ')}.`;
+  return report;
+};
+
+IITC.options.register('iitc', {
+  title: 'General',
+  blocks: [
+    {
+      type: 'select',
+      key: 'passcodeFormat',
+      title: 'Passcode rewards',
+      choices: [
+        { value: 'long', label: 'Long' },
+        { value: 'short', label: 'Short' },
+      ],
+      default: 'long',
+    },
+    {
+      type: 'boolean',
+      key: 'machinaAtLevel1',
+      title: 'Machina portals at the size of level 1',
+      description: 'Clusters of high-level Machina portals stay apart and easy to click',
+      default: false,
+      onChange: () => IITC.portal.highlighter.resetAll(),
+    },
+    {
+      type: 'boolean',
+      key: 'syncOptions',
+      title: 'Sync IITC options',
+      default: true,
+      // whether this device takes part is the device's own choice
+      sync: false,
+      visible: () => Boolean(window.plugin?.sync),
+    },
+    {
+      type: 'boolean',
+      key: 'toolboxShortcuts',
+      title: 'Shortcuts to options pages in the toolbox',
+      description: 'Buttons that open the pages of some plugins directly',
+      default: true,
+    },
+    {
+      type: 'boolean',
+      key: 'optionsPane',
+      title: 'Options in a panel of the app',
+      description: 'Otherwise a link in the toolbox opens them in a window over the map. The panel stays in the app menu until reload',
+      default: true,
+      visible: () => window.useAppPanes(),
+    },
+    { type: 'heading', title: 'Backup' },
+    {
+      type: 'export',
+      title: 'Export options',
+      description: 'Options changed from their defaults, as text or a file',
+      data: backup,
+      filename: 'IITC-options.json',
+      dataType: 'application/json',
+    },
+    {
+      type: 'import',
+      title: 'Import options',
+      description: 'From text or a file; options in the backup replace the ones here, and options it lacks stay as they are',
+      onData: restore,
+      accept: '.json,application/json',
+    },
+  ],
+});
+
+// options of older builds, kept as plain strings under keys of their own; each moves once, converted, and
+// its key goes, so a value set back to the default later is not moved again
+const LEGACY = [
+  ['iitc-passcode-format', 'iitc.passcodeFormat', (format) => format],
+  // 'true' records that the warning was dismissed for good
+  ['pass-checking-intel-url', 'iitc.intelUrlWarning', (dismissed) => dismissed !== 'true'],
+];
+for (const [legacyKey, key, convert] of LEGACY) {
+  const stored = localStorage.getItem(legacyKey);
+  if (stored === null) continue;
+  IITC.options.set(key, convert(stored), { source: 'legacy' });
+  localStorage.removeItem(legacyKey);
+}
+
+
+})();
+
+
+// *** module: options_render.js ***
+(function () {
+var log = ulog('options_render');
+/* global IITC, log -- eslint */
+
+/**
+ * @file Draws an options page from its blocks. The page is drawn again as a whole after every change made
+ *       on it, so a block whose title, visibility or value depends on other options follows them without
+ *       any binding. Focus, the text cursor and text typed but not applied yet survive the redraw
+ */
+
+// the lists of About and the changelogs nest no deeper
+const LIST_DEPTH = 3;
+
+// properties shown on the page; any of them may be a function of the repeated item
+const DISPLAY_PROPERTIES = ['title', 'description', 'button', 'icon', 'text', 'url', 'level', 'items', 'visible', 'enabled', 'value', 'selected'];
+
+// handler a block cannot work without, by type
+const HANDLERS = { choice: 'action', action: 'action', export: 'data', import: 'onData' };
+
+// declared blocks already warned about, so a redraw does not repeat the warning
+const reported = new WeakSet();
+
+// the declared block behind an evaluated copy
+const DECLARED = Symbol('declared');
+
+// ids that tie labels to their fields
+let lastId = 0;
+
+// the name of the group of radios a declared choice draws
+const choiceGroups = new WeakMap();
+
+/**
+ * What a container remembers between drawings
+ *
+ * @memberof IITC.options
+ * @inner
+ * @private
+ * @typedef {Object} ContainerState
+ * @property {string} pageId - Page drawn last
+ * @property {Map<string, Object>} messages - Texts left by actions of that page, by control id
+ * @property {Set<string>} pending - Actions still running, as `<pageId>#<control id>`
+ * @property {boolean} scheduled - A redraw is waiting
+ * @property {boolean} pointerDown - A mouse button or a finger is down in the container
+ * @property {Function} [afterPointer] - The redraw waiting for the pointer to come up
+ */
+const states = new WeakMap();
+
+const stateOf = (container) => {
+  let state = states.get(container);
+  if (state) return state;
+  state = { pageId: undefined, query: '', messages: new Map(), pending: new Set(), scheduled: false, pointerDown: false };
+  states.set(container, state);
+  // a redraw between the press and the release would take the pressed control away, and its click with it
+  container.addEventListener('pointerdown', () => {
+    state.pointerDown = true;
+    const released = () => {
+      state.pointerDown = false;
+      const redraw = state.afterPointer;
+      state.afterPointer = undefined;
+      // after the click that follows the release
+      if (redraw) setTimeout(redraw);
+    };
+    const doc = container.ownerDocument;
+    doc.addEventListener('pointerup', released, { once: true, capture: true });
+    doc.addEventListener('pointercancel', released, { once: true, capture: true });
+  });
+  return state;
+};
+
+const warnOnce = (block, message) => {
+  const declared = block[DECLARED] ?? block;
+  if (reported.has(declared)) return;
+  reported.add(declared);
+  log.warn(message);
+};
+
+const el = (tag, props = {}, ...children) => {
+  const element = document.createElement(tag);
+  for (const [name, value] of Object.entries(props)) {
+    if (value === undefined || value === null || value === false) continue;
+    if (name === 'className') element.className = value;
+    else if (name === 'dataset') Object.assign(element.dataset, value);
+    else if (name in element) element[name] = value;
+    else element.setAttribute(name, value === true ? '' : value);
+  }
+  element.append(...children.filter((child) => child !== undefined && child !== null && child !== false));
+  return element;
+};
+
+// a line telling how an action or a change went, with an icon of success or of failure
+const note = (text, error, role = 'status') =>
+  el(
+    'div',
+    { className: error ? 'iitc-options-message iitc-options-error' : 'iitc-options-message', role },
+    el('iitc-icon', { fallback: error ? '!' : '✓' }, error ? 'error' : 'check_circle'),
+    el('span', { className: 'iitc-options-message-text' }, text)
+  );
+
+const asText = (value) => (value === undefined || value === null ? '' : String(value));
+
+// the block with its display properties worked out for this drawing
+const evaluate = (block, item) => {
+  const result = { ...block, [DECLARED]: block };
+  for (const name of DISPLAY_PROPERTIES) {
+    if (typeof block[name] === 'function') result[name] = block[name](item);
+  }
+  return result;
+};
+
+const handlerOf = (block) => {
+  const name = HANDLERS[block.type];
+  if (!name || typeof block[name] === 'function') return block[name];
+  warnOnce(block, `options: ${block.type} block "${block.title}" has no ${name} function`);
+  return undefined;
+};
+
+/**
+ * One drawing of a page into a container, or of a section an extension adds to the page
+ *
+ * @memberof IITC.options
+ * @inner
+ * @private
+ */
+class PageView {
+  constructor(pageId, container, section = undefined) {
+    this.pageId = pageId;
+    this.container = container;
+    this.page = IITC.options._pages[pageId];
+    this.state = stateOf(container);
+    // a section has keys of its own, and control ids apart from the ones of the page's blocks
+    this.namespace = section ? section.namespace : this.page.namespace;
+    this.prefix = section ? `+${encodeURIComponent(section.id)}/` : '';
+  }
+
+  // whether the container still shows this page
+  get current() {
+    return this.container.isConnected && this.state.pageId === this.pageId;
+  }
+
+  redraw() {
+    if (this.current) renderPage(this.pageId, this.container);
+  }
+
+  // runs after the current task, and after the click when the pointer is down, so the control pressed or
+  // tabbed to stays in place
+  later(run) {
+    if (!this.state.pointerDown) {
+      setTimeout(run);
+      return;
+    }
+    const before = this.state.afterPointer;
+    this.state.afterPointer = before
+      ? () => {
+          before();
+          run();
+        }
+      : run;
+  }
+
+  // a redraw after the current task, and after the click; changes before it share one redraw
+  scheduleRedraw() {
+    if (this.state.scheduled) return;
+    this.state.scheduled = true;
+    this.later(() => {
+      this.state.scheduled = false;
+      this.redraw();
+    });
+  }
+
+  // runs the handler of an action and waits for it, then leaves the text it returns or the error it throws
+  // next to the control and redraws; the control stays disabled meanwhile
+  async act(id, handler) {
+    const pending = `${this.pageId}#${id}`;
+    if (this.state.pending.has(pending)) return;
+    this.state.pending.add(pending);
+    this.state.messages.clear();
+    this.redraw();
+    let message;
+    try {
+      const text = await handler();
+      if (typeof text === 'string' && text) message = { text };
+    } catch (e) {
+      log.warn(`options: action on page "${this.pageId}" failed`, e);
+      message = { text: e?.message ?? String(e), error: true };
+    } finally {
+      this.state.pending.delete(pending);
+    }
+    if (!this.current) return;
+    if (message) this.state.messages.set(id, message);
+    this.redraw();
+  }
+
+  isPending(id) {
+    return this.state.pending.has(`${this.pageId}#${id}`);
+  }
+
+  // texts left by actions of the control `id`
+  notes(id) {
+    return [...this.state.messages].filter(([key]) => key === id || key.startsWith(`${id}:`)).map(([, message]) => note(message.text, message.error));
+  }
+
+  // full key and shown value of a field; inside a repeat the value is the item's entry of `map`
+  field(block, item, map) {
+    const key = `${this.namespace}.${block.key}`;
+    if (block.value !== undefined) return { key, value: block.value };
+    if (!item) return { key, value: IITC.options.get(key) };
+    return { key, value: map?.[item.id] ?? IITC.options._entryDefault(key, item) };
+  }
+
+  // stores a value a field was changed to; a refused value stays in the field with the reason under its row
+  change(block, item, value, input) {
+    this.state.messages.clear();
+    const key = `${this.namespace}.${block.key}`;
+    const next = item ? { ...IITC.options._entries(key), [item.id]: value } : value;
+    const check = IITC.options.check(key, next);
+    if (check !== true || !IITC.options.set(key, next)) {
+      input.setAttribute('aria-invalid', 'true');
+      const box = input.closest('.iitc-options-row, td') ?? input.parentElement;
+      box.querySelector('.iitc-options-error')?.remove();
+      box.append(note(check === true ? 'The value could not be stored' : check, true, 'alert'));
+      return;
+    }
+    this.scheduleRedraw();
+  }
+
+  // a running action keeps its button focusable, marked as unavailable; act ignores it meanwhile
+  // with an icon, the text is the tooltip, and shows in place of the icon while the icon font is missing
+  button(id, text, enabled, handler, icon) {
+    return el(
+      'button',
+      {
+        type: 'button',
+        className: icon && 'iitc-options-icon-button',
+        title: icon && text,
+        'aria-label': icon && text,
+        dataset: { focusId: id },
+        disabled: !enabled || !handler,
+        'aria-disabled': this.isPending(id) && 'true',
+        onclick: () => this.act(id, handler),
+      },
+      icon ? el('iitc-icon', { fallback: text }, icon) : text
+    );
+  }
+
+  control(block, item, id, map) {
+    const enabled = block.enabled !== false;
+    switch (block.type) {
+      case 'boolean':
+      case 'number':
+      case 'string':
+      case 'select':
+      case 'color':
+        return this.input(block, item, id, enabled, map);
+      case 'action': {
+        const action = handlerOf(block);
+        // without a text of its own the button carries the title
+        const text = asText(block.button ?? block.title);
+        return this.button(id, text, enabled, action && (() => action(item)), block.icon);
+      }
+      case 'choice':
+        return this.choice(block, item, id, enabled);
+      case 'export': {
+        const data = handlerOf(block);
+        const title = asText(block.title);
+        return el(
+          'span',
+          { className: 'iitc-options-buttons' },
+          this.button(`${id}:copy`, 'Copy', enabled, data && (() => IITC.utils.exportText(data(item), { title }))),
+          block.filename && this.button(`${id}:save`, 'Save file', enabled, data && (() => IITC.utils.exportFile(data(item), block.filename, block.dataType)))
+        );
+      }
+      case 'import': {
+        const onFiles = typeof block.onFiles === 'function' ? block.onFiles : undefined;
+        // a block that reads files with onFiles needs no onData, and has no Paste button without it
+        const onData = onFiles && typeof block.onData !== 'function' ? undefined : handlerOf(block);
+        const title = asText(block.title);
+        // the text onData returns tells what was imported
+        const report = (text) => (typeof text === 'string' && text ? text : 'Imported');
+        const paste = async () => {
+          const text = await IITC.utils.importText({ title });
+          if (text === undefined) return undefined;
+          return report(await onData(text, undefined, item));
+        };
+        const read = async (files) => report(onFiles ? await onFiles(files, item) : await onData(files[0].text, files[0].name, item));
+        // the button waits only for reading the files: importFile never settles when no file is chosen.
+        // Read later, once the press that opened the file dialog is done
+        const open = () => {
+          IITC.utils.importFile({ accept: block.accept, multiple: Boolean(onFiles) }).then((files) => {
+            if (files.length) this.later(() => this.act(`${id}:open`, () => read(files)));
+          });
+        };
+        return el(
+          'span',
+          { className: 'iitc-options-buttons' },
+          (onData || !onFiles) && this.button(`${id}:paste`, 'Paste', enabled, onData && paste),
+          block.accept && this.button(`${id}:open`, 'Choose file', enabled, (onFiles || onData) && open)
+        );
+      }
+      default:
+        return undefined;
+    }
+  }
+
+  input(block, item, id, enabled, map) {
+    if (block.key === undefined) {
+      warnOnce(block, `options: ${block.type} block "${block.title}" on page "${this.pageId}" has no key`);
+      return undefined;
+    }
+    const { key, value } = this.field(block, item, map);
+    // fields in a repeat have no label of their own
+    const name = item ? asText(block.title) : undefined;
+    const common = { dataset: { focusId: id }, disabled: !enabled, title: name, 'aria-label': name };
+    const commit = (input, next) => this.change(block, item, next, input);
+
+    switch (block.type) {
+      case 'boolean': {
+        const input = el('input', { ...common, type: 'checkbox', checked: value === true });
+        input.addEventListener('change', () => commit(input, input.checked));
+        return input;
+      }
+      case 'number': {
+        const input = el('input', { ...common, type: 'number', min: block.min, max: block.max, step: block.step ?? 'any' });
+        input.defaultValue = String(value ?? '');
+        input.addEventListener('change', () => commit(input, input.value.trim() === '' ? NaN : Number(input.value)));
+        return input;
+      }
+      case 'string': {
+        const input = el('input', { ...common, type: 'text' });
+        input.defaultValue = String(value ?? '');
+        input.addEventListener('change', () => commit(input, input.value));
+        return input;
+      }
+      case 'select': {
+        const list = IITC.options._choices(key);
+        const known = list.some((choice) => choice.value === value);
+        // the index stands for the value, so values of any type survive the round trip through the DOM;
+        // a value that is not among the options shows as such, so choosing any option is a change
+        const select = el(
+          'select',
+          common,
+          !known && el('option', { value: '', disabled: true, selected: true }, String(value ?? '')),
+          ...list.map((choice, index) => el('option', { value: String(index), selected: choice.value === value }, asText(choice.label)))
+        );
+        select.addEventListener('change', () => commit(select, list[Number(select.value)]?.value));
+        return select;
+      }
+      case 'color': {
+        const rgb = typeof value === 'string' ? value.slice(0, 7) : '#000000';
+        const input = el('input', { ...common, type: 'color', value: rgb });
+        if (!block.alpha) {
+          input.addEventListener('change', () => commit(input, input.value));
+          return input;
+        }
+        // the alpha channel as a percentage next to the color, both forming one value
+        const alpha = typeof value === 'string' && value.length === 9 ? Math.round((parseInt(value.slice(7), 16) / 255) * 100) : 100;
+        const opacity = el('input', {
+          dataset: { focusId: `${id}:alpha` },
+          disabled: !enabled,
+          type: 'range',
+          min: 0,
+          max: 100,
+          value: alpha,
+          title: 'Opacity',
+          'aria-label': 'Opacity',
+        });
+        const combined = () => {
+          const byte = Math.round((Number(opacity.value) / 100) * 255);
+          return byte === 255 ? input.value : input.value + byte.toString(16).padStart(2, '0');
+        };
+        input.addEventListener('change', () => commit(input, combined()));
+        opacity.addEventListener('change', () => commit(opacity, combined()));
+        return el('span', { className: 'iitc-options-color' }, input, opacity);
+      }
+    }
+    return undefined;
+  }
+
+  // a radio before the title of the item, checked on the selected one; choosing another runs the action
+  // after the click, as a change does, since the action redraws the page
+  choice(block, item, id, enabled) {
+    if (!item) {
+      warnOnce(block, `options: choice block "${block.title}" on page "${this.pageId}" works only inside a repeat`);
+      return undefined;
+    }
+    const action = handlerOf(block);
+    const declared = block[DECLARED];
+    if (!choiceGroups.has(declared)) choiceGroups.set(declared, `iitc-options-choice-${++lastId}`);
+    // named by the label of its row
+    const input = el('input', {
+      type: 'radio',
+      name: choiceGroups.get(declared),
+      checked: block.selected === true,
+      disabled: !enabled || !action,
+      dataset: { focusId: id },
+    });
+    input.addEventListener('change', () => this.later(() => this.act(id, () => action(item))));
+    return input;
+  }
+
+  list(items, depth) {
+    return el(
+      'ul',
+      { className: 'iitc-options-list' },
+      ...(items ?? []).map((entry) => {
+        // the tooltip belongs to the entry's own line, not to its nested entries
+        const head = el(
+          'div',
+          { className: 'iitc-options-list-head', title: entry.tooltip },
+          el('span', { className: 'iitc-options-list-title' }, String(entry.title ?? '')),
+          entry.badge !== undefined && el('span', { className: 'iitc-options-badge' }, String(entry.badge))
+        );
+        const sub = entry.sub !== undefined && el('div', { className: 'iitc-options-sub' }, String(entry.sub));
+        const nested = entry.items?.length && depth < LIST_DEPTH ? this.list(entry.items, depth + 1) : undefined;
+        const className = entry.state ? `iitc-options-item-${entry.state}` : undefined;
+        if (nested && entry.collapsed) {
+          const summary = el('summary', {}, el('iitc-icon', { fallback: '▸' }, 'chevron_right'), head);
+          return el('li', { className }, el('details', {}, summary, sub, nested));
+        }
+        return el('li', { className }, head, sub, nested);
+      })
+    );
+  }
+
+  // the block as a row of the page; undefined for a block that is not shown or fails to draw
+  row(declared, index) {
+    const id = this.prefix + index;
+    try {
+      return this.buildRow(declared, id);
+    } catch (e) {
+      log.warn(`options: block ${id} of page "${this.pageId}" failed to draw`, e);
+      return undefined;
+    }
+  }
+
+  buildRow(declared, id) {
+    const block = evaluate(declared);
+    if (block.visible === false) return undefined;
+
+    const title = asText(block.title);
+    const description = block.description !== undefined && el('div', { className: 'iitc-options-description' }, asText(block.description));
+
+    switch (block.type) {
+      case 'heading':
+        return el('h3', { className: 'iitc-options-heading' }, title);
+      case 'text':
+        return el('p', { className: 'iitc-options-text' }, asText(block.text));
+      case 'link':
+        return el('a', { className: 'iitc-options-link', href: block.url, target: '_blank', rel: 'noopener', dataset: { focusId: id } }, title);
+      case 'notice':
+        return el('div', { className: `iitc-options-notice iitc-options-notice-${block.level ?? 'info'}` }, asText(block.text));
+      case 'list':
+        return this.list(block.items, 1);
+      case 'repeat':
+        return this.repeat(declared, id);
+    }
+
+    const control = this.control(block, undefined, id);
+    if (!control) return undefined;
+    if (block.type === 'action' && block.button === undefined) {
+      // the button carries the title, so only the description is left on the label side
+      return el(
+        'div',
+        { className: 'iitc-options-row iitc-options-action' },
+        description && el('div', { className: 'iitc-options-label' }, description),
+        el('div', { className: 'iitc-options-control' }, control),
+        ...this.notes(id)
+      );
+    }
+    // a field gets its title as a label, so clicking the title reaches the field
+    const field = control.matches('input, select') ? control : control.querySelector('input, select');
+    if (field) field.id = `iitc-options-field-${++lastId}`;
+    const label = el(
+      field ? 'label' : 'div',
+      { className: 'iitc-options-label', htmlFor: field?.id },
+      el('span', { className: 'iitc-options-title' }, title),
+      description
+    );
+    return el(
+      'div',
+      { className: `iitc-options-row iitc-options-${block.type}`, dataset: block.key ? { key: `${this.namespace}.${block.key}` } : {} },
+      label,
+      el('div', { className: 'iitc-options-control' }, control),
+      // under the label and the control, so they stay on one line
+      ...this.notes(id)
+    );
+  }
+
+  cell(inner, item, id, maps) {
+    // buttons keep to the end of the row, the title taking the room left
+    const props = { className: HANDLERS[inner.type] ? 'iitc-options-cell-buttons' : undefined };
+    try {
+      const block = evaluate(inner, item);
+      if (block.visible === false) return el('td', props);
+      return el('td', props, this.control(block, item, id, maps.get(inner)), ...this.notes(id));
+    } catch (e) {
+      log.warn(`options: block ${id} of page "${this.pageId}" failed to draw`, e);
+      return el('td', props);
+    }
+  }
+
+  // the radio of the choice of a repeat for one item; nothing while the choice is hidden or fails
+  radio(inner, item, id) {
+    try {
+      const block = evaluate(inner, item);
+      if (block.visible === false) return undefined;
+      return this.choice(block, item, id, block.enabled !== false);
+    } catch (e) {
+      log.warn(`options: block ${id} of page "${this.pageId}" failed to draw`, e);
+      return undefined;
+    }
+  }
+
+  repeat(block, id) {
+    const items = block.over?.() ?? [];
+    // headers without rows tell nothing
+    if (!items.length) return undefined;
+    const blocks = block.blocks ?? [];
+    // each map is read once for all items
+    const maps = new Map(blocks.filter((inner) => inner.key !== undefined).map((inner) => [inner, IITC.options.get(`${this.namespace}.${inner.key}`)]));
+    const choices = blocks.filter((inner) => inner.type === 'choice');
+    for (const extra of choices.slice(1)) warnOnce(extra, `options: a repeat on page "${this.pageId}" takes one choice; "${extra.title}" is left out`);
+    const choiceId = (item) => `${id}/${item.id}/${blocks.indexOf(choices[0])}`;
+    const columns = blocks.map((inner, innerIndex) => [inner, innerIndex]).filter(([inner]) => inner.type !== 'choice');
+    const rows = items.map((item) => {
+      const cells = columns.map(([inner, innerIndex]) => this.cell(inner, item, `${id}/${item.id}/${innerIndex}`, maps));
+      const title = String(item.title ?? item.id);
+      // the radio of the choice stands before the title of its row, which is its label; the messages of its
+      // action follow the title
+      const radio = choices.length ? this.radio(choices[0], item, choiceId(item)) : undefined;
+      const head = radio ? el('label', { className: 'iitc-options-choice' }, radio, title) : title;
+      return el('tr', {}, el('th', { scope: 'row' }, head, ...(choices.length ? this.notes(choiceId(item)) : [])), ...cells);
+    });
+    // a button carries its own text, so its column needs no header; a table of buttons has no header row
+    const headers = columns.map(([inner]) => (HANDLERS[inner.type] || typeof inner.title === 'function' ? '' : asText(inner.title)));
+    const head = headers.some(Boolean) && el('thead', {}, el('tr', {}, el('th'), ...headers.map((header) => el('th', { scope: 'col' }, header))));
+    return el('table', { className: 'iitc-options-repeat' }, head, el('tbody', {}, ...rows));
+  }
+
+  draw() {
+    const rows = this.page.blocks.map((block, index) => this.row(block, index));
+    // sections of extensions follow the page's own blocks, each under its title
+    for (const section of IITC.options._sections(this.pageId)) {
+      const view = new PageView(this.pageId, this.container, section);
+      rows.push(
+        el('h3', { className: 'iitc-options-heading', dataset: { extension: section.id } }, section.title),
+        ...section.blocks.map((block, index) => view.row(block, index))
+      );
+    }
+    return el('div', { className: 'iitc-options-page', dataset: { page: this.pageId } }, ...rows);
+  }
+}
+
+// the focused control of the container, to give the focus back after a redraw
+const saveFocus = (container) => {
+  const active = container.ownerDocument.activeElement;
+  if (!active || !container.contains(active) || !active.dataset?.focusId) return undefined;
+  const state = { id: active.dataset.focusId };
+  if (active.tagName === 'INPUT' && (active.type === 'text' || active.type === 'number')) {
+    // text typed but not applied yet
+    if (active.value !== active.defaultValue) state.value = active.value;
+    try {
+      state.selection = [active.selectionStart, active.selectionEnd];
+    } catch {
+      // number inputs have no selection
+    }
+  }
+  return state;
+};
+
+const restoreFocus = (container, state) => {
+  if (!state) return;
+  const target = [...container.querySelectorAll('[data-focus-id]')].find((element) => element.dataset.focusId === state.id);
+  if (!target) return;
+  if (state.value !== undefined) target.value = state.value;
+  target.focus();
+  if (state.selection?.[0] !== null && state.selection?.[0] !== undefined) {
+    try {
+      target.setSelectionRange(...state.selection);
+    } catch {
+      // the control no longer takes a selection
+    }
+  }
+};
+
+// the elements whose text a search looks at
+const SEARCHED_ELEMENTS =
+  '.iitc-options-label, .iitc-options-text, .iitc-options-notice, .iitc-options-heading, .iitc-options-link, .iitc-options-action button';
+
+// marks what contains the query, ignoring case: the whole row of a control, otherwise the element itself
+const markMatches = (root, query) => {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return;
+  for (const element of root.querySelectorAll(SEARCHED_ELEMENTS)) {
+    if (element.textContent.toLowerCase().includes(needle)) (element.closest('.iitc-options-row') ?? element).classList.add('iitc-options-match');
+  }
+};
+
+/**
+ * Draws an options page into a container, replacing what the container holds. Changes made on the page
+ * draw it again; a change made elsewhere needs another call
+ *
+ * @alias IITC.options._renderPage
+ * @private
+ * @param {string} pageId - Id of a registered page
+ * @param {HTMLElement} container - Element to draw into
+ * @param {string} [query] - Search whose matches on the page are marked; stays in force for the redraws
+ *                           until another is given
+ * @returns {boolean} False when no such page is registered
+ */
+const renderPage = (pageId, container, query) => {
+  if (!IITC.options._pages[pageId]) {
+    log.warn(`options: no page "${pageId}" to draw`);
+    return false;
+  }
+  const state = stateOf(container);
+  // the focus and the messages belong to the page drawn before
+  const samePage = state.pageId === pageId;
+  if (query !== undefined) state.query = query;
+  else if (!samePage) state.query = '';
+  if (!samePage) state.messages.clear();
+  state.pageId = pageId;
+  const focus = samePage ? saveFocus(container) : undefined;
+  container.replaceChildren(new PageView(pageId, container).draw());
+  markMatches(container, state.query);
+  restoreFocus(container, focus);
+  return true;
+};
+
+// for the options window: draws the page a container shows again after the current task, and after
+// the click when the pointer is down, as after a change made on the page
+const redrawLater = (container) => {
+  const pageId = states.get(container)?.pageId;
+  if (pageId) new PageView(pageId, container).scheduleRedraw();
+};
+
+IITC.options._renderPage = renderPage;
+IITC.options._redrawLater = redrawLater;
+// shared with the options window
+IITC.options._el = el;
+
+
+})();
+
+
+// *** module: options_sync.js ***
+(function () {
+var log = ulog('options_sync');
+/* global IITC, log -- eslint */
+
+/**
+ * @file Replication of options between devices through the file `iitc[options]` of the Sync plugin, while
+ *       `iitc.syncOptions` is on. Each synced key is shared as `{ value, updated }`, or
+ *       `{ deleted: true, updated }` once reset, so a reset reaches devices that were closed. The newer
+ *       record of a key wins in both directions, and a value stored without a time gives way to any shared
+ *       record. Changes are timed before the file is loaded too, and sent once it is
+ */
+
+// localStorage key of the times of the last change of each synced key on this device
+const TIMES_KEY = 'iitc-options-sync-times';
+
+// the file of the Sync plugin that holds the shared records
+const PLUGIN = 'iitc';
+const FIELD = 'options';
+
+const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+// a usable time here: a whole number that + 1 still increases exactly
+const isTime = (time) => Number.isSafeInteger(time) && time >= 0 && time < Number.MAX_SAFE_INTEGER;
+
+// a usable time in the shared records, with room for the + 1 of a change made after it
+const isFileTime = (time) => Number.isSafeInteger(time) && time >= 0 && time < 2 ** 52;
+
+// the Sync plugin taking the records
+const syncPlugin = {
+  // the holder of the synced map; the plugin replaces the field when another client wrote the file
+  store: { [FIELD]: {} },
+  started: false,
+  // keys changed here, sent together once the current task is done
+  queued: new Set(),
+  scheduled: false,
+
+  enabled: () => IITC.options.get('iitc.syncOptions') === true,
+
+  // installed in a version that can keep the map outside window.plugin; IITC has loaded, so a new file
+  // starts with the pages of all plugins
+  available: () => window.iitcLoaded === true && typeof window.plugin?.sync?.getFileMap === 'function',
+
+  // the synced map is loaded and not stopped by a sign-out
+  ready() {
+    return this.started && this.enabled() && window.plugin.sync.isInitialized(PLUGIN, FIELD);
+  },
+
+  start() {
+    if (this.started || !this.enabled() || !this.available()) return;
+    // what a newly created file starts with
+    this.store[FIELD] = records();
+    try {
+      window.plugin.sync.registerMapForSync(PLUGIN, FIELD, null, () => this.reconcile(), { holder: this.store });
+    } catch (e) {
+      // the plugin failed to register the map; turning the option off and on again tries once more
+      log.warn('options: the Sync plugin could not take the options', e);
+      return;
+    }
+    this.started = true;
+  },
+
+  // an import or a page of changes in one task becomes one upload of the file
+  queue(key) {
+    if (!this.ready()) return;
+    this.queued.add(key);
+    if (this.scheduled) return;
+    this.scheduled = true;
+    queueMicrotask(() => this.flush());
+  },
+
+  flush() {
+    this.scheduled = false;
+    const keys = [...this.queued];
+    this.queued.clear();
+    if (this.ready()) this.send(keys);
+  },
+
+  send(keys) {
+    for (const key of keys) this.queued.delete(key);
+    const sent = records(keys);
+    if (!Object.keys(sent).length) return;
+    Object.assign(this.store[FIELD], sent);
+    window.plugin.sync.updateMap(PLUGIN, FIELD, Object.keys(sent));
+  },
+
+  // runs after every load of the synced map; with keys, only for those
+  reconcile(keys) {
+    if (this.ready()) this.send(reconcile(keys));
+  },
+};
+
+// the shared records, or undefined until the Sync plugin has taken the map and loaded the file
+const fileRecords = () => {
+  if (!syncPlugin.started) return undefined;
+  const records = window.plugin.sync.getFileMap(PLUGIN, FIELD);
+  return isObject(records) ? records : undefined;
+};
+
+const fileTime = (records, key) => {
+  const updated = records && Object.hasOwn(records, key) ? records[key]?.updated : undefined;
+  return isFileTime(updated) ? updated : undefined;
+};
+
+const loadTimes = () => {
+  let times;
+  try {
+    times = JSON.parse(localStorage.getItem(TIMES_KEY));
+  } catch {
+    return {};
+  }
+  if (!isObject(times)) return {};
+  return Object.fromEntries(Object.entries(times).filter(([, time]) => isTime(time)));
+};
+
+// reads, updates and stores at once, so a time recorded by a nested change is never overwritten;
+// undefined forgets the time
+const setTime = (key, time) => {
+  const times = loadTimes();
+  if (time === undefined) delete times[key];
+  else times[key] = time;
+  localStorage.setItem(TIMES_KEY, JSON.stringify(times));
+};
+
+// the record of a key as this device holds it, or undefined when it holds nothing it may send:
+// a stored value that cannot be read or fails its declaration (an old range, choices still
+// loading) would only be rejected elsewhere, and it is not a reset either
+const localRecord = (key, times) => {
+  const updated = times[key] ?? 0;
+  const state = IITC.options._storedState(key);
+  if (state === 'missing') return { deleted: true, updated };
+  if (state === 'valid') return { value: IITC.options.get(key), updated };
+  return undefined;
+};
+
+// the records this device holds for the keys, all stored values that may leave the device by default,
+// leaving out keys it holds nothing to send for
+const records = (keys = Object.keys(IITC.options.exportValues({ sync: true }))) => {
+  const times = loadTimes();
+  return Object.fromEntries(keys.map((key) => [key, localRecord(key, times)]).filter(([, record]) => record));
+};
+
+// applies the shared records newer than what this device holds, and returns the keys the shared records
+// lack or hold older than this device, to be sent; with keys, only for those. Does nothing while
+// `iitc.syncOptions` is off
+const reconcile = (keys) => {
+  const remote = fileRecords();
+  if (!remote || IITC.options.get('iitc.syncOptions') !== true) return [];
+  const wanted = (key) => !keys || keys.includes(key);
+
+  for (const [key, record] of Object.entries(remote)) {
+    // a key not declared here yet is reconciled when its page registers
+    if (!wanted(key) || !IITC.options._syncs(key) || !isFileTime(record?.updated)) continue;
+    const time = loadTimes()[key];
+    // a stored value this device cannot use gives way to the shared record, whatever its time
+    const known = IITC.options._storedState(key) === 'invalid' ? undefined : time;
+    if (known !== undefined && record.updated <= known) continue;
+    // set first, so a change that onChange makes in reply gets a later time and wins everywhere;
+    // a record from before syncing (time 0) leaves no time, so the shared records keep leading the key
+    setTime(key, record.updated > 0 ? record.updated : undefined);
+    const applied = record.deleted ? IITC.options.reset(key, { source: 'remote' }) : IITC.options.set(key, record.value, { source: 'remote' });
+    // a rejected value, say for choices not loaded yet, is tried again on the next reconcile
+    if (!applied) setTime(key, time);
+  }
+
+  const times = loadTimes();
+  const local = new Set([...Object.keys(IITC.options.exportValues({ sync: true })), ...Object.keys(times).filter((key) => IITC.options._syncs(key))]);
+  return [...local].filter((key) => {
+    const shared = fileTime(remote, key);
+    return wanted(key) && (shared === undefined || (times[key] ?? -Infinity) > shared);
+  });
+};
+
+// a change made on this device gets its time and goes out with the next upload; values applied from the
+// shared records are not changes made here, and values moved from an older build get no time, so they
+// give way to the shared records
+const onOptionChanged = ({ key, value, source }) => {
+  if (key === 'iitc.syncOptions') {
+    if (value !== true) return;
+    if (syncPlugin.started) syncPlugin.reconcile();
+    else syncPlugin.start();
+    return;
+  }
+  if (source === 'remote' || source === 'legacy' || !IITC.options._syncs(key)) return;
+  // later than the record it replaces and than the shared one, even when this device's clock lags
+  const shared = fileTime(fileRecords(), key);
+  setTime(key, Math.max(Date.now(), (loadTimes()[key] ?? 0) + 1, (shared ?? 0) + 1));
+  syncPlugin.queue(key);
+};
+
+// the shared records of the keys a page or an extension declares, after the current task, so the plugin
+// that registers finishes its setup before onChange runs
+const onPageRegistered = ({ keys }) => {
+  queueMicrotask(() => syncPlugin.reconcile(keys));
+};
+
+// for tests
+IITC.options._sync = { TIMES_KEY, records, reconcile, onOptionChanged, onPageRegistered, loadTimes, setTime, syncPlugin };
+
+// handlers return nothing: a false would stop the remaining hook handlers
+window.addHook('optionChanged', onOptionChanged);
+window.addHook('optionsPageRegistered', onPageRegistered);
+window.addHook('iitcLoaded', () => {
+  syncPlugin.start();
+});
+// the Sync plugin loaded after IITC
+window.addHook('pluginSyncReady', () => {
+  syncPlugin.start();
+});
+
+
+})();
+
+
+// *** module: options_window.js ***
+(function () {
+var log = ulog('options_window');
+/* global IITC, L, log -- eslint */
+
+/**
+ * @file The options window: the list of options pages next to the page chosen, and a search over
+ *       the titles and texts of all pages. A narrow window shows the list or the page, with a way back.
+ *       The window is a dialog over the map, so a change shows on the map at once, or fills the pane
+ *       of an app. The page shown follows changes of its own options made elsewhere, such as values arriving
+ *       through sync
+ */
+
+// pages of IITC itself come first, the rest follow by title
+const FIRST_PAGES = ['iitc', 'about'];
+
+// texts of a block searched for a query; titles computed when drawn are left out
+const SEARCHED = ['title', 'description', 'text'];
+
+// longest text the search shows under a page
+const FOUND_LENGTH = 80;
+
+// height of the dialog, in pixels; a lower screen gets a lower dialog
+const HEIGHT = 560;
+
+const PANE_ID = 'options';
+const LINK_ID = 'options-toolbox-link';
+
+// the window's element and its dialog while it is open; the page and the query stay between openings
+const view = {
+  root: null,
+  dialog: null,
+  pageId: undefined,
+  query: '',
+  pane: null,
+  paneAdded: false,
+  mapButton: null,
+};
+
+const el = (...args) => IITC.options._el(...args);
+
+/**
+ * Ids of the registered pages in the order the window lists them
+ *
+ * @alias IITC.options._pageIds
+ * @private
+ * @returns {string[]}
+ */
+const pageIds = () => {
+  const pages = IITC.options._pages;
+  const rank = (id) => (FIRST_PAGES.includes(id) ? FIRST_PAGES.indexOf(id) : FIRST_PAGES.length);
+  return Object.keys(pages).sort((a, b) => rank(a) - rank(b) || String(pages[a].title ?? a).localeCompare(String(pages[b].title ?? b)));
+};
+
+const titleOf = (pageId) => String(IITC.options._pages[pageId]?.title ?? pageId);
+
+// a block the page does not show; inside a repeat, `visible` as a function of the item counts as shown
+const hidden = (block, inRepeat) => {
+  if (typeof block?.visible !== 'function') return block?.visible === false;
+  if (inRepeat) return false;
+  try {
+    return block.visible() === false;
+  } catch {
+    // drawing the page reports the error
+    return false;
+  }
+};
+
+// texts of the blocks shown, the ones inside a repeat too
+const blockTexts = (blocks, inRepeat = false) =>
+  (blocks ?? []).flatMap((block) => {
+    if (hidden(block, inRepeat)) return [];
+    const own = SEARCHED.filter((name) => typeof block?.[name] === 'string').map((name) => block[name]);
+    return block?.type === 'repeat' ? [...own, ...blockTexts(block.blocks, true)] : own;
+  });
+
+/**
+ * Finds the texts of a page that contain the query, ignoring case
+ *
+ * @memberof IITC.options
+ * @inner
+ * @private
+ * @returns {string[]|null} Texts of the page's blocks that match, empty when only the page title does;
+ *                          null when nothing on the page matches
+ */
+const search = (pageId, query) => {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return [];
+  // the sections of extensions are searched with their titles
+  const sections = IITC.options._sections(pageId).flatMap((section) => [section.title, ...blockTexts(section.blocks)]);
+  const found = [...blockTexts(IITC.options._pages[pageId].blocks), ...sections].filter((text) => text.toLowerCase().includes(needle));
+  if (found.length) return found;
+  return titleOf(pageId).toLowerCase().includes(needle) ? [] : null;
+};
+
+const shorten = (text) => (text.length > FOUND_LENGTH ? `${text.slice(0, FOUND_LENGTH - 1)}…` : text);
+
+const isOpen = () => view.root !== null && view.root.isConnected;
+
+const part = (className) => view.root.querySelector(`.${className}`);
+
+const content = () => part('iitc-options-content');
+
+const navLink = (pageId) => [...view.root.querySelectorAll('.iitc-options-page-link')].find((link) => link.dataset.page === pageId);
+
+const isHidden = (element) => element.ownerDocument.defaultView.getComputedStyle(element).display === 'none';
+
+// the tooltip of a page in the list, telling its access key; none on a touch screen, where a tap that opens
+// the page would show it
+const accessKeyHint = (pageId) => {
+  const accesskey = IITC.options._pages[pageId]?.accesskey;
+  if (!accesskey || window.matchMedia?.('(hover: none)').matches) return undefined;
+  return `Access key [${accesskey}]`;
+};
+
+// draws the list again; the focus stays on the page it was on
+const drawNav = () => {
+  const list = part('iitc-options-pages');
+  const focused = list.contains(document.activeElement) ? document.activeElement.dataset.page : undefined;
+  const entries = pageIds()
+    .map((pageId) => [pageId, search(pageId, view.query)])
+    .filter(([, found]) => found !== null)
+    .map(([pageId, found]) =>
+      el(
+        'li',
+        {},
+        el(
+          'button',
+          {
+            type: 'button',
+            className: 'iitc-options-page-link',
+            dataset: { page: pageId },
+            title: accessKeyHint(pageId),
+            'aria-current': pageId === view.pageId && 'page',
+            onclick: () => choose(pageId),
+          },
+          el('span', { className: 'iitc-options-page-title' }, titleOf(pageId)),
+          // what the search found on the page
+          found.length > 0 && el('span', { className: 'iitc-options-found' }, found.slice(0, 3).map(shorten).join(' · '))
+        )
+      )
+    );
+  list.replaceChildren(...entries);
+  if (!entries.length) list.append(el('li', { className: 'iitc-options-nothing' }, 'Nothing found'));
+  if (focused !== undefined) navLink(focused)?.focus();
+};
+
+const drawPage = () => {
+  part('iitc-options-page-heading').textContent = view.pageId ? titleOf(view.pageId) : '';
+  if (view.pageId) IITC.options._renderPage(view.pageId, content(), view.query);
+  else content().replaceChildren();
+};
+
+// shows a page; in a narrow window it takes the place of the list, and the focus moves to the way back
+const choose = (pageId) => {
+  const another = pageId !== view.pageId;
+  view.pageId = pageId;
+  view.root.dataset.view = 'page';
+  view.root.querySelectorAll('.iitc-options-page-link').forEach((link) => {
+    if (link.dataset.page === pageId) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  });
+  drawPage();
+  if (another) {
+    // another page starts at its top, or at what the search found on it
+    content().scrollTop = 0;
+    content().querySelector('.iitc-options-match')?.scrollIntoView?.({ block: 'center' });
+  }
+  const nav = part('iitc-options-nav');
+  if (nav.contains(document.activeElement) && isHidden(nav)) part('iitc-options-back').focus();
+};
+
+// the window, showing the page in a narrow window too when `showPage` is set
+const build = (showPage) => {
+  const searchInput = el('input', {
+    type: 'search',
+    className: 'iitc-options-search',
+    placeholder: 'Search',
+    value: view.query,
+    'aria-label': 'Search options',
+  });
+  // the list and the page show what the query finds
+  const searched = () => {
+    drawNav();
+    if (view.pageId) drawPage();
+  };
+  searchInput.addEventListener('input', () => {
+    view.query = searchInput.value;
+    searched();
+  });
+  // Escape clears the search first, and closes the window only from an empty field
+  searchInput.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !searchInput.value) return;
+    event.stopPropagation();
+    searchInput.value = '';
+    view.query = '';
+    searched();
+  });
+
+  const back = el(
+    'button',
+    {
+      type: 'button',
+      className: 'iitc-options-back',
+      'aria-label': 'Back to the list of pages',
+      onclick: () => {
+        view.root.dataset.view = 'list';
+        (navLink(view.pageId) ?? searchInput).focus();
+      },
+    },
+    el('iitc-icon', {}, 'arrow_back')
+  );
+
+  view.root = el(
+    'div',
+    { className: 'iitc-options', dataset: { view: showPage ? 'page' : 'list' } },
+    el('nav', { className: 'iitc-options-nav' }, searchInput, el('ul', { className: 'iitc-options-pages' })),
+    el(
+      'section',
+      { className: 'iitc-options-detail' },
+      el('div', { className: 'iitc-options-detail-head' }, back, el('h2', { className: 'iitc-options-page-heading' })),
+      el('div', { className: 'iitc-options-content' })
+    )
+  );
+  drawNav();
+  drawPage();
+  return view.root;
+};
+
+// a page to show: the one chosen last while it is still registered, or the first
+const currentPage = () => (IITC.options._pages[view.pageId] ? view.pageId : pageIds()[0]);
+
+const openDialog = (showPage) => {
+  view.dialog = window.dialog({
+    id: 'iitc-options',
+    title: 'Options',
+    html: build(showPage),
+    width: 700,
+    height: Math.min(HEIGHT, window.innerHeight - 16),
+    closeCallback: () => {
+      view.root = null;
+      view.dialog = null;
+    },
+  });
+  // the dialog focuses the search as its first field; on a smartphone that would open the keyboard over the window
+  const search = part('iitc-options-search');
+  if (IITC.utils.isSmartphone() && document.activeElement === search) search.blur();
+};
+
+// no close button: the app leaves the pane by showing another
+const openPane = (showPage) => {
+  view.pane = el('div', { id: 'iitc-options-pane', className: 'iitc-options-pane' }, build(showPage));
+  document.body.append(view.pane);
+};
+
+const closePane = () => {
+  view.pane?.remove();
+  view.pane = null;
+  view.root = null;
+};
+
+const display = (pageId) => {
+  const showPage = pageId !== undefined;
+
+  if (isOpen()) {
+    if (showPage) choose(pageId);
+    view.dialog?.dialog?.('moveToTop');
+  } else {
+    // a wide window always shows a page next to the list
+    view.pageId = pageId ?? currentPage();
+    if (window.currentPane === PANE_ID) {
+      openPane(showPage);
+      return;
+    }
+    // on a smartphone the dialog shows over the map pane
+    if (IITC.utils.isSmartphone() && window.currentPane !== 'map') window.show('map');
+    openDialog(showPage);
+  }
+};
+
+// the page open() asked for before it switched to the pane
+let paneRequest;
+
+const entry = () => {
+  if (!window.useAppPanes()) return 'button';
+  return IITC.options.get('iitc.optionsPane') ? 'pane' : 'toolbox';
+};
+
+/**
+ * Opens the options window, on a given page or on the page chosen last
+ *
+ * A toolbox button to an options page comes from the page's `shortcut`, which the user can turn off
+ * with the other shortcuts; `IITC.toolbox.addButton` is for a plugin's own dialogs that are not part
+ * of the options, such as lists and other views of map data. In an app with panes the window is a pane
+ * of the app, unless `iitc.optionsPane` is off
+ *
+ * @memberof IITC.options
+ * @param {string} [pageId] - Page to show
+ * @returns {boolean} False when no such page is registered
+ *
+ * @example
+ * // a toolbox button that opens the page
+ * IITC.options.register('my-plugin', { title: 'My plugin', shortcut: true, blocks });
+ * // the page opened from the plugin's own code, such as a link in its dialog
+ * IITC.options.open('my-plugin');
+ */
+const open = (pageId) => {
+  if (pageId !== undefined && !IITC.options._pages[pageId]) {
+    log.warn(`options: no page "${pageId}" to open`);
+    return false;
+  }
+  if (entry() === 'pane' && window.currentPane !== PANE_ID) {
+    // the window opens when the pane is shown
+    paneRequest = { pageId };
+    window.show(PANE_ID);
+    return true;
+  }
+  display(pageId);
+  return true;
+};
+
+/**
+ * Draws the page shown in the options window again, after the current task and after the click when
+ * the pointer is down, and updates the toolbox shortcut of the page. Changes of the page's own options and
+ * of the sections extensions add to it redraw it already; a page that also shows other state calls this when
+ * that state changes
+ *
+ * @memberof IITC.options
+ * @param {string} [pageId] - Redraws only if this page is shown; all shortcuts are updated without it
+ */
+const refresh = (pageId) => {
+  (pageId === undefined ? Object.keys(IITC.options._pages) : [pageId]).forEach(updateShortcut);
+  if (!isOpen() || (pageId !== undefined && pageId !== view.pageId)) return;
+  IITC.options._redrawLater(content());
+};
+
+// a change made on the page redraws it already; this follows changes made elsewhere, such as by sync, of the
+// options the page and the sections extensions add to it declare. Options of other pages are left to
+// refresh, so an open select is not closed by unrelated changes
+const onOptionChanged = ({ key }) => {
+  if (isOpen() && IITC.options._pages[view.pageId] && IITC.options._definitions[key]?.pageId === view.pageId) IITC.options._redrawLater(content());
+};
+
+const onPageRegistered = ({ pageId }) => {
+  if (!isOpen()) return;
+  drawNav();
+  if (pageId !== view.pageId) return;
+  part('iitc-options-page-heading').textContent = titleOf(pageId);
+  IITC.options._redrawLater(content());
+};
+
+const shortcutId = (pageId) => `options-shortcut-${pageId}`;
+
+// the shortcut arguments each button was drawn with, so a refresh that changes nothing leaves the toolbox alone
+const drawnShortcuts = new Map();
+
+// the arguments of a page's toolbox button, or undefined when the page has none
+const shortcutOf = (pageId) => {
+  const page = IITC.options._pages[pageId];
+  if (!page?.shortcut || IITC.options.get('iitc.toolboxShortcuts') === false) return undefined;
+  let args = page.shortcut;
+  try {
+    if (typeof args === 'function') args = args();
+  } catch (e) {
+    log.warn(`options: shortcut of page "${pageId}" failed`, e);
+    return undefined;
+  }
+  args = { label: titleOf(pageId), ...(typeof args === 'object' ? args : {}) };
+  if (!page.accesskey) return args;
+  const hint = `[${page.accesskey}]`;
+  return { ...args, accesskey: page.accesskey, title: args.title ? `${args.title} ${hint}` : hint };
+};
+
+// the access keys of pages without a toolbox button, on links that are not seen but still take the key
+const accessKeyLinks = () => {
+  let links = document.getElementById('iitc-options-access-keys');
+  if (!links) {
+    links = el('div', { id: 'iitc-options-access-keys', className: 'iitc-options-access-keys', 'aria-hidden': 'true' });
+    document.body.append(links);
+  }
+  return links;
+};
+
+// keeps the access key of a page working while the page has no toolbox button
+const updateAccessKey = (pageId, hasButton) => {
+  const accesskey = IITC.options._pages[pageId]?.accesskey;
+  const link = document.getElementById(`options-access-key-${pageId}`);
+  if (hasButton || !accesskey) {
+    link?.remove();
+    return;
+  }
+  if (link) {
+    link.accessKey = accesskey;
+    return;
+  }
+  accessKeyLinks().append(el('a', { id: `options-access-key-${pageId}`, accessKey: accesskey, tabIndex: -1, onclick: () => open(pageId) }));
+};
+
+// adds, updates or removes the toolbox button of a page, as its declaration and iitc.toolboxShortcuts say;
+// the access key of the page moves to a hidden link when there is no button
+const updateShortcut = (pageId) => {
+  const args = IITC.toolbox ? shortcutOf(pageId) : undefined;
+  updateAccessKey(pageId, Boolean(args));
+  if (!IITC.toolbox) return;
+  const id = shortcutId(pageId);
+  const exists = Boolean(IITC.toolbox.buttons[id]);
+  if (!args) {
+    if (exists) IITC.toolbox.removeButton(id);
+    drawnShortcuts.delete(id);
+    return;
+  }
+  const drawn = JSON.stringify(args);
+  if (exists && drawnShortcuts.get(id) === drawn) return;
+  drawnShortcuts.set(id, drawn);
+  // added anew, since updateButton keeps arguments that a shortcut function no longer returns
+  if (exists) IITC.toolbox.removeButton(id);
+  IITC.toolbox.addButton({ ...args, id, action: () => open(pageId) });
+};
+
+const setMapButton = (wanted) => {
+  if (!wanted) {
+    view.mapButton?.remove();
+    view.mapButton = null;
+    return;
+  }
+  if (view.mapButton || !window.map || !globalThis.L?.Control) return;
+  const Button = L.Control.extend({
+    options: { position: 'topright' },
+    onAdd: () => {
+      // the pages, shown beside the button under a mouse; filled on the way in, so it has the pages of plugins
+      const menu = el('div', { className: 'iitc-control-menu' });
+      const fillMenu = () => {
+        // drawn anew, the item in focus would lose it
+        if (menu.contains(document.activeElement)) return;
+        menu.replaceChildren(
+          ...pageIds().map((pageId) =>
+            el(
+              'a',
+              {
+                href: '#',
+                role: 'button',
+                title: accessKeyHint(pageId),
+                onclick: (event) => {
+                  event.preventDefault();
+                  open(pageId);
+                },
+              },
+              titleOf(pageId)
+            )
+          )
+        );
+      };
+      const container = el(
+        'div',
+        { className: 'iitc-control-button iitc-options-button' },
+        el(
+          'a',
+          {
+            href: '#',
+            role: 'button',
+            title: 'IITC and plugin options',
+            'aria-label': 'Options',
+            onclick: (event) => {
+              event.preventDefault();
+              open();
+            },
+          },
+          el('iitc-icon', { fallback: '⚙' }, 'tune')
+        ),
+        menu
+      );
+      for (const type of ['pointerenter', 'focusin']) container.addEventListener(type, fillMenu);
+      L.DomEvent.disableClickPropagation(container);
+      return container;
+    },
+  });
+  view.mapButton = new Button().addTo(window.map);
+};
+
+/**
+ * Shows the way to the window that `entry` names. An app cannot remove a pane, so it stays until
+ * IITC is reloaded and still opens the window
+ *
+ * @alias IITC.options._setupWindow
+ * @private
+ */
+const updateEntry = () => {
+  const mode = entry();
+  if (IITC.toolbox) {
+    const hasLink = Boolean(IITC.toolbox.buttons[LINK_ID]);
+    if (mode === 'toolbox' && !hasLink) {
+      IITC.toolbox.addButton({ id: LINK_ID, label: 'Options', title: 'IITC and plugin options', action: () => open() });
+    } else if (mode !== 'toolbox' && hasLink) {
+      IITC.toolbox.removeButton(LINK_ID);
+    }
+  }
+  setMapButton(mode === 'button');
+  if (mode === 'pane' && !view.paneAdded) {
+    window.app.addPane(PANE_ID, 'Options', 'tune');
+    view.paneAdded = true;
+  }
+};
+
+Object.assign(IITC.options, { open, refresh, _pageIds: pageIds, _setupWindow: updateEntry, _view: view });
+
+// handlers return nothing: a false would stop the remaining hook handlers
+window.addHook('optionChanged', (event) => {
+  onOptionChanged(event);
+  if (event.key === 'iitc.toolboxShortcuts') Object.keys(IITC.options._pages).forEach(updateShortcut);
+  if (event.key === 'iitc.optionsPane') updateEntry();
+});
+window.addHook('paneChanged', (pane) => {
+  if (pane === PANE_ID) {
+    const request = paneRequest;
+    paneRequest = undefined;
+    // a dialog left open from before the pane was chosen gives way to it
+    if (isOpen() && !view.pane) view.dialog?.dialog?.('close');
+    display(request?.pageId);
+  } else if (view.pane) {
+    closePane();
+  }
+});
+window.addHook('optionsPageRegistered', (event) => {
+  onPageRegistered(event);
+  updateShortcut(event.pageId);
 });
 
 
@@ -27979,10 +28402,10 @@ var log = ulog('ornaments');
  * (there are 7 different colors for each of them)
  *
  * Ornament IDs are dynamic. NIANTIC might change them at any time without prior notice.
- * New ornamnent IDs found on the map will be recorded and saved to knownOrnaments from
- * which the Ornaments dialog will be filled with checked checkboxes.
- * To exclude a set of ornaments, even if they have not yet shown up on the map, the user
- * can add an entry to excludedOrnaments, which will compared (startsWith) to all known and
+ * New ornament IDs found on the map are recorded on this device, and the Ornaments page of the
+ * options window lists them with a checkbox to hide each; the hidden ones are an option, synced
+ * between devices. To exclude a set of ornaments, even if they have not yet shown up on the map,
+ * the user can add an entry to excludedOrnaments, which will compared (startsWith) to all known and
  * future IDs. example: "ap" to exclude all Ornaments for anomalies (ap1, ap2, ap2_v)
  */
 window.ornaments = {
@@ -28006,7 +28429,7 @@ window.ornaments = {
    * be filled from a plugin
    * ```
    * 'ornamentID' : {
-   *   name: 'meaningful name',     // shows up in dialog
+   *   name: 'meaningful name',     // shows up on the Ornaments options page
    *   layer: 'name for the Layer', // shows up in layerchooser, optional, if not set
    *                                // ornament will be in "Ornaments"
    *   url: 'url',                  // from which the image will be taken, optional,
@@ -28031,10 +28454,27 @@ window.ornaments = {
   excludedOrnaments: [],
 
   /**
-   * List of known ornaments.
+   * Known ornaments: the ones seen on this device and the hidden ones, each with whether it is hidden.
    * @property {object} knownOrnaments - Object tracking known ornaments.
    */
   knownOrnaments: {},
+
+  /**
+   * localStorage key of the IDs of the ornaments seen on this device, kept apart from the options
+   * @constant
+   * @type {string}
+   */
+  KNOWN_KEY: 'iitc-ornaments-known',
+
+  // IDs of the ornaments seen on this device
+  _seen: new Set(),
+
+  // set while a redraw waits in the microtask queue, so changes in one task redraw once
+  _reloadQueued: false,
+
+  // set while storing the ornaments seen waits in the microtask queue, so new ones in one task are stored and
+  // shown once
+  _seenQueued: false,
 
   /**
    * Sets up the ornament layer and necessary event handlers.
@@ -28043,12 +28483,14 @@ window.ornaments = {
    * @memberof window.ornaments
    */
   setup: function () {
+    this.registerOptions();
     this._portals = {};
     this.layerGroup = () => new L.LayerGroup();
     if (window.map.options.preferCanvas && L.Browser.canvas && !window.DISABLE_CANVASICONLAYER) {
       this.layerGroup = L.canvasIconLayer;
       L.CanvasIconLayer.mergeOptions({ padding: L.Canvas.prototype.options.padding });
     }
+    this.migrate();
     this.load();
 
     this.layers = {};
@@ -28057,14 +28499,187 @@ window.ornaments = {
 
     window.layerChooser.addOverlay(this.layers['Ornaments'], 'Ornaments');
     window.layerChooser.addOverlay(this.layers['Excluded ornaments'], 'Excluded ornaments', { default: false });
+  },
 
-    IITC.toolbox.addButton({
-      id: 'ornaments-toolbox-link',
-      label: 'Ornaments Opt',
-      title: 'Edit ornament exclusions',
+  /**
+   * Declares the `ornaments` options page: `excluded` is the comma-separated list of ID prefixes to hide,
+   * and `hidden` maps each hidden ornament ID to true. A change from the page, a backup or sync updates
+   * `excludedOrnaments` and `knownOrnaments` and schedules a redraw
+   *
+   * @memberof window.ornaments
+   */
+  registerOptions() {
+    IITC.options.register('ornaments', {
+      title: 'Ornaments',
       accesskey: 'o',
-      action: window.ornaments.ornamentsOpt,
+      shortcut: { label: 'Ornaments Opt', title: 'Edit ornament exclusions' },
+      blocks: [
+        {
+          type: 'string',
+          key: 'excluded',
+          title: 'Hide ornaments that start with',
+          description: 'Separated by spaces or commas',
+          onChange: (text) => {
+            const prefixes = window.ornaments.parsePrefixes(text);
+            // a list save() stores from the one in use needs no reload
+            if (prefixes.join(',') === window.ornaments.excludedOrnaments.join(',')) return;
+            window.ornaments.excludedOrnaments = prefixes;
+            window.ornaments.scheduleReload();
+          },
+        },
+        { type: 'heading', title: 'Known ornaments' },
+        {
+          type: 'text',
+          text: 'None seen yet; ornaments are listed as they show up on the map',
+          visible: () => !Object.keys(window.ornaments.knownOrnaments).length,
+        },
+        {
+          type: 'repeat',
+          // the ornaments seen here and the ones hidden on any device
+          over: () =>
+            Object.keys(window.ornaments.knownOrnaments)
+              .sort()
+              .map((id) => ({ id, title: window.ornaments.icon[id]?.name ? `${window.ornaments.icon[id].name} (${id})` : id })),
+          blocks: [
+            {
+              type: 'boolean',
+              key: 'hidden',
+              title: 'Hide',
+              // an ornament a prefix hides shows as hidden, and only the prefix can show it again
+              enabled: (item) => !window.ornaments.isExcluded(item.id),
+              value: (item) => (window.ornaments.isExcluded(item.id) ? true : undefined),
+              onChange: (hidden) => {
+                window.ornaments.knownOrnaments = window.ornaments.knownFrom(hidden);
+                window.ornaments.scheduleReload();
+              },
+            },
+          ],
+        },
+        {
+          type: 'action',
+          title: 'Forget known ornaments',
+          description:
+            'Clears the Hide marks on every device and forgets the ornaments seen; the ones on the map now are listed again at once, and the prefixes stay',
+          button: 'Forget',
+          action: () => window.ornaments.initOrnaments(),
+        },
+      ],
     });
+  },
+
+  /**
+   * Redraws the ornaments once the current task is done, however many changes it makes
+   *
+   * @memberof window.ornaments
+   */
+  scheduleReload() {
+    if (this._reloadQueued) return;
+    this._reloadQueued = true;
+    queueMicrotask(() => {
+      this._reloadQueued = false;
+      this.reload();
+    });
+  },
+
+  /**
+   * Builds `knownOrnaments` from the ornaments seen on this device and the hidden flags
+   *
+   * @memberof window.ornaments
+   * @param {Object<string, boolean>} hidden - Hidden flags by ornament ID, as the `hidden` option holds them
+   * @returns {Object<string, boolean>} Whether each known ornament is hidden
+   */
+  knownFrom(hidden) {
+    const ids = new Set([...this._seen, ...Object.keys(hidden).filter((id) => hidden[id] === true)]);
+    return Object.fromEntries([...ids].map((id) => [id, hidden[id] === true]));
+  },
+
+  /**
+   * Reads the IDs of the ornaments seen on this device; none when the stored list cannot be read
+   *
+   * @memberof window.ornaments
+   * @returns {string[]}
+   */
+  readSeen() {
+    try {
+      const ids = JSON.parse(localStorage.getItem(this.KNOWN_KEY));
+      return Array.isArray(ids) ? ids.filter((id) => typeof id === 'string') : [];
+    } catch (e) {
+      log.warn(`ornaments: cannot read "${this.KNOWN_KEY}": ${e}`);
+      return [];
+    }
+  },
+
+  /**
+   * Stores the IDs of the ornaments seen on this device once the current task is done, and redraws the
+   * options page of ornaments if it is shown, so it lists the new ones
+   *
+   * @memberof window.ornaments
+   */
+  scheduleSeenSave() {
+    if (this._seenQueued) return;
+    this._seenQueued = true;
+    queueMicrotask(() => {
+      this._seenQueued = false;
+      localStorage.setItem(this.KNOWN_KEY, JSON.stringify([...this._seen]));
+      IITC.options.refresh('ornaments');
+    });
+  },
+
+  /**
+   * Moves the ornament options of older builds to the options, once: the prefixes from `excludedOrnaments`,
+   * and from `knownOrnaments` the hidden ornaments and the ornaments seen. The legacy keys go, values left out
+   * as unreadable with them; the list of ornaments seen marks the move as done
+   *
+   * @memberof window.ornaments
+   */
+  migrate() {
+    if (localStorage.getItem(this.KNOWN_KEY) !== null) return;
+    const legacy = (key) => {
+      try {
+        return JSON.parse(localStorage.getItem(key));
+      } catch (e) {
+        log.warn(`ornaments: cannot read the legacy "${key}": ${e}`);
+        return null;
+      }
+    };
+
+    const excluded = legacy('excludedOrnaments');
+    if (Array.isArray(excluded))
+      IITC.options.set('ornaments.excluded', excluded.filter((prefix) => typeof prefix === 'string').join(','), { source: 'legacy' });
+    else if (excluded !== null) log.warn('ornaments: the legacy "excludedOrnaments" is not a list and is left out');
+
+    const known = legacy('knownOrnaments');
+    let seen = [];
+    if (known !== null && typeof known === 'object' && !Array.isArray(known)) {
+      seen = Object.keys(known);
+      // any truthy entry hid the ornament in older builds
+      IITC.options.set('ornaments.hidden', Object.fromEntries(seen.filter((id) => known[id]).map((id) => [id, true])), { source: 'legacy' });
+    } else if (known !== null) log.warn('ornaments: the legacy "knownOrnaments" is not a map and is left out');
+    localStorage.setItem(this.KNOWN_KEY, JSON.stringify(seen));
+    localStorage.removeItem('excludedOrnaments');
+    localStorage.removeItem('knownOrnaments');
+  },
+
+  /**
+   * Tells whether a prefix of `excludedOrnaments` hides an ornament
+   *
+   * @memberof window.ornaments
+   * @param {string} id - Ornament ID
+   * @returns {boolean}
+   */
+  isExcluded(id) {
+    return this.excludedOrnaments.some((prefix) => id.startsWith(prefix));
+  },
+
+  /**
+   * Splits a list of ornament ID prefixes separated by spaces or commas
+   *
+   * @memberof window.ornaments
+   * @param {string} text - Prefixes as typed by the user
+   * @returns {string[]} Non-empty prefixes
+   */
+  parsePrefixes(text) {
+    return text.split(/[\s,]+/).filter(Boolean);
   },
 
   /**
@@ -28097,8 +28712,10 @@ window.ornaments = {
         var anchor = [size / 2, size / 2];
         var iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/' + ornament + '.png';
 
-        if (!this.knownOrnaments[ornament]) {
-          this.knownOrnaments[ornament] = false;
+        if (!(ornament in this.knownOrnaments)) this.knownOrnaments[ornament] = false;
+        if (!this._seen.has(ornament)) {
+          this._seen.add(ornament);
+          this.scheduleSeenSave();
         }
 
         if (ornament in this.icon) {
@@ -28166,54 +28783,48 @@ window.ornaments = {
   },
 
   /**
-   * Initializes known ornaments.
+   * Forgets the ornaments seen on this device and clears the hidden ones on every device; the redraw lists the
+   * ornaments on the map again at once, and the prefixes stay
    *
    * @function
    * @memberof window.ornaments
    */
   initOrnaments: function () {
+    this._seen = new Set();
+    // an empty list rather than none, which would move the legacy options again
+    localStorage.setItem(this.KNOWN_KEY, '[]');
     this.knownOrnaments = {};
-    this.save();
+    IITC.options.reset('ornaments.hidden');
+    this.scheduleReload();
   },
 
   /**
-   * Loads ornament data from localStorage.
+   * Loads the ornament options
    *
    * @function
    * @memberof window.ornaments
    */
   load: function () {
-    var dataStr;
-    try {
-      dataStr = localStorage.getItem('excludedOrnaments');
-      if (!dataStr) {
-        return;
-      }
-      this.excludedOrnaments = JSON.parse(dataStr);
-    } catch (e) {
-      log.warn('ornaments: failed to load excludedOrnaments from localStorage: ' + e);
-    }
-    try {
-      dataStr = localStorage.getItem('knownOrnaments');
-      if (!dataStr) {
-        this.initOrnaments();
-        return;
-      }
-      this.knownOrnaments = JSON.parse(dataStr);
-    } catch (e) {
-      log.warn('ornaments: failed to load data from localStorage: ' + e);
-    }
+    this.excludedOrnaments = this.parsePrefixes(IITC.options.get('ornaments.excluded'));
+    this._seen = new Set(this.readSeen());
+    this.knownOrnaments = this.knownFrom(IITC.options.get('ornaments.hidden'));
   },
 
   /**
-   * Saves the current ornament configuration to localStorage.
+   * Stores `excludedOrnaments` and `knownOrnaments`, as the prefixes, the hidden ornaments and the ornaments
+   * seen, and redraws the ornaments
    *
    * @function
    * @memberof window.ornaments
    */
   save: function () {
-    localStorage['excludedOrnaments'] = JSON.stringify(this.excludedOrnaments);
-    localStorage['knownOrnaments'] = JSON.stringify(this.knownOrnaments);
+    const known = Object.entries(this.knownOrnaments);
+    for (const [id] of known) this._seen.add(id);
+    this.scheduleSeenSave();
+    IITC.options.set('ornaments.excluded', this.excludedOrnaments.join(','));
+    // any truthy entry hides, as for older builds
+    IITC.options.set('ornaments.hidden', Object.fromEntries(known.filter(([, hidden]) => hidden).map(([id]) => [id, true])));
+    this.scheduleReload();
   },
 
   /**
@@ -28229,112 +28840,12 @@ window.ornaments = {
   },
 
   /**
-   * Processes input data for managing ornaments.
+   * Opens the Ornaments page of the options window, which replaces the options dialog
    *
-   * @function
+   * @deprecated use `IITC.options.open('ornaments')` instead
    * @memberof window.ornaments
    */
-  processInput: function () {
-    window.ornaments.excludedOrnaments = $('#ornaments_E')
-      .val()
-      .split(/[\s,]+/);
-    window.ornaments.excludedOrnaments = window.ornaments.excludedOrnaments.filter(function (ornamentCode) {
-      return ornamentCode !== '';
-    });
-    // process the input from the checkboxes
-    for (var ornamentCode in window.ornaments.knownOrnaments) {
-      var input = $('#chk_orn_' + ornamentCode);
-      window.ornaments.knownOrnaments[ornamentCode] = input.is(':checked');
-    }
-  },
-
-  /**
-   * Generates a list of ornaments for display in the options dialog.
-   *
-   * @function
-   * @memberof window.ornaments
-   * @returns {string} HTML string representing the list of ornaments.
-   */
-  ornamentsList: function () {
-    var text = '';
-    var sortedIDs = Object.keys(window.ornaments.knownOrnaments).sort();
-
-    sortedIDs.forEach(function (ornamentCode) {
-      var hidden = window.ornaments.excludedOrnaments.some(function (code) {
-        return ornamentCode.startsWith(code);
-      });
-
-      var name = window.ornaments.icon[ornamentCode] ? window.ornaments.icon[ornamentCode].name + ' (' + ornamentCode + ')' : ornamentCode;
-      var checked = window.ornaments.knownOrnaments[ornamentCode] || hidden ? 'checked ' : '';
-      text += '<label><input id="chk_orn_' + ornamentCode + '" type="checkbox" ' + checked;
-      text += ' onchange="window.ornaments.processInput();window.ornaments.save();window.ornaments.reload()"';
-      text += hidden ? 'disabled' : '';
-      text += '>' + name + '</label><br>';
-    });
-    return text;
-  },
-
-  /**
-   * Replaces the content of the ornaments list in the dialog.
-   *
-   * @function
-   * @memberof window.ornaments
-   */
-  replaceOL: function () {
-    document.getElementById('ornamentsList').innerHTML = window.ornaments.ornamentsList();
-  },
-
-  /**
-   * Handles changes in ornament options and updates the map accordingly.
-   *
-   * @function
-   * @memberof window.ornaments
-   */
-  onChangeHandler: function () {
-    window.ornaments.processInput();
-    window.ornaments.replaceOL();
-    window.ornaments.save();
-    window.ornaments.reload();
-  },
-
-  /**
-   * Opens the dialog for ornament options, allowing users to manage ornament visibility.
-   *
-   * @function
-   * @memberof window.ornaments
-   */
-  ornamentsOpt: function () {
-    var excludedIDs = window.ornaments.excludedOrnaments.join(',');
-    var html =
-      '<div class="ornamentsOpts">' +
-      'Hide Ornaments from IITC that start with:<br>' +
-      `<input type="text" value="${excludedIDs}" id="ornaments_E"` +
-      ' onchange="window.ornaments.onChangeHandler()" /><br>' +
-      '(separator: space or comma allowed)<hr>' +
-      '<b>known Ornaments, check to hide:</b><br>' +
-      `<div id="ornamentsList"> ${window.ornaments.ornamentsList()}</div>` +
-      '</div>';
-
-    window.dialog({
-      html: html,
-      id: 'ornamentsOpt',
-      title: 'Ornament excludes',
-      buttons: {
-        RESET: function () {
-          window.ornaments.initOrnaments();
-          window.ornaments.reload();
-          $(this).dialog('close');
-        },
-        OK: function () {
-          // process the input from the input
-          window.ornaments.processInput();
-          window.ornaments.save();
-          window.ornaments.reload();
-          $(this).dialog('close');
-        },
-      },
-    });
-  },
+  ornamentsOpt: () => IITC.options.open('ornaments'),
 };
 
 
@@ -28422,7 +28933,7 @@ window.show = function (id) {
  * @function hideall
  */
 window.hideall = function () {
-  $('#chatcontrols, #chat, #chatinput, #sidebartoggle, #scrollwrapper, #portal_highlight_select').hide();
+  $('#chatcontrols, #chat, #chatinput, #scrollwrapper, #portal_highlight_select').hide();
   IITC.statusbar.hide();
   $('#farm_level_select').hide();
   $('#map').css({ visibility: 'hidden', opacity: '0' });
@@ -28531,6 +29042,18 @@ const getFieldsCount = function (guid) {
 const findGuidByPositionE6 = function (latE6, lngE6) {
   const portal = Object.values(window.portals).find((p) => p.options.data.latE6 === latE6 && p.options.data.lngE6 === lngE6);
   return portal?.options.data.guid ?? null;
+};
+
+/**
+ * Returns the portal location as it comes from the intel data, with the longitude inside [-180, 180].
+ * The marker itself is drawn on the world copy nearest the map view, so its own position may be outside that range
+ *
+ * @memberof IITC.portal
+ * @param {L.PortalMarker} portal - The portal marker.
+ * @returns {L.LatLng} The portal location.
+ */
+const getLatLng = function (portal) {
+  return new L.LatLng(portal.options.data.latE6 / 1e6, portal.options.data.lngE6 / 1e6);
 };
 
 /**
@@ -28996,16 +29519,15 @@ const selectByLatLng = function (lat, lng) {
     lng = lat.lng;
     lat = lat.lat;
   }
+  const ll = new L.LatLng(lat, lng).wrap();
   for (const guid in window.portals) {
-    const latlng = window.portals[guid].getLatLng();
-    if (latlng.lat === lat && latlng.lng === lng) {
+    if (IITC.portal.getLatLng(window.portals[guid]).equals(ll)) {
       IITC.portal.display.renderDetails(guid);
       return;
     }
   }
 
   // not currently visible
-  const ll = new L.LatLng(lat, lng);
   IITC.portal.selectWhenLoadedByLatLng(ll);
   window.map.setView(ll, window.DEFAULT_ZOOM);
 };
@@ -29026,7 +29548,7 @@ const selectWhenLoadedByLatLng = (latLng) => {
 };
 
 const testPortalLatLng = (data) => {
-  if (data.portal.getLatLng().equals(urlPortalLL)) {
+  if (IITC.portal.getLatLng(data.portal).equals(urlPortalLL.wrap())) {
     log.debug(`urlPortalLL ${urlPortalLL.toString()} matches portal GUID ${data.portal.options.guid}`);
     window.selectedPortal = data.portal.options.guid;
     IITC.portal.display.renderDetails(window.selectedPortal, true);
@@ -29071,6 +29593,7 @@ IITC.portal = {
   getFields,
   getFieldsCount,
   findGuidByPositionE6,
+  getLatLng,
   // Detail computations
   getLevel,
   getTotalEnergy,
@@ -29337,7 +29860,8 @@ var log = ulog('portal_display');
  * @type {String}
  * @memberof IITC.portal.display
  */
-let moveToPortalIconTemplate = '<svg class="material-icons icon-button"><use xlink:href="#ic_place_24px"></use><title>Click to move to portal</title></svg>';
+let moveToPortalIconTemplate =
+  '<iitc-icon filled class="icon-button" title="Click to move to portal" label="Move to portal" fallback="📍">location_on</iitc-icon>';
 
 /**
  * Template wrapping the #randdetails table (owner, range, links, fields, shielding, energy, AP, hacks)
@@ -29450,7 +29974,7 @@ const renderUrl = function (lat, lng, title, guid) {
   appendAside(permaLink);
 
   const scannerLink = document.createElement('a');
-  scannerLink.setAttribute('href', IITC.portal.display.makePrimeLink(guid, lat, lng));
+  scannerLink.setAttribute('href', IITC.portal.display.makePrimeLink(guid));
   scannerLink.setAttribute('title', 'Copy link to this portal for Ingress Prime');
   scannerLink.textContent = 'Copy scanner link';
   scannerLink.addEventListener('click', function (event) {
@@ -29565,11 +30089,13 @@ const renderToSidebar = function (portal) {
   titleValue.textContent = title;
   header.append(titleValue);
 
-  const closeButton = document.createElement('span');
-  closeButton.setAttribute('class', 'close');
+  const closeButton = document.createElement('iitc-icon');
+  closeButton.setAttribute('class', 'close icon-button');
   closeButton.setAttribute('title', 'Close [w]');
   closeButton.setAttribute('accesskey', 'w');
-  closeButton.textContent = 'X';
+  closeButton.setAttribute('label', 'Close');
+  closeButton.setAttribute('fallback', 'X');
+  closeButton.textContent = 'close';
   closeButton.addEventListener('click', function () {
     IITC.portal.display.renderDetails(null);
   });
@@ -29798,36 +30324,12 @@ const rangeLinkClick = function () {
 /**
  * Creates a link to open a specific portal in Ingress Prime.
  *
- * It is using Firebase's Dynamic Links feature.
- * https://firebase.google.com/docs/dynamic-links/create-manually
- *
  * @memberof IITC.portal.display
  * @param {string} guid - The globally unique identifier of the portal.
- * @param {number} lat - The latitude of the portal.
- * @param {number} lng - The longitude of the portal.
  * @returns {string} The Ingress Prime link for the portal
  */
-const makePrimeLink = function (guid, lat, lng) {
-  const base = 'https://link.ingress.com/';
-  const link = {
-    link: `https://intel.ingress.com/portal/${guid}`,
-  };
-  const android = {
-    apn: 'com.nianticproject.ingress',
-  };
-  const ios = {
-    isi: '576505181',
-    ibi: 'com.google.ingress',
-    ifl: 'https://apps.apple.com/app/ingress/id576505181',
-  };
-  const other = {
-    ofl: `https://intel.ingress.com/intel?pll=${lat},${lng}`,
-  };
-  const url = new URL(base);
-  for (const [key, value] of Object.entries({ ...link, ...android, ...ios, ...other })) {
-    url.searchParams.set(key, value);
-  }
-  return url.toString();
+const makePrimeLink = function (guid) {
+  return `https://link.ingress.com/portal/${guid}`;
 };
 
 /**
@@ -29847,16 +30349,23 @@ const makePermalink = function (latlng, options) {
   // ensures that lat,lng are with same precision as in stock intel permalinks
   const round = (l) => Math.floor(l * 1e6) / 1e6;
 
+  // the map center and portal markers may sit on a world copy past 180 degrees, a permalink always carries the wrapped longitude
+  // whole worlds are shifted on the E6 grid the intel data uses, so the result lands back on it exactly
+  const wrapLng = (lng) => {
+    const lngE6 = Math.round(lng * 1e6);
+    return (lngE6 - Math.round(lngE6 / 360e6) * 360e6) / 1e6;
+  };
+
   const args = [];
   if (!latlng || options.includeMapView) {
     const c = window.map.getCenter();
-    args.push('ll=' + [round(c.lat), round(c.lng)].join(','), 'z=' + window.map.getZoom());
+    args.push('ll=' + [round(c.lat), wrapLng(round(c.lng))].join(','), 'z=' + window.map.getZoom());
   }
   if (latlng) {
     if ('lat' in latlng) {
       latlng = [latlng.lat, latlng.lng];
     }
-    args.push('pll=' + latlng.join(','));
+    args.push('pll=' + [latlng[0], wrapLng(latlng[1])].join(','));
   }
   let url = '';
   if (options.fullURL) {
@@ -30605,6 +31114,9 @@ function do_prefetch(e) {
   }
 }
 
+// the level whose size a marker takes: Machina portals may take the size of level 1, so their clusters do not overlap
+const sizeLevel = (team, level) => (team === window.TEAM_MAC && level > 0 && IITC.options.get('iitc.machinaAtLevel1') ? 1 : level);
+
 L.PortalMarker = L.CircleMarker.extend({
   options: {},
 
@@ -30830,7 +31342,7 @@ L.PortalMarker = L.CircleMarker.extend({
   _scale: function () {
     const scale = IITC.portal.marker.scale();
 
-    const level = Math.floor(this._level || 0);
+    const level = sizeLevel(this._team, Math.floor(this._level || 0));
 
     let lvlWeight = L.PortalMarker.LEVEL_TO_WEIGHT[level] * Math.sqrt(scale);
     const lvlRadius = L.PortalMarker.LEVEL_TO_RADIUS[level] * scale;
@@ -30916,9 +31428,10 @@ const getStyleOptions = function (details) {
   const scale = IITC.portal.marker.scale();
 
   const level = Math.floor(details.level || 0);
+  const size = sizeLevel(details.team, level);
 
-  let lvlWeight = L.PortalMarker.LEVEL_TO_WEIGHT[level] * Math.sqrt(scale);
-  const lvlRadius = L.PortalMarker.LEVEL_TO_RADIUS[level] * scale;
+  let lvlWeight = L.PortalMarker.LEVEL_TO_WEIGHT[size] * Math.sqrt(scale);
+  const lvlRadius = L.PortalMarker.LEVEL_TO_RADIUS[size] * scale;
 
   let dashArray = null;
   // thinner and dashed outline for placeholder portals
@@ -30968,7 +31481,7 @@ IITC.registerLegacyAliases(IITC.portal.marker, legacyMarkerMappings);
 // *** module: redeeming.js ***
 (function () {
 var log = ulog('redeeming');
-/* global log -- eslint */
+/* global IITC, log -- eslint */
 
 /**
  * @file This file contains functions related to the handling of passcode redeeming in Ingress.
@@ -31042,12 +31555,7 @@ window.handleRedeemResponse = function (data, textStatus, jqXHR) {
     window.setupPlayerStat();
   }
 
-  var format = 'long';
-  try {
-    format = localStorage['iitc-passcode-format'];
-  } catch {
-    /* empty */
-  }
+  let format = IITC.options.get('iitc.passcodeFormat');
 
   var formatHandlers = {
     short: window.formatPasscodeShort,
@@ -31063,7 +31571,7 @@ window.handleRedeemResponse = function (data, textStatus, jqXHR) {
 
     buttons[label.toUpperCase()] = function () {
       $(this).dialog('close');
-      localStorage['iitc-passcode-format'] = label;
+      IITC.options.set('iitc.passcodeFormat', label);
       window.handleRedeemResponse(data, textStatus, jqXHR);
     };
   });
@@ -31171,8 +31679,8 @@ window.formatPasscodeShort = function (data) {
  * @function setupRedeem
  */
 window.setupRedeem = function () {
-  $('#redeem').keypress(function (e) {
-    if ((e.keyCode ? e.keyCode : e.which) !== 13) return;
+  $('#redeem').on('keypress', function (e) {
+    if (e.which !== 13) return;
 
     var passcode = $(this).val();
     passcode = passcode.replace(/[^\x20-\x7E]+/g, ''); // removes non-printable characters
@@ -31217,64 +31725,79 @@ var log = ulog('region_scoreboard');
 window.RegionScoreboardSetup = (function () {
   var mainDialog;
   var regionScore;
+  var historyChart;
+  var checkpointCycleStart;
   var timer;
+  var requestedRegion;
+  let dialogState;
+  const LOADING_TEXT = 'Loading regional scores...';
 
   /**
-   * Constructs a RegionScore object from server results. Contains methods to process and retrieve score data.
+   * Interface to manage RegionScore data from server results.
    *
    * @class
    * @name RegionScore
-   * @param {Object} serverResult - The data returned from the server for regional scores.
    */
-  function RegionScore(serverResult) {
-    this.ori_data = serverResult;
-    this.topAgents = serverResult.topAgents;
-    this.regionName = serverResult.regionName;
-    this.gameScore = serverResult.gameScore;
+  class RegionScore {
+    /**
+     * @param {Object} serverResult - The data returned from the server for regional scores.
+     */
+    constructor(serverResult) {
+      this.ori_data = serverResult;
+      this.topAgents = serverResult.topAgents;
+      this.regionName = serverResult.regionName;
+      this.gameScore = serverResult.gameScore;
 
-    this.median = [-1, -1, -1];
-    this.CP_COUNT = 35;
-    this.CP_DURATION = 5 * 60 * 60 * 1000;
-    this.CYCLE_DURATION = this.CP_DURATION * this.CP_COUNT;
+      this.median = [-1, -1, -1];
+      this.CP_COUNT = 35;
+      this.CP_DURATION = 5 * 60 * 60 * 1000;
+      this.CYCLE_DURATION = this.CP_DURATION * this.CP_COUNT;
+      this.MAC_INTERVAL = 13; // Cycles
+      this.checkpoints = [];
 
-    this.checkpoints = [];
+      // sparse: checkpoints missing from scoreHistory stay holes
+      for (var i = 0; i < serverResult.scoreHistory.length; i++) {
+        var h = serverResult.scoreHistory[i];
+        this.checkpoints[parseInt(h[0])] = [parseInt(h[1]), parseInt(h[2])];
+      }
 
-    this.hasNoTopAgents = function () {
+      this.cycleStartTime = new Date(Math.floor(Date.now() / this.CYCLE_DURATION) * this.CYCLE_DURATION);
+    }
+
+    hasNoTopAgents() {
       return this.topAgents.length === 0;
-    };
+    }
 
-    this.getAvgScore = function (faction) {
+    getAvgScore(faction) {
       return parseInt(this.gameScore[faction === window.TEAM_ENL ? 0 : 1]);
-    };
+    }
 
-    this.getAvgScoreMax = function () {
+    getAvgScoreMax() {
       return Math.max(this.getAvgScore(window.TEAM_ENL), this.getAvgScore(window.TEAM_RES), 1);
-    };
+    }
 
-    this.getCPScore = function (cp) {
+    getCPScore(cp) {
       return this.checkpoints[cp];
-    };
+    }
 
-    this.getScoreMax = function (min_value) {
-      var max = min_value || 0;
-      for (var i = 1; i < this.checkpoints.length; i++) {
-        var cp = this.checkpoints[i];
+    getScoreMax(min_value) {
+      let max = min_value || 0;
+      this.checkpoints.forEach((cp) => {
         max = Math.max(max, cp[0], cp[1]);
-      }
+      });
       return max;
-    };
+    }
 
-    this.getCPSum = function () {
-      var sums = [0, 0];
-      for (var i = 1; i < this.checkpoints.length; i++) {
-        sums[0] += this.checkpoints[i][0];
-        sums[1] += this.checkpoints[i][1];
-      }
-
+    getCPSum() {
+      const sums = [0, 0];
+      this.checkpoints.forEach((cp) => {
+        sums[0] += cp[0];
+        sums[1] += cp[1];
+      });
       return sums;
-    };
+    }
 
-    this.getAvgScoreAtCP = function (faction, cp_idx) {
+    getAvgScoreAtCP(faction, cp_idx) {
       var idx = faction === window.TEAM_RES ? 1 : 0;
 
       var score = 0;
@@ -31293,9 +31816,9 @@ window.RegionScoreboardSetup = (function () {
       }
 
       return Math.floor(score / cp_idx);
-    };
+    }
 
-    this.getScoreMedian = function (faction) {
+    getScoreMedian(faction) {
       if (this.median[faction] < 0) {
         var idx = faction === window.TEAM_RES ? 1 : 0;
         var values = this.checkpoints.map(function (val) {
@@ -31308,9 +31831,9 @@ window.RegionScoreboardSetup = (function () {
       }
 
       return this.median[faction];
-    };
+    }
 
-    this.findMedian = function (values) {
+    findMedian(values) {
       var len = values.length;
       var rank = Math.floor((len - 1) / 2);
 
@@ -31338,27 +31861,26 @@ window.RegionScoreboardSetup = (function () {
         if (rank < i) m = j;
       }
       return values[rank];
-    };
-
-    this.getLastCP = function () {
-      if (this.checkpoints.length === 0) return 0;
-      return this.checkpoints.length - 1;
-    };
-
-    this.getCycleEnd = function () {
-      return this.getCheckpointEnd(this.CP_COUNT);
-    };
-
-    this.getCheckpointEnd = function (cp) {
-      return new Date(this.cycleStartTime.getTime() + this.CP_DURATION * cp);
-    };
-
-    for (var i = 0; i < serverResult.scoreHistory.length; i++) {
-      var h = serverResult.scoreHistory[i];
-      this.checkpoints[parseInt(h[0])] = [parseInt(h[1]), parseInt(h[2])];
     }
 
-    this.cycleStartTime = new Date(Math.floor(Date.now() / this.CYCLE_DURATION) * this.CYCLE_DURATION);
+    getLastCP() {
+      if (this.checkpoints.length === 0) return 0;
+      return this.checkpoints.length - 1;
+    }
+
+    // Machina stops linking and decays once every MAC_INTERVAL cycles ("extinction event")
+    isMacPauseCycle(cycleStart) {
+      const index = Math.floor(cycleStart.getTime() / this.CYCLE_DURATION);
+      return (index + 1) % this.MAC_INTERVAL === 0;
+    }
+
+    getCycleEnd() {
+      return this.getCheckpointTime(this.CP_COUNT);
+    }
+
+    getCheckpointTime(cp) {
+      return new Date(this.cycleStartTime.getTime() + this.CP_DURATION * cp);
+    }
   }
 
   function showDialog() {
@@ -31380,21 +31902,38 @@ window.RegionScoreboardSetup = (function () {
     */
 
   function showRegion(latE6, lngE6) {
-    var text = 'Loading regional scores...';
-    if (window.useAppPanes()) {
-      var style = 'position: absolute; top: 0; width: 100%; max-width: 412px';
-      mainDialog = $('<div>', { class: 'safe-area-insets', style: style }).html(text).appendTo(document.body);
-    } else {
-      mainDialog = window.dialog({
-        title: 'Region scores',
-        html: text,
-        width: 450,
-        height: 340,
-        closeCallback: onDialogClose,
-      });
+    requestedRegion = { latE6: latE6, lngE6: lngE6 };
+    // a reload keeps the state saved before an earlier load; a new dialog starts with defaults
+    dialogState = getDialogState() || (mainDialog ? dialogState : undefined);
+
+    if (!mainDialog) {
+      if (window.useAppPanes()) {
+        var style = 'position: absolute; top: 0; bottom: 0; width: 100%; max-width: 412px';
+        mainDialog = $('<div>', { class: 'safe-area-insets region-scoreboard-dialog', style: style }).appendTo(document.body);
+      } else {
+        mainDialog = window.dialog({
+          title: 'Region scores',
+          html: LOADING_TEXT,
+          width: 520,
+          height: 600,
+          closeCallback: onDialogClose,
+        });
+        mainDialog.addClass('region-scoreboard-dialog');
+      }
     }
 
-    window.postAjax('getRegionScoreDetails', { latE6: latE6, lngE6: lngE6 }, onRequestSuccess, onRequestFailure);
+    stopTimer();
+    mainDialog.html(LOADING_TEXT);
+    const region = requestedRegion;
+    // ignore responses for a closed dialog or a superseded request
+    // requestedRegion must be a new object for each request
+    const isCurrent = () => mainDialog && region === requestedRegion;
+    window.postAjax(
+      'getRegionScoreDetails',
+      { latE6: latE6, lngE6: lngE6 },
+      (data) => isCurrent() && onRequestSuccess(data),
+      () => isCurrent() && onRequestFailure()
+    );
   }
 
   function onRequestFailure() {
@@ -31407,21 +31946,65 @@ window.RegionScoreboardSetup = (function () {
     }
 
     regionScore = new RegionScore(data.result);
-    updateDialog();
+    updateDialog(dialogState?.logscale);
+    if (dialogState) {
+      $('details.scoreboard-section', mainDialog).each((i, section) => {
+        if (dialogState.open[i] !== undefined) section.open = dialogState.open[i];
+      });
+    }
     startTimer();
   }
 
+  function getDialogState() {
+    if (!mainDialog || !$('.cellscore', mainDialog).length) return;
+    return {
+      logscale: $('input.logscale', mainDialog).prop('checked'),
+      open: $('details.scoreboard-section', mainDialog)
+        .map((i, section) => section.open)
+        .get(),
+    };
+  }
+
   function updateDialog(logscale) {
+    checkpointCycleStart = regionScore.cycleStartTime;
     mainDialog.html(
       `<div class="cellscore">` +
-        `<b>Region scores for ${regionScore.regionName}</b>` +
-        `<div class="historychart">${createResults()}${HistoryChart(regionScore, logscale)}</div>` +
-        `<b>Checkpoint overview</b><div>${createHistoryTable()}</div>` +
-        `<b>Top agents</b><div>${createAgentTable()}</div>` +
+        `<details class="scoreboard-section region-selection">` +
+        `<summary><span>Region selection</span><span class="region-summary-name">${regionScore.regionName}</span></summary>` +
+        `<form class="region-select-form">` +
+        `<label>Region ID<input name="region" type="text" required placeholder="NR02-GOLF-12" value="${getRegionName(requestedRegion)}"></label>` +
+        `<button type="submit">Show region</button>` +
+        `<button class="map-center" type="button">Use map center</button>` +
+        `</form>` +
+        `<p class="region-error" role="alert" aria-live="polite"></p>` +
+        `</details>` +
+        `<details class="scoreboard-section" open>` +
+        `<summary>Current scores</summary>` +
+        `<div class="historychart">${createResults()}` +
+        `<div class="history-chart-container">` +
+        `<svg class="history-chart" width="400" height="133" viewBox="0 0 400 133"></svg>` +
+        `<label><input type="checkbox" class="logscale"${logscale ? ' checked' : ''}> log</label>` +
+        `</div></div>` +
+        `</details>` +
+        `<details class="scoreboard-section checkpoint-section" open>` +
+        `<summary>Checkpoints</summary>` +
+        `<div class="checkpoint-cycle-controls">` +
+        `<button type="button" class="checkpoint-cycle-previous" aria-label="Previous checkpoint cycle">‹</button>` +
+        `<input type="date" class="checkpoint-date" value="${formatCycleDateInput(checkpointCycleStart)}">` +
+        `<button type="button" class="checkpoint-cycle-next" aria-label="Next checkpoint cycle">›</button>` +
+        `<button type="button" class="checkpoint-cycle-current">Current cycle</button>` +
+        `</div>` +
+        `<div class="checkpoint-history">${createCheckpointTable(checkpointCycleStart)}</div>` +
+        `</details>` +
+        `<details class="scoreboard-section" open>` +
+        `<summary>Top agents</summary><div>${createAgentTable()}</div>` +
+        `</details>` +
         `</div>` +
         createTimers()
     );
 
+    historyChart = new HistoryChart($('svg.history-chart', mainDialog)[0]);
+    historyChart.update(regionScore, logscale);
     setupToolTips();
 
     var tooltip = createResultTooltip();
@@ -31429,14 +32012,72 @@ window.RegionScoreboardSetup = (function () {
       content: window.convertTextToTableMagic(tooltip),
     });
 
-    $('.cellscore', mainDialog).accordion({
-      header: 'b',
-      heightStyle: 'fill',
+    $('.region-select-form', mainDialog).on('submit', function (event) {
+      event.preventDefault();
+      var regionName = $('input[name="region"]', this).val();
+      if (!window.plugin || !window.plugin.regions || !window.plugin.regions.getCellFromName) {
+        $('.region-error', mainDialog).text('Enable the Ingress scoring regions plugin to select a region ID.');
+        return;
+      }
+
+      var cell = window.plugin.regions.getCellFromName(regionName);
+      if (!cell) {
+        $('.region-error', mainDialog).text('Enter a valid region ID, for example NR02-GOLF-12.');
+        return;
+      }
+
+      var center = cell.getLatLng();
+      showRegion(Math.round(center.lat * 1e6), Math.round(center.lng * 1e6));
     });
 
-    $('input.logscale', mainDialog).change(function () {
-      var input = $(this);
-      updateDialog(input.prop('checked'));
+    $('.map-center', mainDialog).on('click', showDialog);
+
+    $('.checkpoint-cycle-previous', mainDialog).on('click', function () {
+      checkpointCycleStart = new Date(checkpointCycleStart.getTime() - regionScore.CYCLE_DURATION);
+      updateCheckpointHistory();
+    });
+
+    $('.checkpoint-cycle-next', mainDialog).on('click', function () {
+      checkpointCycleStart = new Date(checkpointCycleStart.getTime() + regionScore.CYCLE_DURATION);
+      updateCheckpointHistory();
+    });
+
+    $('.checkpoint-date', mainDialog).on('change', function () {
+      if (this.value) {
+        checkpointCycleStart = getCycleStartForDate(this.value);
+        updateCheckpointHistory();
+      }
+    });
+
+    $('.checkpoint-cycle-current', mainDialog).on('click', function () {
+      checkpointCycleStart = regionScore.cycleStartTime;
+      updateCheckpointHistory();
+    });
+
+    var swipeStart;
+    $('.checkpoint-history', mainDialog)
+      .on('touchstart', function (event) {
+        var touch = event.originalEvent.touches[0];
+        swipeStart = { x: touch.clientX, y: touch.clientY };
+      })
+      .on('touchend', function (event) {
+        if (!swipeStart) return;
+        var touch = event.originalEvent.changedTouches[0];
+        var deltaX = touch.clientX - swipeStart.x;
+        var deltaY = touch.clientY - swipeStart.y;
+        swipeStart = undefined;
+
+        if (Math.abs(deltaX) < 50 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
+        checkpointCycleStart = new Date(checkpointCycleStart.getTime() + (deltaX < 0 ? 1 : -1) * regionScore.CYCLE_DURATION);
+        updateCheckpointHistory();
+      })
+      .on('touchcancel', function () {
+        swipeStart = undefined;
+      });
+
+    $('input.logscale', mainDialog).on('change', function () {
+      historyChart.update(regionScore, $(this).prop('checked'));
+      setupToolTips();
     });
   }
 
@@ -31464,7 +32105,7 @@ window.RegionScoreboardSetup = (function () {
         var enl_str = score_now ? '\nEnl:\t' + formatScore(0, score_now, score_last) : '';
         var res_str = score_now ? '\nRes:\t' + formatScore(1, score_now, score_last) : '';
 
-        tooltip = 'CP:\t' + cp + '\t-\t' + formatDayHours(regionScore.getCheckpointEnd(cp)) + '\n<hr>' + enl_str + res_str;
+        tooltip = 'CP:\t' + cp + '\t-\t' + formatDayHours(regionScore.getCheckpointTime(cp)) + '\n<hr>' + enl_str + res_str;
       }
 
       elem.tooltip({
@@ -31478,34 +32119,80 @@ window.RegionScoreboardSetup = (function () {
 
   function onDialogClose() {
     stopTimer();
+    mainDialog = undefined;
   }
 
-  function createHistoryTable() {
-    var _invert = window.PLAYER.team === 'RESISTANCE';
+  function getCycleStartForDate(dateValue) {
+    const [year, month, day] = dateValue.split('-').map(Number);
+    const dayStart = new Date(year, month - 1, day).getTime();
+    const dayEnd = new Date(year, month - 1, day + 1).getTime();
+    const cycleDuration = regionScore.CYCLE_DURATION;
+
+    // prefer the cycle starting on that day, as the date input shows cycle start dates
+    // a cycle is longer than a day, so at most one starts on any day
+    const startingThatDay = Math.ceil(dayStart / cycleDuration) * cycleDuration;
+    return new Date(startingThatDay < dayEnd ? startingThatDay : Math.floor(dayStart / cycleDuration) * cycleDuration);
+  }
+
+  function formatCycleDateInput(cycleStart) {
+    var date = new Date(cycleStart.getTime());
+    return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+  }
+
+  function updateCheckpointHistory() {
+    $('.checkpoint-date', mainDialog).val(formatCycleDateInput(checkpointCycleStart));
+    $('.checkpoint-history', mainDialog).html(createCheckpointTable(checkpointCycleStart));
+  }
+
+  function getRegionName(region) {
+    if (!window.plugin || !window.plugin.regions || !window.plugin.regions.getNameFromLatLng) return '';
+    return window.plugin.regions.getNameFromLatLng({ lat: region.latE6 / 1e6, lng: region.lngE6 / 1e6 });
+  }
+
+  function createCheckpointTable(cycleStart) {
+    const showScores = cycleStart.getTime() === regionScore.cycleStartTime.getTime();
+    const isMacPause = regionScore.isMacPauseCycle(cycleStart);
+    const _invert = window.PLAYER.team === 'RESISTANCE';
     function order(_1, _2) {
       return (_invert ? [_2, _1] : [_1, _2]).join('');
     }
-    var enl = { class: window.TEAM_TO_CSS[window.TEAM_ENL], name: window.TEAM_NAMES[window.TEAM_ENL] };
-    var res = { class: window.TEAM_TO_CSS[window.TEAM_RES], name: window.TEAM_NAMES[window.TEAM_RES] };
+    const enl = { class: window.TEAM_TO_CSS[window.TEAM_ENL], name: window.TEAM_NAMES[window.TEAM_ENL] };
+    const res = { class: window.TEAM_TO_CSS[window.TEAM_RES], name: window.TEAM_NAMES[window.TEAM_RES] };
 
-    var table = `<table class="checkpoint_table"><thead><tr><th>CP</th><th>Time</th>${order('<th>' + enl.name + '</th>', '<th>' + res.name + '</th>')}</tr>`;
+    let table = isMacPause ? "<div class='mac_pause'>MAC paused</div>" : '';
 
-    var total = regionScore.getCPSum();
     table +=
-      '<tr class="cp_total"><th></th><th></th>' +
-      order('<th class="' + enl.class + '">' + window.digits(total[0]) + '</th>', '<th class="' + res.class + '">' + window.digits(total[1]) + '</th>') +
-      '</tr></thead>';
+      `<table class="checkpoint_table"><thead><tr><th>CP</th><th>Time</th>` +
+      (showScores ? order('<th>' + enl.name + '</th>', '<th>' + res.name + '</th>') : '') +
+      `</tr>`;
 
-    for (var cp = regionScore.getLastCP(); cp > 0; cp--) {
-      var score = regionScore.getCPScore(cp);
-      var class_e = score[0] > score[1] ? ' class="' + enl.class + '"' : '';
-      var class_r = score[1] > score[0] ? ' class="' + res.class + '"' : '';
+    if (showScores) {
+      const total = regionScore.getCPSum();
 
       table +=
-        `<tr>` +
+        '<tr class="cp_total"><th></th><th></th>' +
+        order('<th class="' + enl.class + '">' + window.digits(total[0]) + '</th>', '<th class="' + res.class + '">' + window.digits(total[1]) + '</th>') +
+        '</tr>';
+    }
+    table += '</thead>';
+
+    for (var cp = regionScore.CP_COUNT; cp > 0; cp--) {
+      const checkpointDate = new Date(cycleStart.getTime() + regionScore.CP_DURATION * cp);
+      const score = showScores ? regionScore.getCPScore(cp) : undefined;
+      const class_e = score && score[0] > score[1] ? ' class="' + enl.class + '"' : '';
+      const class_r = score && score[1] > score[0] ? ' class="' + res.class + '"' : '';
+
+      const lastcheckpointDate = new Date(cycleStart.getTime() + regionScore.CP_DURATION * (cp - 1)).getDate();
+      const dayChange = checkpointDate.getDate() !== lastcheckpointDate;
+      const showDay = cp === 1 || cp === regionScore.CP_COUNT || dayChange;
+
+      table +=
+        `<tr ${dayChange ? "class='daychange'" : ''}>` +
         `<td>${cp}</td>` +
-        `<td>${formatDayHours(regionScore.getCheckpointEnd(cp))}</td>` +
-        order(`<td${class_e}>${window.digits(score[0])}</td>`, `<td${class_r}>${window.digits(score[1])}</td>`) +
+        `<td>${showDay ? formatDayHours(checkpointDate) : formatHours(checkpointDate)}</td>` +
+        (showScores
+          ? order(`<td${class_e}>${score ? window.digits(score[0]) : '–'}</td>`, `<td${class_r}>${score ? window.digits(score[1]) : '–'}</td>`)
+          : '') +
         `</tr>`;
     }
 
@@ -31602,14 +32289,14 @@ window.RegionScoreboardSetup = (function () {
   }
 
   function createTimers() {
-    var nextcp = regionScore.getCheckpointEnd(regionScore.getLastCP() + 1);
-    var endcp = regionScore.getCycleEnd();
+    const nextcp = regionScore.getCheckpointTime(regionScore.getLastCP() + 1);
+    const endcp = regionScore.getCycleEnd();
 
     return (
-      `<div class="checkpoint_timers"><table><tr>` +
-      `<td>Next CP at: ${formatHours(nextcp)} (in <span id="cycletimer"></span>)</td>` +
-      `<td>Cycle ends: ${formatDayHours(endcp)}</td>` +
-      `</tr></table></div>`
+      `<div class="checkpoint_timers"><div class="checkpoint-timer-row">` +
+      `<span>Next CP at: ${formatHours(nextcp)} (in <span id="cycletimer"></span>)</span>` +
+      `<span>Cycle ends: ${formatDayHours(endcp)}</span>` +
+      `</div></div>`
     );
   }
 
@@ -31628,7 +32315,8 @@ window.RegionScoreboardSetup = (function () {
   }
 
   function onTimer() {
-    var d = regionScore.getCheckpointEnd(regionScore.getLastCP() + 1) - new Date();
+    if (!regionScore || !mainDialog) return;
+    var d = regionScore.getCheckpointTime(regionScore.getLastCP() + 1) - new Date();
     $('#cycletimer', mainDialog).html(formatMinutes(Math.max(0, Math.floor(d / 1000))));
   }
 
@@ -31645,7 +32333,7 @@ window.RegionScoreboardSetup = (function () {
   }
 
   function formatHours(time) {
-    return pad(time.getHours()) + ':' + pad(time.getMinutes());
+    return IITC.utils.unixTimeToHHmm(time.getTime());
   }
   function formatDay(time) {
     return pad(time.getDate()) + '.' + pad(time.getMonth() + 1);
@@ -31656,12 +32344,14 @@ window.RegionScoreboardSetup = (function () {
 
   return function setup() {
     if (window.useAppPanes()) {
-      window.app.addPane('regionScoreboard', 'Region scores', 'ic_action_view_as_list');
+      window.app.addPane('regionScoreboard', 'Region scores', 'leaderboard');
       window.addHook('paneChanged', function (pane) {
         if (pane === 'regionScoreboard') {
           showDialog();
         } else if (mainDialog) {
           mainDialog.remove();
+          mainDialog = undefined;
+          stopTimer();
         }
       });
     } else {
@@ -31676,59 +32366,47 @@ window.RegionScoreboardSetup = (function () {
 })();
 
 /**
- * Creates an SVG-based history chart for regional scores.
- *
- * @function HistoryChart
- * @param {RegionScore} _regionScore - The RegionScore object containing score data.
- * @param {boolean} logscale - Whether to use logarithmic scale for the chart.
- * @returns {string} An SVG string representing the history chart.
+ * Updates an SVG history chart for regional scores.
  */
-var HistoryChart = (function () {
-  var regionScore;
-  var scaleFct;
-  var logscale;
-  var svgTickText;
-
-  function create(_regionScore, logscale) {
-    regionScore = _regionScore;
-
-    var max = regionScore.getScoreMax(10); // NOTE: ensure a min of 10 for the graph
-    max *= 1.09; // scale up maximum a little, so graph isn't squashed right against upper edge
-    setScaleType(max, logscale);
-
-    svgTickText = [];
-
-    // svg area 400x130. graph area 350x100, offset to 40,10
-    var svg =
-      '<div><svg width="400" height="133" style="margin-left: 10px;">' +
-      svgBackground() +
-      svgAxis(max) +
-      svgAveragePath() +
-      svgFactionPath() +
-      svgCheckPointMarkers() +
-      svgTickText.join('') +
-      '<foreignObject height="18" width="60" y="113" x="0" class="node"><label title="Logarithmic scale">' +
-      '<input type="checkbox" class="logscale"' +
-      (logscale ? ' checked' : '') +
-      '/>' +
-      'log</label></foreignObject>' +
-      '</svg></div>';
-
-    return svg;
+class HistoryChart {
+  /**
+   * @param {SVGElement} svg - The SVG element used to render the chart.
+   */
+  constructor(svg) {
+    this.svg = svg;
   }
 
-  function svgFactionPath() {
+  /**
+   * Replace the chart content for the supplied score data and scale.
+   *
+   * @param {RegionScore} regionScore - The RegionScore object containing score data.
+   * @param {boolean} logscale - Whether to use logarithmic scale for the chart.
+   */
+  update(regionScore, logscale) {
+    this.regionScore = regionScore;
+    this.logscale = logscale;
+    this.svgTickText = [];
+
+    var max = this.regionScore.getScoreMax(10); // NOTE: ensure a min of 10 for the graph
+    max *= 1.09; // scale up maximum a little, so graph isn't squashed right against upper edge
+    this.setScaleType(max);
+
+    this.svg.innerHTML =
+      this.svgBackground() + this.svgAxis(max) + this.svgAveragePath() + this.svgFactionPath() + this.svgCheckPointMarkers() + this.svgTickText.join('');
+  }
+
+  svgFactionPath() {
     var svgPath = '';
 
     for (var t = 0; t < 2; t++) {
-      var col = getFactionColor(t);
+      var col = this.getFactionColor(t);
       var teamPaths = [];
 
-      for (var cp = 1; cp <= regionScore.getLastCP(); cp++) {
-        var score = regionScore.getCPScore(cp);
+      for (var cp = 1; cp <= this.regionScore.getLastCP(); cp++) {
+        var score = this.regionScore.getCPScore(cp);
         if (score !== undefined) {
           var x = cp * 10 + 40;
-          teamPaths.push(x + ',' + scaleFct(score[t]));
+          teamPaths.push(x + ',' + this.scaleFct(score[t]));
         }
       }
 
@@ -31740,22 +32418,22 @@ var HistoryChart = (function () {
     return svgPath;
   }
 
-  function svgCheckPointMarkers() {
+  svgCheckPointMarkers() {
     var markers = '';
 
-    var col1 = getFactionColor(0);
-    var col2 = getFactionColor(1);
+    var col1 = this.getFactionColor(0);
+    var col2 = this.getFactionColor(1);
 
-    for (var cp = 1; cp <= regionScore.CP_COUNT; cp++) {
-      var scores = regionScore.getCPScore(cp);
+    for (var cp = 1; cp <= this.regionScore.CP_COUNT; cp++) {
+      var scores = this.regionScore.getCPScore(cp);
 
       markers +=
         `<g title="dummy" class="checkpoint" data-cp="${cp}">` + `<rect x="${cp * 10 + 35}" y="10" width="10" height="100" fill="black" fill-opacity="0" />`;
 
       if (scores) {
         markers +=
-          `<circle cx="${cp * 10 + 40}" cy="${scaleFct(scores[0])}" r="3" stroke-width="1" stroke="${col1}" fill="${col1}" fill-opacity="0.5" />` +
-          `<circle cx="${cp * 10 + 40}" cy="${scaleFct(scores[1])}" r="3" stroke-width="1" stroke="${col2}" fill="${col2}" fill-opacity="0.5" />`;
+          `<circle cx="${cp * 10 + 40}" cy="${this.scaleFct(scores[0])}" r="3" stroke-width="1" stroke="${col1}" fill="${col1}" fill-opacity="0.5" />` +
+          `<circle cx="${cp * 10 + 40}" cy="${this.scaleFct(scores[1])}" r="3" stroke-width="1" stroke="${col2}" fill="${col2}" fill-opacity="0.5" />`;
       }
 
       markers += '</g>';
@@ -31764,32 +32442,36 @@ var HistoryChart = (function () {
     return markers;
   }
 
-  function svgBackground() {
+  svgBackground() {
     return '<rect x="0" y="1" width="400" height="132" stroke="#FFCE00" fill="#08304E" />';
   }
 
-  function svgAxis(max) {
-    return '<path d="M40,110 L40,10 M40,110 L390,110" stroke="#fff" />' + createTicks(max);
+  svgAxis(max) {
+    return '<path d="M40,110 L40,10 M40,110 L390,110" stroke="#fff" />' + this.createTicks(max);
   }
 
-  function createTicks(max) {
-    var ticks = createTicksHorz();
+  createTicks(max) {
+    var ticks = this.createTicksHorz();
 
     function addVTick(i) {
-      var y = scaleFct(i);
+      var y = this.scaleFct(i);
 
       ticks.push('M40,' + y + ' L390,' + y);
-      svgTickText.push(
-        '<text x="35" y="' + y + '" font-size="12" font-family="Roboto, Helvetica, sans-serif" text-anchor="end" fill="#fff">' + formatNumber(i) + '</text>'
+      this.svgTickText.push(
+        '<text x="35" y="' +
+          y +
+          '" font-size="12" font-family="Roboto, Helvetica, sans-serif" text-anchor="end" fill="#fff">' +
+          this.formatNumber(i) +
+          '</text>'
       );
     }
 
     // vertical
     // first we calculate the power of 10 that is smaller than the max limit
     var vtickStep = Math.pow(10, Math.floor(Math.log10(max)));
-    if (logscale) {
+    if (this.logscale) {
       for (var i = 0; i < 4; i++) {
-        addVTick(vtickStep);
+        addVTick.call(this, vtickStep);
         vtickStep /= 10;
       }
     } else {
@@ -31801,19 +32483,19 @@ var HistoryChart = (function () {
       }
 
       for (var ti = vtickStep; ti <= max; ti += vtickStep) {
-        addVTick(ti);
+        addVTick.call(this, ti);
       }
     }
 
     return '<path d="' + ticks.join(' ') + '" stroke="#fff" opacity="0.3" />';
   }
 
-  function createTicksHorz() {
+  createTicksHorz() {
     var ticks = [];
     for (var i = 5; i <= 35; i += 5) {
       var x = i * 10 + 40;
       ticks.push('M' + x + ',10 L' + x + ',110');
-      svgTickText.push(
+      this.svgTickText.push(
         '<text x="' + x + '" y="125" font-size="12" font-family="Roboto, Helvetica, sans-serif" text-anchor="middle" fill="#fff">' + i + '</text>'
       );
     }
@@ -31821,17 +32503,17 @@ var HistoryChart = (function () {
     return ticks;
   }
 
-  function svgAveragePath() {
+  svgAveragePath() {
     var path = '';
     for (var faction = 1; faction < 3; faction++) {
       var col = window.COLORS[faction];
 
       var points = [];
-      for (var cp = 1; cp <= regionScore.CP_COUNT; cp++) {
-        var score = regionScore.getAvgScoreAtCP(faction, cp);
+      for (var cp = 1; cp <= this.regionScore.CP_COUNT; cp++) {
+        var score = this.regionScore.getAvgScoreAtCP(faction, cp);
 
         var x = cp * 10 + 40;
-        var y = scaleFct(score);
+        var y = this.scaleFct(score);
         points.push(x + ',' + y);
       }
 
@@ -31841,30 +32523,29 @@ var HistoryChart = (function () {
     return path;
   }
 
-  function setScaleType(max, useLogScale) {
-    logscale = useLogScale;
-    if (useLogScale) {
+  setScaleType(max) {
+    if (this.logscale) {
       if (!Math.log10)
         Math.log10 = function (x) {
           return Math.log(x) / Math.LN10;
         };
 
       // 0 cannot be displayed on a log scale, so we set the minimum to 0.001 and divide by lg(0.001)=-3
-      scaleFct = function (y) {
+      this.scaleFct = function (y) {
         return Math.round(10 - (Math.log10(Math.max(0.001, y / max)) / 3) * 100);
       };
     } else {
-      scaleFct = function (y) {
+      this.scaleFct = function (y) {
         return Math.round(110 - (y / max) * 100);
       };
     }
   }
 
-  function getFactionColor(t) {
+  getFactionColor(t) {
     return t === 0 ? window.COLORS[window.TEAM_ENL] : window.COLORS[window.TEAM_RES];
   }
 
-  function formatNumber(num) {
+  formatNumber(num) {
     if (num >= 1_000_000_000) {
       return num / 1_000_000_000 + 'B';
     } else if (num >= 1_000_000) {
@@ -31875,9 +32556,7 @@ var HistoryChart = (function () {
       return num.toString();
     }
   }
-
-  return create;
-})();
+}
 
 
 })();
@@ -32231,7 +32910,7 @@ window.addHook('search', (query) => {
       position: new L.LatLng(lat, lng),
       onSelected: (result) => {
         for (const [guid, portal] of Object.entries(window.portals)) {
-          const { lat: pLat, lng: pLng } = portal.getLatLng();
+          const { lat: pLat, lng: pLng } = IITC.portal.getLatLng(portal);
           if (`${pLat.toFixed(6)},${pLng.toFixed(6)}` === latLngString) {
             IITC.portal.display.renderDetails(guid);
             return;
@@ -33088,7 +33767,7 @@ window.userLoggedOutPrompt = function () {
 // *** module: sidebar.js ***
 (function () {
 var log = ulog('sidebar');
-/* global IITC -- eslint */
+/* global IITC, L -- eslint */
 
 /**
  * @file This file provides functions for working with the sidebar.
@@ -33102,7 +33781,6 @@ var log = ulog('sidebar');
  */
 window.setupSidebar = function () {
   window.setupStyles();
-  setupIcons();
   window.setupPlayerStat();
   setupSidebarToggle();
   setupLargeImagePreview();
@@ -33112,26 +33790,6 @@ window.setupSidebar = function () {
   window.addHook('portalAdded', sidebarOnPortalAdded);
   window.addHook('portalDetailLoaded', sidebarOnPortalDetailLoaded);
 };
-
-/**
- * Sets up custom icons by appending SVG definitions to the DOM.
- *
- * @function setupIcons
- */
-function setupIcons() {
-  $(
-    [
-      '<svg>',
-      // Material Icons
-
-      // portal_display.js
-      '<symbol id="ic_place_24px" viewBox="0 0 24 24">',
-      '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>',
-      '</symbol>',
-      '</svg>',
-    ].join('\\n')
-  ).appendTo('body');
-}
 
 /**
  * Renders player details into the website. Since the player info is
@@ -33186,27 +33844,45 @@ window.setupPlayerStat = function () {
 };
 
 /**
- * Initializes the sidebar toggle functionality.
- *
- * @function setupSidebarToggle
+ * Adds the sidebar toggle to the map controls; a smartphone shows the sidebar as a pane instead
  */
 function setupSidebarToggle() {
-  $('body').addClass('sidebar-open');
-  $('#sidebartoggle').on('click', function () {
-    var toggle = $('#sidebartoggle');
-    var sidebar = $('#scrollwrapper');
-    if (sidebar.is(':visible')) {
-      sidebar.hide();
-      $('body').removeClass('sidebar-open');
-      toggle.html('<span class="toggle open"></span>');
-    } else {
-      sidebar.show();
-      IITC.portal.display.resetScroll();
-      $('body').addClass('sidebar-open');
-      toggle.html('<span class="toggle close"></span>');
-    }
-    $('.ui-tooltip').remove();
+  document.body.classList.add('sidebar-open');
+  if (IITC.utils.isSmartphone()) return;
+
+  const SidebarToggle = L.Control.extend({
+    options: { position: 'topright' },
+    onAdd: () => {
+      const container = L.DomUtil.create('div', 'iitc-sidebar-toggle');
+      // a button: plugins call jQuery click() on it, which skips the listener of a link
+      const button = L.DomUtil.create('button', '', container);
+      button.id = 'sidebartoggle';
+      button.type = 'button';
+      button.accessKey = 'i';
+      button.title = 'Toggle sidebar [i]';
+      button.setAttribute('aria-label', 'Toggle sidebar');
+      const icon = L.DomUtil.create('iitc-icon', '', button);
+      const showState = (open) => {
+        icon.textContent = open ? 'chevron_right' : 'chevron_left';
+        icon.setAttribute('fallback', open ? '▶' : '◀');
+        button.setAttribute('aria-expanded', String(open));
+      };
+      showState(true);
+
+      L.DomEvent.on(button, 'click', () => {
+        const sidebar = document.getElementById('scrollwrapper');
+        const open = !IITC.utils._isVisible(sidebar);
+        sidebar.style.display = open ? '' : 'none';
+        if (open) IITC.portal.display.resetScroll();
+        document.body.classList.toggle('sidebar-open', open);
+        showState(open);
+        document.querySelectorAll('.ui-tooltip').forEach((tooltip) => tooltip.remove());
+      });
+      L.DomEvent.disableClickPropagation(container);
+      return container;
+    },
   });
+  new SidebarToggle().addTo(window.map);
 }
 
 /**
@@ -33278,13 +33954,6 @@ function setupAddons() {
     mouseover: setPermaLink,
   });
 
-  IITC.toolbox.addButton({
-    id: 'about-iitc',
-    label: 'About IITC',
-    action: window.aboutIITC,
-    class: 'cursor_help',
-  });
-
   window.artifact.setup();
 
   window.RegionScoreboardSetup();
@@ -33343,7 +34012,7 @@ window.smartphone = function () {};
 /**
  * Creates one of the pane buttons shown in the chat controls.
  *
- * Bound through jQuery, not addEventListener: plugins switch panes by calling `.click()` on the
+ * Bound through jQuery, not addEventListener: plugins switch panes by trigger `click` on the
  * jQuery object `window.smartphone` publishes, and that runs jQuery-registered handlers only.
  *
  * @function createPaneButton
@@ -33373,347 +34042,7 @@ const _runBeforeBoot = function () {
   // add smartphone stylesheet
   const style = document.createElement('style');
   style.textContent = '\
-body {\
-  color: #fff;\
-}\
-\
-#updatestatus {\
-  background: #262c32;\
-  width: 100%;\
-  color: #d4d5d6;\
-  border: 0;\
-  padding: 0;\
-  padding-bottom: var(--safe-area-inset-bottom);\
-  padding-left: var(--safe-area-inset-left);\
-  padding-right: var(--safe-area-inset-right);\
-  right: 0;\
-}\
-\
-#updatestatus .map {\
-  margin-left: 4px;\
-}\
-\
-#innerstatus {\
-  padding: 4px;\
-  float: right;\
-  width: 50%;\
-  text-overflow: ellipsis;\
-  white-space: nowrap;\
-  overflow: hidden;\
-  -moz-box-sizing: border-box;\
-  -webkit-box-sizing: border-box;\
-  box-sizing: border-box;\
-}\
-\
-#loadlevel {\
-  border-width: 0;\
-  background: transparent;\
-  color: #FFF;\
-}\
-\
-#mobileinfo {\
-  float: left;\
-  width: 50%;\
-  text-overflow: ellipsis;\
-  white-space: nowrap;\
-  overflow: hidden;\
-  position:relative;\
-  padding: 4px 0;\
-  -moz-box-sizing: border-box;\
-  -webkit-box-sizing: border-box;\
-  box-sizing: border-box;\
-  transition: opacity 0.2s ease;\
-}\
-\
-#mobileinfo.loading {\
-  opacity: 0.6;\
-}\
-\
-#mobileinfo .portallevel {\
-  padding: 0 0.25em;\
-  color: #FFF;\
-}\
-\
-#mobileinfo .resonators-container {\
-}\
-\
-#mobileinfo .resonator {\
-  position: absolute;\
-  width: 12%;\
-  height: 100%;\
-  top: 0;\
-  border-top: 3px solid var(--resonator-color, #ccc);\
-  box-sizing: border-box;\
-}\
-\
-/* Position resonators based on their data-slot value */\
-#mobileinfo .resonator[data-slot="0"] { left: 0%; }\
-#mobileinfo .resonator[data-slot="1"] { left: 12.5%; }\
-#mobileinfo .resonator[data-slot="2"] { left: 25%; }\
-#mobileinfo .resonator[data-slot="3"] { left: 37.5%; }\
-#mobileinfo .resonator[data-slot="4"] { left: 50%; }\
-#mobileinfo .resonator[data-slot="5"] { left: 62.5%; }\
-#mobileinfo .resonator[data-slot="6"] { left: 75%; }\
-#mobileinfo .resonator[data-slot="7"] { left: 87.5%; }\
-\
-#mobileinfo .resonator.empty {\
-  border-top-color: transparent;\
-}\
-\
-/* Keep the north indicator (the dot above north resonators) */\
-#mobileinfo .resonator.north:before {\
-  content: "";\
-  background-color: var(--resonator-color, red);\
-  border-radius: 100%;\
-  display: block;\
-  height: 6px;\
-  width: 6px;\
-  left: 50%;\
-  top: -3px;\
-  margin-left: -3px;\
-  position: absolute;\
-  z-index: 1;\
-}\
-\
-#mobileinfo .filllevel {\
-  position: absolute;\
-  bottom: 0;\
-  height: 3px;\
-}\
-\
-#mobileinfo .enl .filllevel {\
-  background-color: #03fe03 !important;\
-}\
-\
-#mobileinfo .res .filllevel {\
-  background-color: #00c5ff !important;\
-}\
-\
-#mobileinfo .mac .filllevel {\
-  background-color: #ff0028 !important;\
-}\
-\
-#playerstat {\
-  height: initial;\
-}\
-\
-#playerstat h2 {\
-  display: flex;\
-  justify-content: space-between;\
-  flex-wrap: wrap;\
-  padding: 5px;\
-}\
-\
-#playerstat h2 #name {\
-  display: flex;\
-  align-items: center;\
-}\
-\
-#playerstat h2 #name .playername,\
-#playerstat h2 #name:hover .playername{\
-  max-width: 60vw;\
-}\
-\
-#playerstat h2 #stats {\
-  white-space: nowrap;\
-  overflow: initial;\
-}\
-\
-#name #signout { /* no hover, always show signout button */\
-  display: inline-block;\
-  position: initial;\
-  margin-left: 4px;\
-}\
-\
-#searchwrapper .ui-accordion-header {\
-  padding: 0.3em 0;\
-}\
-#searchwrapper li {\
-  line-height: 1.3em;\
-}\
-\
-#chatcontrols {\
-  height: 38px;\
-  width: 100%;\
-  left: 0;\
-  display: none !important;\
-}\
-\
-/* hide shrink button */\
-#chatcontrols a:first-child {\
-  display: none;\
-}\
-\
-#chatcontrols a {\
-  width: 50px;\
-  height:36px;\
-  overflow: hidden;\
-  vertical-align: middle;\
-  line-height: 36px;\
-  text-decoration: none;\
-  -moz-box-sizing: border-box;\
-  -webkit-box-sizing: border-box;\
-  box-sizing: border-box;\
-}\
-\
-#chat {\
-  left: 0;\
-  right: 0;\
-  top: 1px !important;\
-  bottom: 30px;\
-  width: auto;\
-  height: auto;\
-  margin-top: var(--safe-area-inset-top);\
-  margin-bottom: var(--safe-area-inset-bottom);\
-  padding-right: var(--safe-area-inset-right);\
-}\
-\
-#chatinput {\
-  width: 100%;\
-  height: calc(var(--safe-area-inset-bottom) + 30px);\
-  padding-right: var(--safe-area-inset-right);\
-}\
-\
-#chat td:nth-child(2), #chatinput td:nth-child(2) {\
-  width: 77px;\
-}\
-\
-#chatcontrols a.active {\
-  border-color: #FFCE00;\
-  border-bottom-width:0px;\
-  font-weight:bold\
-}\
-\
-#chatcontrols a.active + a {\
-  border-left-color: #FFCE00\
-}\
-\
-#sidebartoggle {\
-  display: none !important;\
-}\
-\
-#scrollwrapper {\
-  bottom: 0;\
-  max-height: none !important;\
-  width: 100% !important;\
-  right: 0;\
-  left: 0;\
-  box-sizing: border-box;\
-}\
-\
-#sidebar {\
-  width: 100% !important;\
-  min-height: 100%;\
-  border:0;\
-}\
-\
-#sidebar > * {\
-  width: 100%;\
-}\
-\
-#portaldetails {\
-  min-height: 0;\
-}\
-\
-.fullimg {\
-  width: 100%;\
-}\
-\
-/*\
- * for some reason leaflet popups on mobile are colored white on white\
- * so force the popup msg color to black\
- */\
-.leaflet-popup-content{\
-    color:black;\
-}\
-\
-\
-/* add extra padding, and a button effect, to sidebar link areas */\
-.linkdetails aside  {\
-  padding: 5px;\
-  margin-top: 3px;\
-  margin-bottom: 3px;\
-  border: 2px outset #20A8B1;\
-}\
-\
-#toolbox > a, #toolbox_component > a {\
-  padding: 5px;\
-  margin-top: 3px;\
-  margin-bottom: 3px;\
-  border: 2px outset #20A8B1;\
-}\
-\
-#portaldetails .close {\
-  padding: 4px;\
-  border: 1px outset #20A8B1;\
-  margin-top: 2px;\
-}\
-\
-/* Position fix for edge-to-edge screens */\
-#scrollwrapper {\
-  top: 0;\
-  bottom: 0;\
-  left: 0;\
-  right: 0;\
-}\
-\
-.safe-area-insets,\
-#scrollwrapper {\
-  padding-top: var(--safe-area-inset-top);\
-  padding-bottom: var(--safe-area-inset-bottom);\
-  padding-left: var(--safe-area-inset-left);\
-  padding-right: var(--safe-area-inset-right);\
-}\
-\
-body.sidebar-open .leaflet-right {\
-  margin-right: var(--safe-area-inset-right);\
-}\
-\
-/* FIX ME\
-   Quick and dirty hack to fix scale-bar position\
-   Permanent solution should include fixes for attribution control too\
-   https://github.com/IITC-CE/ingress-intel-total-conversion/issues/89\
-*/\
-.leaflet-bottom {\
-  bottom: 5px;\
-}\
-\
-/* Controls for mobile view without an app */\
-:root {\
-  --top-controls-height: 38px;\
-}\
-\
-body.show-controls #chatcontrols {\
-  box-sizing: border-box;\
-  display: flex !important;\
-  top: 0;\
-  padding-top: var(--safe-area-inset-top);\
-  padding-left: var(--safe-area-inset-left);\
-  padding-right: var(--safe-area-inset-right);\
-  overflow-x: auto;\
-  width: calc(100% - 1px);\
-  height: calc(var(--top-controls-height) + var(--safe-area-inset-top));\
-}\
-\
-body.show-controls #chatcontrols a {\
-  flex: 1;\
-  min-width: fit-content;\
-  padding: 0 5px;\
-}\
-\
-body.show-controls #map {\
-  height: calc(100vh - var(--top-controls-height) - 25px);\
-  margin-top: var(--top-controls-height);\
-}\
-\
-body.show-controls #scrollwrapper {\
-  margin-top: var(--top-controls-height)\
-}\
-\
-body.show-controls #chat {\
-  top: var(--top-controls-height) !important;\
-}\
-';
+body{color:#fff}#updatestatus{color:#d4d5d6;width:100%;padding:0;padding-bottom:var(--safe-area-inset-bottom);padding-left:var(--safe-area-inset-left);padding-right:var(--safe-area-inset-right);background:#262c32;border:0;right:0}#updatestatus .map{margin-left:4px}#innerstatus{float:right;text-overflow:ellipsis;white-space:nowrap;box-sizing:border-box;width:50%;padding:4px;overflow:hidden}#loadlevel{color:#fff;background:0 0;border-width:0}#mobileinfo{float:left;text-overflow:ellipsis;white-space:nowrap;box-sizing:border-box;width:50%;padding:4px 0;transition:opacity .2s;position:relative;overflow:hidden}#mobileinfo.loading{opacity:.6}#mobileinfo .portallevel{color:#fff;padding:0 .25em}#mobileinfo .resonator{border-top:3px solid var(--resonator-color,#ccc);box-sizing:border-box;width:12%;height:100%;position:absolute;top:0}#mobileinfo .resonator[data-slot="0"]{left:0%}#mobileinfo .resonator[data-slot="1"]{left:12.5%}#mobileinfo .resonator[data-slot="2"]{left:25%}#mobileinfo .resonator[data-slot="3"]{left:37.5%}#mobileinfo .resonator[data-slot="4"]{left:50%}#mobileinfo .resonator[data-slot="5"]{left:62.5%}#mobileinfo .resonator[data-slot="6"]{left:75%}#mobileinfo .resonator[data-slot="7"]{left:87.5%}#mobileinfo .resonator.empty{border-top-color:#0000}#mobileinfo .resonator.north:before{content:"";background-color:var(--resonator-color,red);z-index:1;border-radius:100%;width:6px;height:6px;margin-left:-3px;display:block;position:absolute;top:-3px;left:50%}#mobileinfo .filllevel{height:3px;position:absolute;bottom:0}#mobileinfo .enl .filllevel{background-color:var(--color-enl)!important}#mobileinfo .res .filllevel{background-color:var(--color-res)!important}#mobileinfo .mac .filllevel{background-color:var(--color-mac)!important}#playerstat{height:initial}#playerstat h2{flex-wrap:wrap;justify-content:space-between;padding:5px;display:flex}#playerstat h2 #name{align-items:center;display:flex}#playerstat h2 #name .playername,#playerstat h2 #name:hover .playername{max-width:60vw}#playerstat h2 #stats{white-space:nowrap;overflow:initial}#name #signout{position:initial;margin-left:4px;display:inline-block}#searchwrapper .ui-accordion-header{padding:.3em 0}#searchwrapper li{line-height:1.3em}#chatcontrols{width:100%;height:38px;left:0;display:none!important}#chatcontrols a:first-child{display:none}#chatcontrols a{vertical-align:middle;box-sizing:border-box;width:50px;height:36px;line-height:36px;text-decoration:none;overflow:hidden}#chat{width:auto;height:auto;margin-top:var(--safe-area-inset-top);margin-bottom:var(--safe-area-inset-bottom);padding-right:var(--safe-area-inset-right);bottom:30px;left:0;right:0;top:1px!important}#chatinput{width:100%;height:calc(var(--safe-area-inset-bottom) + 30px);padding-right:var(--safe-area-inset-right)}#chat td:nth-child(2),#chatinput td:nth-child(2){width:77px}#chatcontrols a.active{border-color:var(--color-primary);border-bottom-width:0;font-weight:700}#chatcontrols a.active+a{border-left-color:var(--color-primary)}#scrollwrapper{box-sizing:border-box;bottom:0;left:0;right:0;width:100%!important;max-height:none!important}#sidebar{border:0;min-height:100%;width:100%!important}#sidebar>*{width:100%}#portaldetails{min-height:0}.fullimg{width:100%}.leaflet-popup-content{color:#000}.linkdetails aside,#toolbox>a,#toolbox_component>a{border:2px outset var(--color-bg-border);margin-top:3px;margin-bottom:3px;padding:5px}#portaldetails .close{border:1px outset var(--color-bg-border);font-size:22px}#scrollwrapper{top:0;bottom:0;left:0;right:0}.safe-area-insets,#scrollwrapper{padding-top:var(--safe-area-inset-top);padding-bottom:var(--safe-area-inset-bottom);padding-left:var(--safe-area-inset-left);padding-right:var(--safe-area-inset-right)}body.sidebar-open .leaflet-right{margin-right:var(--safe-area-inset-right)}.leaflet-bottom{bottom:5px}:root{--top-controls-height:38px}body.show-controls #chatcontrols{box-sizing:border-box;padding-top:var(--safe-area-inset-top);padding-left:var(--safe-area-inset-left);padding-right:var(--safe-area-inset-right);width:calc(100% - 1px);height:calc(var(--top-controls-height) + var(--safe-area-inset-top));top:0;overflow-x:auto;display:flex!important}body.show-controls #chatcontrols a{flex:1;min-width:fit-content;padding:0 5px}body.show-controls #map{height:calc(100vh - var(--top-controls-height) - 25px);margin-top:var(--top-controls-height)}body.show-controls #scrollwrapper{margin-top:var(--top-controls-height)}body.show-controls #chat{top:var(--top-controls-height)!important}.iitc-options .iitc-options-page button{min-height:34px;padding:5px 10px}.iitc-options .iitc-options-buttons{gap:8px}.iitc-options .iitc-options-page .iitc-options-icon-button{min-width:34px}.iitc-options .iitc-options-page .iitc-options-icon-button iitc-icon{font-size:20px}.iitc-options input[type=radio]{width:20px;height:20px}.iitc-options .iitc-options-page-link{padding:8px}.iitc-options .iitc-options-back{min-width:36px;min-height:36px}.iitc-options .iitc-options-back iitc-icon{font-size:24px}.iitc-prompt-text{font-size:16px}';
   document.head.append(style);
 
   window.smartphone.mapButton = createPaneButton('map');
@@ -33798,47 +34127,6 @@ IITC.statusbar.renderTemplate = (template, replacements) => {
   return result;
 };
 
-// Visibility state
-IITC.statusbar._htmlEnabled = true; // whether HTML element has content to display
-IITC.statusbar._paneVisible = true; // whether current pane wants statusbar visible
-
-/**
- * Updates the actual visibility of the statusbar element.
- * Visible only when both HTML is enabled and current pane wants it shown.
- *
- * @function IITC.statusbar._updateVisibility
- * @private
- */
-IITC.statusbar._updateVisibility = function () {
-  const el = document.getElementById('updatestatus');
-  if (!el) return;
-  el.style.display = this._htmlEnabled && this._paneVisible ? '' : 'none';
-};
-
-/**
- * Enables the HTML statusbar element on the page.
- * Plugins can call this to display custom content in the statusbar
- * even when the app handles default status information.
- *
- * @function IITC.statusbar.enableHtml
- */
-IITC.statusbar.enableHtml = function () {
-  this._htmlEnabled = true;
-  this._updateVisibility();
-};
-
-/**
- * Disables the HTML statusbar element on the page.
- * Called automatically when the app handles all status information via native APIs.
- * The statusbar module continues to work (sending data to app), only the HTML block is hidden.
- *
- * @function IITC.statusbar.disableHtml
- */
-IITC.statusbar.disableHtml = function () {
-  this._htmlEnabled = false;
-  this._updateVisibility();
-};
-
 /**
  * Shows the statusbar (pane-level visibility).
  * Called by pane-switching code when the map view is active.
@@ -33846,8 +34134,8 @@ IITC.statusbar.disableHtml = function () {
  * @function IITC.statusbar.show
  */
 IITC.statusbar.show = function () {
-  this._paneVisible = true;
-  this._updateVisibility();
+  const el = document.getElementById('updatestatus');
+  if (el) el.style.display = '';
 };
 
 /**
@@ -33857,8 +34145,8 @@ IITC.statusbar.show = function () {
  * @function IITC.statusbar.hide
  */
 IITC.statusbar.hide = function () {
-  this._paneVisible = false;
-  this._updateVisibility();
+  const el = document.getElementById('updatestatus');
+  if (el) el.style.display = 'none';
 };
 
 /**
@@ -33941,9 +34229,9 @@ IITC.statusbar.init = function () {
     }
   }
 
-  // Disable HTML statusbar when app handles all status information
+  // The app shows all status information, so the statusbar only hosts plugin elements
   if (!this.showHtmlPortalInfo && !this.showHtmlMapInfo) {
-    this.disableHtml();
+    document.getElementById('updatestatus').classList.add('ghost');
   }
 
   // Set up portal selection hook - initial update with basic data
@@ -34373,7 +34661,7 @@ var log = ulog('toolbox');
  * @property {string|null} [title] - Optional. The title (tooltip) for the button.
  * @property {string|null} [accessKey] - Optional. The access key for the button.
  * @property {Function|null} [mouseover] - Optional. The mouseover event for the button.
- * @property {string|null} [icon] - Optional. Icon name from FontAwesome for the button.
+ * @property {string|null} [icon] - Optional. Material Symbols ligature name for the button, or a Font Awesome class such as "fa-book".
  */
 
 IITC.toolbox = {
@@ -34488,7 +34776,7 @@ IITC.toolbox = {
     if (typeof buttonData.mouseover === 'function') buttonElement.onmouseover = buttonData.mouseover;
 
     if (typeof buttonData.icon === 'string') {
-      const iconHTML = `<i class="fa ${buttonData.icon}"></i>`;
+      const iconHTML = buttonData.icon.startsWith('fa-') ? `<i class="fa ${buttonData.icon}"></i>` : `<iitc-icon>${buttonData.icon}</iitc-icon>`;
       buttonElement.innerHTML = iconHTML + buttonElement.innerHTML;
     }
 
@@ -35238,7 +35526,7 @@ IITC.registerLegacyAliases(window.IITC.utils, legacyFunctionMappings);
 // *** module: utils_file.js ***
 (function () {
 var log = ulog('utils_file');
-/* global L, log -- eslint */
+/* global IITC, L, log -- eslint */
 
 /**
  * @file This file provides utilities for handling files in an environment-independent way, including
@@ -35274,18 +35562,6 @@ function saveAs(data, filename, dataType) {
 
   URL.revokeObjectURL(objectURL);
 } // alternative: https://github.com/eligrey/FileSaver.js/blob/master/src/FileSaver.js
-
-/**
- * Saves data to a file with the given filename. This function is an alias to the `saveAs` function.
- * or it can use the IITC Mobile file chooser (overwritten in app.js). The `dataType` parameter can be used to filter
- * file types in the IITCm file chooser.
- *
- * @function saveFile
- * @param {string|BlobPart|BlobPart[]} data - The data to be saved.
- * @param {string} [filename] - The name of the file to save.
- * @param {string} [dataType] - The MIME type of the file, used to specify the file format.
- */
-window.saveFile = saveAs;
 
 /**
  * Leaflet wrapper over [FileReader](https://w3c.github.io/FileAPI/#APIASynch) Web API,
@@ -35563,132 +35839,191 @@ L.FileListLoader.loadFiles = function (options) {
   return loader;
 };
 
-
-})();
-
-
-// *** module: utils_polyfills.js ***
-(function () {
-var log = ulog('utils_polyfills');
 /**
- * @file Misc polyfills
+ * Hands text over to the user: to the share sheet in the app, elsewhere in a dialog with a button
+ * that copies it to the clipboard
  *
- * @module utils_polyfills
+ * @memberof IITC.utils
+ * @param {string} text - Text to hand over
+ * @param {Object} [options]
+ * @param {string} [options.title='Export'] - Title of the dialog
  */
-
-if (!String.prototype.capitalize) {
-  Object.defineProperty(String.prototype, 'capitalize', {
-    value: function () {
-      return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
-    },
-  });
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith#polyfill
-if (!String.prototype.startsWith) {
-  Object.defineProperty(String.prototype, 'startsWith', {
-    value: function (search, rawPos) {
-      var pos = rawPos > 0 ? rawPos | 0 : 0;
-      return this.substring(pos, pos + search.length) === search;
-    },
-  });
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/trunc#polyfill
-// (required for KitKat support)
-if (!Math.trunc) {
-  Math.trunc = function (v) {
-    return v < 0 ? Math.ceil(v) : Math.floor(v);
-  };
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find#polyfill
-// https://tc39.github.io/ecma262/#sec-array.prototype.find
-if (!Array.prototype.find) {
-  Object.defineProperty(Array.prototype, 'find', {
-    value: function (predicate) {
-      // 1. Let O be ? ToObject(this value).
-      if (this === null) {
-        throw TypeError('"this" is null or not defined');
-      }
-
-      var o = Object(this);
-
-      // 2. Let len be ? ToLength(? Get(O, "length")).
-      var len = o.length >>> 0;
-
-      // 3. If IsCallable(predicate) is false, throw a TypeError exception.
-      if (typeof predicate !== 'function') {
-        throw TypeError('predicate must be a function');
-      }
-
-      // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
-      var thisArg = arguments[1];
-
-      // 5. Let k be 0.
-      var k = 0;
-
-      // 6. Repeat, while k < len
-      while (k < len) {
-        // a. Let Pk be ! ToString(k).
-        // b. Let kValue be ? Get(O, Pk).
-        // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
-        // d. If testResult is true, return kValue.
-        var kValue = o[k];
-        if (predicate.call(thisArg, kValue, k, o)) {
-          return kValue;
+const exportText = (text, { title = 'Export' } = {}) => {
+  if (window.isApp && window.app?.shareString) {
+    window.app.shareString(text);
+    return;
+  }
+  const textarea = document.createElement('textarea');
+  textarea.className = 'iitc-export-text';
+  textarea.readOnly = true;
+  textarea.value = text;
+  textarea.addEventListener('focus', () => textarea.select());
+  window.dialog({
+    title,
+    html: textarea,
+    width: 600,
+    // a second export replaces the first
+    id: 'iitc-export-text',
+    buttons: {
+      Copy: (event) => {
+        const button = event.currentTarget;
+        // the selection lets the user copy by hand where the clipboard is not available
+        textarea.select();
+        if (!navigator.clipboard) {
+          button.textContent = 'Press Ctrl+C';
+          return;
         }
-        // e. Increase k by 1.
-        k++;
-      }
-
-      // 7. Return undefined.
-      return undefined;
+        navigator.clipboard.writeText(text).then(
+          () => {
+            button.textContent = 'Copied';
+          },
+          (e) => {
+            button.textContent = 'Press Ctrl+C';
+            log.warn('Could not copy to the clipboard', e);
+          }
+        );
+      },
     },
-    configurable: true,
-    writable: true,
   });
-}
+};
 
-// https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#polyfill
-if (!Element.prototype.matches) {
-  Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
-}
+/**
+ * Asks the user for text in a dialog
+ *
+ * @memberof IITC.utils
+ * @param {Object} [options]
+ * @param {string} [options.title='Import'] - Title of the dialog
+ * @param {string} [options.label] - Explanation above the text field
+ * @returns {Promise<string|undefined>} The text without surrounding white space, or undefined when
+ *                                      nothing was entered or the dialog is closed without OK
+ */
+const importText = ({ title = 'Import', label = 'Paste the text here' } = {}) =>
+  new Promise((resolve) => {
+    const content = document.createElement('div');
+    const text = document.createElement('p');
+    text.textContent = label;
+    const textarea = document.createElement('textarea');
+    textarea.className = 'iitc-import-text';
+    content.append(text, textarea);
+    window.dialog({
+      title,
+      html: content,
+      width: 600,
+      // a second import closes the first, which then resolves with undefined
+      id: 'iitc-import-text',
+      buttons: {
+        OK: function () {
+          resolve(textarea.value.trim() || undefined);
+          $(this).dialog('close');
+        },
+      },
+      closeCallback: () => resolve(undefined),
+    });
+  });
 
-if (!Element.prototype.closest) {
-  Element.prototype.closest = function (s) {
-    var el = this;
-
-    do {
-      if (Element.prototype.matches.call(el, s)) return el;
-      el = el.parentElement || el.parentNode;
-    } while (el !== null && el.nodeType === 1);
-    return null;
-  };
-}
-
-// https://github.com/KhaledElAnsari/String.prototype.padStart/blob/master/index.js
-if (!String.prototype.padStart) {
-  String.prototype.padStart = function (targetLength, padString) {
-    targetLength = Math.floor(targetLength) || 0;
-    if (targetLength < this.length) return String(this);
-
-    padString = padString ? String(padString) : ' ';
-
-    var pad = '';
-    var len = targetLength - this.length;
-    var i = 0;
-    while (pad.length < len) {
-      if (!padString[i]) {
-        i = 0;
-      }
-      pad += padString[i];
-      i++;
+/**
+ * Asks the user for a line of text, such as a name, in a dialog. OK or Enter applies it
+ *
+ * @memberof IITC.utils
+ * @param {Object} [options]
+ * @param {string} [options.title='Enter text'] - Title of the dialog
+ * @param {string} [options.label] - Explanation above the text field
+ * @param {string} [options.value=''] - Text the field starts with
+ * @param {Function} [options.validate] - Receives the text without surrounding white space and returns true,
+ *                                        or a message shown in the dialog, which then stays open
+ * @returns {Promise<string|undefined>} The text without surrounding white space, or undefined when
+ *                                      nothing was entered or the dialog is closed without OK
+ */
+const promptText = ({ title = 'Enter text', label, value = '', validate } = {}) =>
+  new Promise((resolve) => {
+    const content = document.createElement('div');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'iitc-prompt-text';
+    input.value = value;
+    const error = document.createElement('p');
+    error.className = 'iitc-prompt-error';
+    error.setAttribute('role', 'alert');
+    if (label) {
+      const text = document.createElement('p');
+      text.textContent = label;
+      content.append(text);
     }
+    content.append(input, error);
 
-    return pad + String(this).slice(0);
-  };
-}
+    const submit = (box) => {
+      const text = input.value.trim();
+      let check;
+      try {
+        check = text && validate ? validate(text) : true;
+      } catch (e) {
+        check = String(e?.message ?? e);
+      }
+      if (check !== true) {
+        error.textContent = check;
+        input.focus();
+        return;
+      }
+      resolve(text || undefined);
+      $(box).dialog('close');
+    };
+    const box = window.dialog({
+      title,
+      html: content,
+      // a second prompt closes the first, which then resolves with undefined
+      id: 'iitc-prompt-text',
+      buttons: {
+        OK: function () {
+          submit(this);
+        },
+      },
+      closeCallback: () => resolve(undefined),
+    });
+    input.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      submit(box);
+    });
+    input.focus();
+  });
+
+/**
+ * Saves data as a file: downloads it, or in the app lets the user pick where to save it,
+ * with `dataType` filtering the file types the app offers
+ *
+ * @memberof IITC.utils
+ * @param {string} data - The data to save; the app takes only strings
+ * @param {string} [filename] - Suggested file name
+ * @param {string} [dataType] - MIME type of the file
+ */
+const exportFile = (data, filename, dataType) => {
+  if (window.app?.saveFile) {
+    window.app.saveFile(filename || '', dataType || '*/*', data);
+  } else {
+    saveAs(data, filename, dataType);
+  }
+};
+
+/**
+ * Lets the user pick files and reads them as text
+ *
+ * @memberof IITC.utils
+ * @param {Object} [options]
+ * @param {string} [options.accept] - File types to offer, as in the `accept` attribute of a file input
+ * @param {boolean} [options.multiple=false] - Allows picking more than one file
+ * @returns {Promise<Array<{name: string, text: string}>>} The files that could be read; stays pending
+ *                                                       when the user closes the file chooser without picking
+ */
+const importFile = ({ accept, multiple = false } = {}) =>
+  new Promise((resolve) => {
+    const files = [];
+    // an accept of undefined would become the attribute value 'undefined'
+    L.FileListLoader.loadFiles(accept === undefined ? { multiple } : { accept, multiple })
+      .on('load', (e) => files.push({ name: e.file.name, text: e.reader.result }))
+      .on('loaded', () => resolve(files));
+  });
+
+Object.assign(IITC.utils, { exportText, importText, promptText, exportFile, importFile });
 
 
 })();

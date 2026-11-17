@@ -2,7 +2,7 @@
 // @author         johnd0e
 // @name           IITC plugin: Hide portal levels
 // @category       Layer
-// @version        0.1.3
+// @version        0.1.4
 // @description    Replace all levels with single layerChooser's entry; reverting on longclick
 // @id             hide-portal-levels
 // @namespace      https://github.com/IITC-CE/ingress-intel-total-conversion
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'release';
-plugin_info.dateTimeVersion = '2025-08-29-160722';
+plugin_info.dateTimeVersion = '2026-11-13-181142';
 plugin_info.pluginId = 'hide-portal-levels';
 //END PLUGIN AUTHORS NOTE
 
@@ -36,6 +36,7 @@ hideLevels.layerFilterRegexp = new RegExp(/Level \d* Portals/);
 hideLevels.initCollapsed = true;
 
 var changelog = [
+  { version: '0.1.4', changes: ['Refactoring: update Leaflet API usage'] },
   {
     version: '0.1.3',
     changes: ['Refactoring: fix eslint'],
@@ -57,7 +58,7 @@ var changelog = [
 function setup() {
   var ctrl = window.layerChooser;
 
-  hideLevels.portals = L.layerGroup();
+  hideLevels.portals = new L.LayerGroup();
 
   var levels = ctrl._layers.filter(function (data) {
     return data.overlay && (data.name === 'Unclaimed/Placeholder Portals' || data.name.match(hideLevels.layerFilterRegexp));
